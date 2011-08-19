@@ -61,12 +61,30 @@ class Actions(object):
         action = XJ.XBMC_PREV
         self.__sendJson(action)
                 
+    def StartPlaying(self):
+        
+        from XBMCJson import XBMCJson
+
+        XJ = XBMCJson()
+
+        action = XJ.XBMC_START
+        self.__sendJson(action)
+                
+    def StopPlaying(self):
+        
+        from XBMCJson import XBMCJson
+
+        XJ = XBMCJson()
+
+        action = XJ.XBMC_STOP
+        self.__sendJson(action)
+                
     def __sendJson(self, JsonObject):
         import select
 
         action = JsonObject
         self.__s.send(bytes(action, 'UTF-8'))
-        
+
         # Print the results
         while True:
             response = self.__s.recv(0x4000).decode('UTF-8')

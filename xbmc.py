@@ -19,6 +19,10 @@ def main():
             REMOTE.PlayPrevious()
         elif command == "pause" or command == "play":
             REMOTE.PlayPause()
+        elif command == "start":
+            REMOTE.StartPlaying()
+        elif command == "stop":
+            REMOTE.StopPlaying()
         else:
             print("Unknown command.")
                     
