@@ -65,7 +65,7 @@ class Actions(object):
     def __sendJson(self, JsonObject):
 
         action = JsonObject
-        self.__s.send(bytes(action, 'UTF-8'))
+        self.__s.send(action)
 
         self.__logResponse()
         
@@ -74,7 +74,7 @@ class Actions(object):
         log = logging.getLogger("responses")
         # Print the results
         while True:
-            response = self.__s.recv(0x4000).decode('UTF-8')
+            response = self.__s.recv(0x4000)
             log.debug(response)
     
             if len(select.select([self.__s], [], [], 0)[0]) == 0:
@@ -84,7 +84,7 @@ class Actions(object):
         response = []
         # Print the results
         while True:
-            response.append(self.__s.recv(0x4000)).decode('UTF-8')
+            response.append(self.__s.recv(0x4000))
     
             if len(select.select([self.__s], [], [], 0)[0]) == 0:
                 return response;

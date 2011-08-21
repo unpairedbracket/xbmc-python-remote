@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python
 
 from Actions import Actions
 
@@ -10,7 +10,7 @@ def main():
     REMOTE.getSocket(_MYXBMCADDR, _MYXBMCPORT)
     
     while True:
-        command = input("What should I do? ")
+        command = raw_input("What should I do? ")
         if command == "exit":
             break
         elif command == "next":
