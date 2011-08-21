@@ -1,0 +1,12 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Name=XBMC Remote
+GenericName=Remote
+X-GNOME-FullName=XBMC Remote
+Comment=Remotely Control XBMC installations on other computers
+Exec=/home/ben/Development/xbmc-python-remote/xbmc.py
+Terminal=true
+Type=Application
+Icon=rhythmbox
+Categories=GNOME;GTK;AudioVideo;
+StartupNotify=true
