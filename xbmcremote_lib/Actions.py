@@ -66,8 +66,7 @@ class Actions(object):
 
         action = JsonObject
         self.__s.send(action)
-
-        self.__logResponse()
+        print self.__returnResponse()
         
     def __logResponse(self):    
         import logging

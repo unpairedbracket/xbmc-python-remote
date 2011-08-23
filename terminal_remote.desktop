@@ -1,11 +1,11 @@
 #!/usr/bin/env xdg-open
 [Desktop Entry]
-Name=XBMC Remote
+Name=XBMC Remote (Terminal)
 GenericName=Remote
 X-GNOME-FullName=XBMC Remote
 Comment=Remotely Control XBMC installations on other computers
-Exec=/home/ben/Development/xbmc-python-remote/bin/xbmcremote --gui
-Terminal=false
+Exec=/home/ben/Development/xbmc-python-remote/bin/xbmcremote --no_gui
+Terminal=true
 Type=Application
 Icon=xbmc
 Categories=GNOME;GTK;AudioVideo;

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-from Actions import Actions
+from xbmcremote_lib.Actions import Actions
 
 def main():
     _MYXBMCADDR = "192.168.0.66"

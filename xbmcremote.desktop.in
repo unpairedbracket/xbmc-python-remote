@@ -1,0 +1,8 @@
+[Desktop Entry]
+_Name=Xbmcremote
+_Comment=Xbmcremote application
+Categories=GNOME;Utility;
+Exec=xbmcremote
+Icon=xbmcremote
+Terminal=false
+Type=Application
