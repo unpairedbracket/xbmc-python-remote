@@ -41,6 +41,7 @@ def main():
     # TODO: replace defaults with your own values
     default_preferences = {
     'ip_entry': '192.168.0.1',
+    'port_entry': '9090',
     }
     preferences.update(default_preferences)
     # user's stored preferences are used for 2nd and subsequent sessions

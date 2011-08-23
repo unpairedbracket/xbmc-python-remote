@@ -25,13 +25,13 @@ class XbmcremoteWindow(Window):
         """Set up the main window"""
         super(XbmcremoteWindow, self).finish_initializing(builder)
         _MYXBMCADDR = preferences.get("ip_entry")
-        _MYXBMCPORT = 9090
+        _MYXBMCPORT = preferences.get("port_entry")
         self.controls = Actions()
         self.AboutDialog = AboutXbmcremoteDialog
         self.PreferencesDialog = PreferencesXbmcremoteDialog
         address_label = self.ui.connected_to
-        if self.controls.getSocket(_MYXBMCADDR, _MYXBMCPORT):
-            address_label.set_label("Connected to: "+_MYXBMCADDR)
+        if self.controls.getSocket(_MYXBMCADDR, int(_MYXBMCPORT)):
+            address_label.set_label("Connected to: "+_MYXBMCADDR+":"+_MYXBMCPORT)
         else:
             address_label.set_label("Connection Failed!")
         # Code for other initialization actions should be added here.
