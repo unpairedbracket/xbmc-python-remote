@@ -22,19 +22,41 @@ XBMC_PREV = buildJson("AudioPlayer.SkipPrevious")
 def decodeAnnouncement(Json):
     #check last first to return the latest valid Announcement message
     for i in reversed(Json):
-        js = decoder.decode(i)
-        #check for a valid Announcement
-        if js.get(u'method') == u'Announcement':
-            message = js.get(u'params').get(u'message')
-            return message
+        try:
+            js = decoder.decode(i)
+            #check for a valid Announcement
+            if js.get(u'method') == u'Announcement':
+                message = js.get(u'params').get(u'message')
+                return message
+        except ValueError:
+            pass
+    return decodeError(Json)
 
 def decodeResponse(Json):
     #check last first to return the latest valid result
     for i in reversed(Json):
-        js = decoder.decode(i)
-        #check for a valid response
-        if js.has_key(u'id'):
-            result = js.get(u'result')
-            return result
-            
-                
+        try:
+            js = decoder.decode(i)
+            #check for a valid response
+            if js.has_key(u'error'):
+                break
+            if js.has_key(u'id'):
+                result = js.get(u'result')
+                return result
+        except ValueError:
+            pass
+    return decodeError(Json)
+
+def decodeError(Json):
+    
+    for i in reversed(Json):
+        try:
+            js = decoder.decode(i)
+            #check for an error
+            if js.has_key(u'error'):
+                result = js.get(u'error')
+                return result
+        except ValueError:
+            pass
+    #if nothing found, return empty dictionary
+    return {}
