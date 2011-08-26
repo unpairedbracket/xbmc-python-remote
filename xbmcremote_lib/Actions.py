@@ -6,6 +6,7 @@ Created on Aug 17, 2011
 
 import socket
 import select
+import XBMCJsonObjects as XJ
 
 class Actions(object):
     '''
@@ -16,19 +17,14 @@ class Actions(object):
         '''
         Constructor
         '''
-        from XBMCJsonObjects import XBMCJson
-        self.XJ = XBMCJson()
+
         #create an INET, STREAMing socket
         self.__s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     
     def getSocket(self, IpAddress, Port):
         
         #now connect
-        try:
-            self.__s.connect((IpAddress, Port))
-            return True
-        except socket.error:
-            return False
+        self.__s.connect((IpAddress, Port))
         
     def closeSocket(self):
         
@@ -39,51 +35,57 @@ class Actions(object):
     
     def PlayPause(self):
         
-        action = self.XJ.XBMC_PLAY
-        self.__sendJson(action)
+        action = XJ.XBMC_PLAY
+        return XJ.decodeAnnouncement(self.__sendJson(action))
                 
     def PlayNext(self):
         
-        action = self.XJ.XBMC_NEXT
-        self.__sendJson(action)
+        action = XJ.XBMC_NEXT
+        return XJ.decodeAnnouncement(self.__sendJson(action))
                 
     def PlayPrevious(self):
         
-        action = self.XJ.XBMC_PREV
-        self.__sendJson(action)
+        action = XJ.XBMC_PREV
+        return XJ.decodeAnnouncement(self.__sendJson(action))
                 
     def StartPlaying(self):
         
-        action = self.XJ.XBMC_START
-        self.__sendJson(action)
+        action = XJ.XBMC_START
+        return XJ.decodeAnnouncement(self.__sendJson(action, 1.0))
                 
     def StopPlaying(self):
         
-        action = self.XJ.XBMC_STOP
-        self.__sendJson(action)
+        action = XJ.XBMC_STOP
+        return XJ.decodeAnnouncement(self.__sendJson(action))
+    
+    def sendCustomRequest(self, method, params = {}, announcement=True):
+        
+        action = XJ.buildJson(method, params, 'custom')
+        if announcement:
+            return XJ.decodeAnnouncement(self.__sendJson(action))
+        else:
+            return XJ.decodeResponse(self.__sendJson(action))
+
+
                 
-    def __sendJson(self, JsonObject):
+    def __sendJson(self, JsonObject, timeout=0.1):
 
         action = JsonObject
         self.__s.send(action)
-        print self.__returnResponse()
-        
-    def __logResponse(self):    
-        import logging
-        log = logging.getLogger("responses")
-        # Print the results
+        #Some functions take unusually long to respond to
+        self.__s.settimeout(timeout)
+        responses = []
         while True:
-            response = self.__s.recv(0x4000)
-            log.debug(response)
-    
-            if len(select.select([self.__s], [], [], 0)[0]) == 0:
-                break;
+            try: 
+                responses.append(self.__returnResponse())
+            except socket.timeout:
+                return responses
                 
     def __returnResponse(self):    
-        response = []
+        response = ""
         # Print the results
         while True:
-            response.append(self.__s.recv(0x4000))
+            response = response + (self.__s.recv(0x4000))
     
             if len(select.select([self.__s], [], [], 0)[0]) == 0:
                 return response;

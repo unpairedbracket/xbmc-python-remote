@@ -30,14 +30,23 @@ class XbmcremoteWindow(Window):
         self.AboutDialog = AboutXbmcremoteDialog
         self.PreferencesDialog = PreferencesXbmcremoteDialog
         address_label = self.ui.connected_to
-        if self.controls.getSocket(_MYXBMCADDR, int(_MYXBMCPORT)):
+        try:
+            self.controls.getSocket(_MYXBMCADDR, int(_MYXBMCPORT))
             address_label.set_label("Connected to: "+_MYXBMCADDR+":"+_MYXBMCPORT)
-        else:
+        except:
             address_label.set_label("Connection Failed!")
         # Code for other initialization actions should be added here.
+        self.playerstate = self.controls.sendCustomRequest("AudioPlayer.State", announcement=False)
+        
+        if self.playerstate.get("paused") == False:
+            self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PAUSE)
+        else:
+            self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PLAY)
+
 
     def on_playback_play_clicked(self, widget, data=None):
-        self.controls.PlayPause()
+        response = self.controls.PlayPause()
+        self.actOnAction(response)
 
     def on_playback_next_clicked(self, widget, data=None):
         self.controls.PlayNext()
@@ -47,3 +56,10 @@ class XbmcremoteWindow(Window):
 
     def on_xbmcremote_window_destroy(self, widget, data=None):
         self.controls.closeSocket()
+
+    def actOnAction(self, action):
+        if action == "PlaybackResumed":
+            self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PAUSE)
+        elif action == "PlaybackPaused":
+            self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PLAY)
+            
