@@ -8,6 +8,7 @@ from gettext import gettext as _
 gettext.textdomain('xbmcremote')
 
 import gtk
+import gobject
 import logging
 logger = logging.getLogger('xbmcremote')
 
@@ -33,19 +34,32 @@ class XbmcremoteWindow(Window):
         try:
             self.controls.getSocket(_MYXBMCADDR, int(_MYXBMCPORT))
             address_label.set_label("Connected to: "+_MYXBMCADDR+":"+_MYXBMCPORT)
+            self.connected = True
         except:
             address_label.set_label("Connection Failed!")
+            self.connected = False
         # Code for other initialization actions should be added here.
-        self.playerstate = self.controls.sendCustomRequest("AudioPlayer.State", announcement=False)
-        
+        self.updatePlaying()
+        gobject.timeout_add(1000, self.updatePlaying)
+    
+    def updatePlaying(self):
+        self.playerstate = self.controls.sendCustomRequest("AudioPlayer.State", announcement=False)   
         if self.playerstate.get("paused") == False:
+            self.playing = True
             self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PAUSE)
-        else:
+        elif self.playerstate.get("paused") == True:
+            self.playing = True
             self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PLAY)
-
+        else:
+            self.playing = False
+            self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PLAY)
+        return True
 
     def on_playback_play_clicked(self, widget, data=None):
-        response = self.controls.PlayPause()
+        if not self.playing:
+            response = self.controls.StartPlaying()
+        else:
+            response = self.controls.PlayPause()
         self.actOnAction(response)
 
     def on_playback_next_clicked(self, widget, data=None):
