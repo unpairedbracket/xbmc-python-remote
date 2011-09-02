@@ -58,6 +58,27 @@ class Actions(object):
         action = XJ.XBMC_STOP
         return XJ.decodeAnnouncement(self.__sendJson(action))
     
+    def GetArtists(self):
+        
+        action = XJ.GetArtists()
+        artistlist = self.__sendJson(action, 0.5)
+        artists = ["".join(artistlist)]
+        return XJ.decodeResponse(artists)
+    
+    def GetAlbums(self, artistid=-1):
+        
+        action = XJ.GetAlbums(artistid)
+        albumlist = self.__sendJson(action, 0.5)
+        albums = ["".join(albumlist)]
+        return XJ.decodeResponse(albums)
+    
+    def GetSongs(self, artistid=-1, albumid=-1):
+        
+        action = XJ.GetSongs(artistid, albumid)
+        songlist = self.__sendJson(action, 0.5)
+        songs = ["".join(songlist)]
+        return XJ.decodeResponse(songs)
+    
     def sendCustomRequest(self, method, params = {}, announcement=True):
         
         action = XJ.buildJson(method, params, 'custom')
@@ -65,9 +86,7 @@ class Actions(object):
             return XJ.decodeAnnouncement(self.__sendJson(action))
         else:
             return XJ.decodeResponse(self.__sendJson(action))
-
-
-                
+                  
     def __sendJson(self, JsonObject, timeout=0.1):
 
         action = JsonObject

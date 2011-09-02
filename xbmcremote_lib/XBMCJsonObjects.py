@@ -12,21 +12,36 @@ decoder = json.JSONDecoder()
 def buildJson(method, params={}, identifier=1):
     jsonstring = {"jsonrpc": "2.0", "method": method, "params": params, "id": identifier}
     return encoder.encode(jsonstring)
-
+#Control
 XBMC_START = buildJson("AudioPlaylist.Play")
 XBMC_STOP = buildJson("AudioPlayer.Stop")
 XBMC_PLAY = buildJson("AudioPlayer.PlayPause")
 XBMC_NEXT = buildJson("AudioPlayer.SkipNext")
 XBMC_PREV = buildJson("AudioPlayer.SkipPrevious")
+
+#Library Requests
+def GetArtists():
+    return buildJson("AudioLibrary.GetArtists")
+
+def GetAlbums(artistid=-1):
     
+    params = {"artistid": artistid}
+    return buildJson("AudioLibrary.GetAlbums", params)
+
+def GetSongs(artistid=-1, albumid=-1):
+    
+    params = {"artistid": artistid, "albumid": albumid}
+    return buildJson("AudioLibrary.GetSongs", params)
+
+# TODO: improve decoding
 def decodeAnnouncement(Json):
     #check last first to return the latest valid Announcement message
     for i in reversed(Json):
         try:
             js = decoder.decode(i)
             #check for a valid Announcement
-            if js.get(u'method') == u'Announcement':
-                message = js.get(u'params').get(u'message')
+            if js['method'] == 'Announcement':
+                message = js['params']['message']
                 return message
         except ValueError:
             pass
@@ -41,7 +56,7 @@ def decodeResponse(Json):
             if js.has_key(u'error'):
                 break
             if js.has_key(u'id'):
-                result = js.get(u'result')
+                result = js['result']
                 return result
         except ValueError:
             pass
@@ -54,7 +69,7 @@ def decodeError(Json):
             js = decoder.decode(i)
             #check for an error
             if js.has_key(u'error'):
-                result = js.get(u'error')
+                result = js['error']
                 return result
         except ValueError:
             pass
