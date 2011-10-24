@@ -31,31 +31,36 @@ from xbmcremote_lib.preferences import preferences
 from xbmcremote.AboutXbmcremoteDialog import AboutXbmcremoteDialog
 from xbmcremote.PreferencesXbmcremoteDialog import PreferencesXbmcremoteDialog
 
+from threading import Thread
+
 # See xbmcremote_lib.Window.py for more details about how this class works
 class XbmcremoteWindow(Window):
-    __gtype_name__ = "XbmcremoteWindow"
+    __gtype_name__ = 'XbmcremoteWindow'
 
     def finish_initializing(self, builder): # pylint: disable=E1002
-        """Set up the main window"""
+        '''Set up the main window'''
         super(XbmcremoteWindow, self).finish_initializing(builder)
-        _MYXBMCADDR = preferences["ip_entry"]
-        _MYXBMCPORT = preferences["port_entry"]
+        _MYXBMCADDR = preferences['ip_entry']
+        _MYXBMCPORT = preferences['port_entry']
         self.controls = Actions()
         self.AboutDialog = AboutXbmcremoteDialog
         self.PreferencesDialog = PreferencesXbmcremoteDialog
         address_label = self.ui.connected_to
         try:
             self.controls.getSocket(_MYXBMCADDR, int(_MYXBMCPORT))
-            address_label.set_label("Connected to: "+_MYXBMCADDR+":"+_MYXBMCPORT)
+            address_label.set_label('Connected to: '+_MYXBMCADDR+':'+_MYXBMCPORT)
             self.connected = True
         except:
-            address_label.set_label("Connection Failed!")
+            address_label.set_label('Connection Failed!')
             self.connected = False
         # Code for other initialization actions should be added here.
+        gobject.threads_init()
+        self.artistid = self.albumid = self.songid = -1
+        if self.connected:
+            Thread(target=self.updateLibrary).start()
+        self.playing = False
         self.updatePlaying()
         gobject.timeout_add(1000, self.updatePlaying)
-        self.artistid = self.albumid = self.songid = -1
-        self.updateLibrary()
         
     def updateLibrary(self):
         self.getArtists()
@@ -64,11 +69,13 @@ class XbmcremoteWindow(Window):
     
     def updatePlaying(self):
         try:
-            self.playerstate = self.controls.sendCustomRequest("AudioPlayer.State", announcement=False)   
-            if self.playerstate["paused"] == False:
+            self.playerstate = self.controls.sendCustomRequest('AudioPlayer.State', announcement=False)
+            if self.playerstate['type'] != 'response':
+                pass
+            elif self.playerstate['data']['paused'] == False:
                 self.playing = True
                 self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PAUSE)
-            elif self.playerstate["paused"] == True:
+            elif self.playerstate['data']['paused'] == True:
                 self.playing = True
                 self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PLAY)
             else:
@@ -79,45 +86,58 @@ class XbmcremoteWindow(Window):
             return True
     
     def getArtists(self):
-        artistlist = self.ui.artist_list
-        artists = self.controls.GetArtists()['artists']
+        artistview = self.ui.artist_list
+        
+        while True:
+            artistlist = self.controls.GetArtists()
+            if artistlist['type'] == 'response':
+                break
+        artists = artistlist['data']['artists']
         
         artist_grid = DictionaryGrid(artists, keys=['label'])
-        artist_grid.columns['label'].set_title("Artist")
-        artist_grid.connect("selection_changed", self.newArtist)
+        artist_grid.columns['label'].set_title('Artist')
+        artist_grid.connect('selection_changed', self.newArtist)
         artist_grid.show()
         
-        artistlist.add(artist_grid)
+        artistview.add(artist_grid)
     
     def getAlbums(self):
-        albumlist = self.ui.album_list
+        albumview = self.ui.album_list
         
-        for c in albumlist.get_children():
-            albumlist.remove(c)
+        for c in albumview.get_children():
+            albumview.remove(c)
         
-        albums = self.controls.GetAlbums(self.artistid)['albums']
+        while True:
+            albumlist = self.controls.GetAlbums(self.artistid)
+            if albumlist['type'] == 'response':
+                break
+        albums = albumlist['data']['albums']
         
         album_grid = DictionaryGrid(albums, keys=['label'])
-        album_grid.columns['label'].set_title("Album")
-        album_grid.connect("selection_changed", self.newAlbum)
+        album_grid.columns['label'].set_title('Album')
+        album_grid.connect('selection_changed', self.newAlbum)
         album_grid.show()
         
-        albumlist.add(album_grid)
+        albumview.add(album_grid)
     
     def getSongs(self):
-        songlist = self.ui.song_list
+        songview = self.ui.song_list
         
-        for c in songlist.get_children():
-            songlist.remove(c)
+        for c in songview.get_children():
+            songview.remove(c)
 
-        songs = self.controls.GetSongs(self.artistid, self.albumid)['songs']
+        while True:
+            songlist = self.controls.GetSongs(self.artistid, self.albumid)
+            if songlist['type'] == 'response':
+                break
+        songs = songlist['data']['songs']
         
         song_grid = DictionaryGrid(songs, keys=['label'])
-        song_grid.columns['label'].set_title("Title")
-        song_grid.connect("selection_changed", self.newSong)
+        song_grid.columns['label'].set_title('Title')
+        song_grid.connect('selection_changed', self.newSong)
         song_grid.show()
         
-        songlist.add(song_grid)
+        songview.add(song_grid)
     
     def newArtist(self, widget, data=None):
         self.artistid = data[0]['artistid']
@@ -149,9 +169,11 @@ class XbmcremoteWindow(Window):
         self.controls.closeSocket()
 
     def actOnAction(self, action):
-        if action == "PlaybackResumed":
+        if action['data'] == 'PlaybackResumed' or action['data'] == 'PlaybackStarted':
+            self.playing = True
             self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PAUSE)
-        elif action == "PlaybackPaused":
+        elif action['data'] == 'PlaybackPaused':
+            self.playing = True
             self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PLAY)
             
             

@@ -42,8 +42,8 @@ def decodeAnnouncement(Json):
             #check for a valid Announcement
             if js['method'] == 'Announcement':
                 message = js['params']['message']
-                return message
-        except ValueError:
+                return {'type': 'announcement', 'data': message}
+        except (ValueError, KeyError):
             pass
     return decodeError(Json)
 
@@ -57,7 +57,7 @@ def decodeResponse(Json):
                 break
             if js.has_key(u'id'):
                 result = js['result']
-                return result
+                return {'type': 'response', 'data': result}
         except ValueError:
             pass
     return decodeError(Json)
@@ -70,8 +70,8 @@ def decodeError(Json):
             #check for an error
             if js.has_key(u'error'):
                 result = js['error']
-                return result
+                return {'type': 'error', 'data': result}
         except ValueError:
             pass
     #if nothing found, return empty dictionary
-    return {}
+    return {'type': 'none', 'data': {}}

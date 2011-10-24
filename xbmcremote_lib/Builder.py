@@ -15,7 +15,7 @@
 
 '''Enhances builder connections, provides object to access glade objects'''
 
-from gi.repository import GObject  # pylint: disable=E0611
+import gobject  # pylint: disable=E0611
 
 import gtk
 import inspect
@@ -248,11 +248,11 @@ def auto_connect_by_name(callback_obj, builder):
         try:
             widget_type = type(widget)
             while widget_type:
-                signal_ids.extend(GObject.signal_list_ids(widget_type))
-                widget_type = GObject.type_parent(widget_type)
+                signal_ids.extend(gobject.signal_list_ids(widget_type))
+                widget_type = gobject.type_parent(widget_type)
         except RuntimeError:  # pylint wants a specific error
             pass
-        signal_names = [GObject.signal_name(sid) for sid in signal_ids]
+        signal_names = [gobject.signal_name(sid) for sid in signal_ids]
 
         # Now, automatically find any the user didn't specify in glade
         for sig in signal_names:
