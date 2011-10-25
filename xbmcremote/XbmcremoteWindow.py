@@ -92,11 +92,14 @@ class XbmcremoteWindow(Window):
             artistlist = self.controls.GetArtists()
             if artistlist['type'] == 'response':
                 break
-        artists = artistlist['data']['artists']
-        
+        artists = sorted(artistlist['data']['artists'], key = lambda k: k['label'])
+        artists.insert(0, {'artistid': -1, 'label': '[All Artists]'})
         artist_grid = DictionaryGrid(artists, keys=['label'])
-        artist_grid.columns['label'].set_title('Artist')
-        artist_grid.connect('selection_changed', self.newArtist)
+        
+        artist_grid.columns['label'].set_title('Artists')
+        artist_grid.set_headers_clickable(False)
+        
+        artist_grid.connect('selection_changed', self.threadNewArtist)
         artist_grid.show()
         
         artistview.add(artist_grid)
@@ -104,39 +107,45 @@ class XbmcremoteWindow(Window):
     def getAlbums(self):
         albumview = self.ui.album_list
         
-        for c in albumview.get_children():
-            albumview.remove(c)
-        
         while True:
             albumlist = self.controls.GetAlbums(self.artistid)
             if albumlist['type'] == 'response':
                 break
-        albums = albumlist['data']['albums']
-        
+        albums = sorted(albumlist['data']['albums'], key = lambda k: k['label'])
+        albums.insert(0, {'albumid': -1, 'label': '[All Albums]'})        
         album_grid = DictionaryGrid(albums, keys=['label'])
-        album_grid.columns['label'].set_title('Album')
-        album_grid.connect('selection_changed', self.newAlbum)
+        
+        album_grid.columns['label'].set_title('Albums')
+        album_grid.set_headers_clickable(False)
+        
+        album_grid.connect('selection_changed', self.threadNewAlbum)
         album_grid.show()
+        
+        for c in albumview.get_children():
+            albumview.remove(c)
         
         albumview.add(album_grid)
     
     def getSongs(self):
         songview = self.ui.song_list
-        
-        for c in songview.get_children():
-            songview.remove(c)
 
         while True:
             songlist = self.controls.GetSongs(self.artistid, self.albumid)
             if songlist['type'] == 'response':
                 break
-        songs = songlist['data']['songs']
-        
+        songs = sorted(songlist['data']['songs'], key = lambda k: k['label'])
+        songs.insert(0, {'songid': -1, 'label': '[All Songs]'})
         song_grid = DictionaryGrid(songs, keys=['label'])
-        song_grid.columns['label'].set_title('Title')
-        song_grid.connect('selection_changed', self.newSong)
-        song_grid.show()
         
+        song_grid.columns['label'].set_title('Songs')
+        song_grid.set_headers_clickable(False)
+        
+        song_grid.connect('selection_changed', self.threadNewSong)
+        song_grid.show() 
+        
+        for c in songview.get_children():
+            songview.remove(c)
+            
         songview.add(song_grid)
     
     def newArtist(self, widget, data=None):
@@ -144,13 +153,22 @@ class XbmcremoteWindow(Window):
         self.albumid = -1
         self.getAlbums()
         self.getSongs()
+        
+    def threadNewArtist(self, widget, data=None):
+        Thread(target=self.newArtist, args=(widget, data)).start()
 
     def newAlbum(self, widget, data=None):
         self.albumid = data[0]['albumid']
         self.getSongs()
 
+    def threadNewAlbum(self, widget, data=None):
+        Thread(target=self.newAlbum, args=(widget, data)).start()
+
     def newSong(self, widget, data=None):
         self.songid = data[0]['songid']
+
+    def threadNewSong(self, widget, data=None):
+        Thread(target=self.newSong, args=(widget, data)).start()
 
     def on_playback_play_clicked(self, widget, data=None):
         if not self.playing:
