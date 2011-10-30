@@ -28,6 +28,7 @@ from quickly.widgets.grid_column import IntegerColumn
 from xbmcremote_lib import Window
 from xbmcremote_lib.Actions import Actions
 from xbmcremote_lib.preferences import preferences
+from xbmcremote_lib.sound_menu import SoundMenuControls
 from xbmcremote.AboutXbmcremoteDialog import AboutXbmcremoteDialog
 from xbmcremote.PreferencesXbmcremoteDialog import PreferencesXbmcremoteDialog
 
@@ -54,7 +55,17 @@ class XbmcremoteWindow(Window):
             address_label.set_label('Connection Failed!')
             self.connected = False
         # Code for other initialization actions should be added here.
+        
+        #sound menu integration
+        self.sound_menu = SoundMenuControls('xbmcremote')
+        self.sound_menu._sound_menu_next = self.next
+        self.sound_menu._sound_menu_previous = self.prev
+        self.sound_menu._sound_menu_pause = self.sound_menu._sound_menu_play = self.play     
+        self.sound_menu._sound_menu_is_playing = self.isPlaying   
+        self.sound_menu._sound_menu_raise = self.show
+        
         gobject.threads_init()
+        
         self.artistid = self.albumid = self.songid = -1
         if self.connected:
             Thread(target=self.updateLibrary).start()
@@ -74,16 +85,26 @@ class XbmcremoteWindow(Window):
                 pass
             elif self.playerstate['data']['paused'] == False:
                 self.playing = True
+                self.paused = False
                 self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PAUSE)
             elif self.playerstate['data']['paused'] == True:
                 self.playing = True
+                self.paused = True
                 self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PLAY)
             else:
                 self.playing = False
+                self.paused = True
                 self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PLAY)
             return True
         finally:
             return True
+    
+    def isPlaying(self):
+        try:
+            self.paused
+        except AttributeError:
+            self.paused = False
+        return not self.paused 
     
     def getArtists(self):
         artistview = self.ui.artist_list
@@ -101,6 +122,9 @@ class XbmcremoteWindow(Window):
         
         artist_grid.connect('selection_changed', self.threadNewArtist)
         artist_grid.show()
+        
+        for c in artistview.get_children():
+            artistview.remove(c)
         
         artistview.add(artist_grid)
     
@@ -169,19 +193,34 @@ class XbmcremoteWindow(Window):
 
     def threadNewSong(self, widget, data=None):
         Thread(target=self.newSong, args=(widget, data)).start()
+        
+    def play(self):
+        self.on_playback_play_clicked(None, None)
 
     def on_playback_play_clicked(self, widget, data=None):
         if not self.playing:
             response = self.controls.StartPlaying()
+            self.sound_menu.song_changed()
         else:
             response = self.controls.PlayPause()
         self.actOnAction(response)
+        
+    def next(self):
+        self.on_playback_next_clicked(None, None)
 
     def on_playback_next_clicked(self, widget, data=None):
         self.controls.PlayNext()
+        self.sound_menu.song_changed()
+        
+    def prev(self):
+        self.on_playback_previous_clicked(None, None)
 
     def on_playback_previous_clicked(self, widget, data=None):
         self.controls.PlayPrevious()
+        self.sound_menu.song_changed()
+
+    def on_refresh_clicked(self, widget, data=None):
+        Thread(target=self.updateLibrary).start()
 
     def on_xbmcremote_window_destroy(self, widget, data=None):
         self.controls.closeSocket()
@@ -190,8 +229,9 @@ class XbmcremoteWindow(Window):
         if action['data'] == 'PlaybackResumed' or action['data'] == 'PlaybackStarted':
             self.playing = True
             self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PAUSE)
+            self.sound_menu.signal_playing()
         elif action['data'] == 'PlaybackPaused':
             self.playing = True
             self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PLAY)
-            
+            self.sound_menu.signal_paused()
             

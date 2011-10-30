@@ -24,6 +24,7 @@ import gtk
 from xbmcremote import XbmcremoteWindow, xbmc
 
 from xbmcremote_lib import set_up_logging, preferences, get_version
+from dbus.mainloop.glib import DBusGMainLoop
 
 def parse_options():
     """Support for command line options"""
@@ -44,6 +45,9 @@ def parse_options():
     return options
 
 def main():
+    #turn on the dbus mainloop
+    DBusGMainLoop(set_as_default=True)
+
     'constructor for your class instances'
     options = parse_options()
     # preferences
@@ -57,6 +61,8 @@ def main():
     # user's stored preferences are used for 2nd and subsequent sessions
     preferences.db_connect()
     preferences.load()
+
+
     if options.gui:
         # Run the application.
         window = XbmcremoteWindow.XbmcremoteWindow()

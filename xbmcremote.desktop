@@ -1,4 +1,3 @@
-#!/usr/bin/env xdg-open
 [Desktop Entry]
 Name=XBMC Remote
 GenericName=Remote
@@ -8,5 +7,8 @@ Exec=/home/ben/Development/xbmc-python-remote/bin/xbmcremote --gui
 Terminal=false
 Type=Application
 Icon=xbmc
-Categories=GNOME;GTK;AudioVideo;
+Categories=GNOME;GTK;AudioVideo;Audio;Music;Player;
 StartupNotify=true
+MimeType=application/x-ogg;application/ogg;audio/x-vorbis+ogg;audio/x-scpls;audio/x-mp3;audio/x-mpeg;audio/mpeg;audio/x-mpegurl;audio/x-flac;
+Name[en_GB]=XBMC Remote
+
