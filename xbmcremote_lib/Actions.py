@@ -104,7 +104,7 @@ class Actions(object):
         response = ""
         # Print the results
         while True:
-            response = response + (self.__s.recv(0x4000))
+            response += (self.__s.recv(0x4000))
     
             if len(select.select([self.__s], [], [], 0)[0]) == 0:
                 return response;
