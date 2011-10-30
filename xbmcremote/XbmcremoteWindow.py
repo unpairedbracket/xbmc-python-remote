@@ -23,7 +23,6 @@ import logging
 logger = logging.getLogger('xbmcremote')
 
 from quickly.widgets.dictionary_grid import DictionaryGrid
-from quickly.widgets.grid_column import IntegerColumn
 
 from xbmcremote_lib import Window
 from xbmcremote_lib.Actions import Actions
@@ -58,8 +57,8 @@ class XbmcremoteWindow(Window):
         
         #sound menu integration
         self.sound_menu = SoundMenuControls('xbmcremote')
-        self.sound_menu._sound_menu_next = self.next
-        self.sound_menu._sound_menu_previous = self.prev
+        self.sound_menu._sound_menu_next = self.nextSong
+        self.sound_menu._sound_menu_previous = self.prevSong
         self.sound_menu._sound_menu_pause = self.sound_menu._sound_menu_play = self.play     
         self.sound_menu._sound_menu_is_playing = self.isPlaying   
         self.sound_menu._sound_menu_raise = self.show
@@ -80,7 +79,7 @@ class XbmcremoteWindow(Window):
     
     def updatePlaying(self):
         try:
-            self.playerstate = self.controls.sendCustomRequest('AudioPlayer.State', announcement=False)
+            self.playerstate = self.controls.checkState()
             if self.playerstate['type'] != 'response':
                 pass
             elif self.playerstate['data']['paused'] == False:
@@ -205,14 +204,14 @@ class XbmcremoteWindow(Window):
             response = self.controls.PlayPause()
         self.actOnAction(response)
         
-    def next(self):
+    def nextSong(self):
         self.on_playback_next_clicked(None, None)
 
     def on_playback_next_clicked(self, widget, data=None):
         self.controls.PlayNext()
         self.sound_menu.song_changed()
         
-    def prev(self):
+    def prevSong(self):
         self.on_playback_previous_clicked(None, None)
 
     def on_playback_previous_clicked(self, widget, data=None):

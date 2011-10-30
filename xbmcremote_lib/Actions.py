@@ -7,6 +7,7 @@ Created on Aug 17, 2011
 import socket
 import select
 import XBMCJsonObjects as XJ
+import JSONDecoder as decoder
 
 class Actions(object):
     '''
@@ -36,56 +37,61 @@ class Actions(object):
     def PlayPause(self):
         
         action = XJ.XBMC_PLAY
-        return XJ.decodeAnnouncement(self.__sendJson(action))
+        return decoder.decodeAnnouncement(self.__sendJson(action))
                 
     def PlayNext(self):
         
         action = XJ.XBMC_NEXT
-        return XJ.decodeAnnouncement(self.__sendJson(action))
+        return decoder.decodeAnnouncement(self.__sendJson(action))
                 
     def PlayPrevious(self):
         
         action = XJ.XBMC_PREV
-        return XJ.decodeAnnouncement(self.__sendJson(action))
+        return decoder.decodeAnnouncement(self.__sendJson(action))
                 
     def StartPlaying(self):
         
         action = XJ.XBMC_START
-        return XJ.decodeAnnouncement(self.__sendJson(action, 1.0))
+        return decoder.decodeAnnouncement(self.__sendJson(action, 1.0))
                 
     def StopPlaying(self):
         
         action = XJ.XBMC_STOP
-        return XJ.decodeAnnouncement(self.__sendJson(action))
+        return decoder.decodeAnnouncement(self.__sendJson(action))
     
     def GetArtists(self):
         
         action = XJ.GetArtists()
         artistlist = self.__sendJson(action, 0.5)
         artists = ["".join(artistlist)]
-        return XJ.decodeResponse(artists)
+        return decoder.decodeResponse(artists)
     
     def GetAlbums(self, artistid=-1):
         
         action = XJ.GetAlbums(artistid)
         albumlist = self.__sendJson(action, 0.5)
         albums = ["".join(albumlist)]
-        return XJ.decodeResponse(albums)
+        return decoder.decodeResponse(albums)
     
     def GetSongs(self, artistid=-1, albumid=-1):
         
         action = XJ.GetSongs(artistid, albumid)
         songlist = self.__sendJson(action, 0.5)
         songs = ["".join(songlist)]
-        return XJ.decodeResponse(songs)
+        return decoder.decodeResponse(songs)
     
+    def checkState(self):
+        
+        action = XJ.XBMC_STATE
+        return decoder.decodeResponse(self.__sendJson(action))
+                  
     def sendCustomRequest(self, method, params = {}, announcement=True):
         
         action = XJ.buildJson(method, params, 'custom')
         if announcement:
-            return XJ.decodeAnnouncement(self.__sendJson(action))
+            return decoder.decodeAnnouncement(self.__sendJson(action))
         else:
-            return XJ.decodeResponse(self.__sendJson(action))
+            return decoder.decodeResponse(self.__sendJson(action))
                   
     def __sendJson(self, JsonObject, timeout=0.1):
 
