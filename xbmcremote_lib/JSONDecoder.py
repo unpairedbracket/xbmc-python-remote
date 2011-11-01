@@ -3,9 +3,8 @@ Created on 30 Oct 2011
 
 @author: ben
 '''
-from json import JSONEncoder, JSONDecoder
+from json import JSONDecoder
 
-encoder = JSONEncoder()
 decoder = JSONDecoder()
 
 def decodeAnnouncement(Json):
