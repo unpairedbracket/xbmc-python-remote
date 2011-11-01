@@ -30,8 +30,10 @@ from xbmcremote_lib.preferences import preferences
 from xbmcremote_lib.sound_menu import SoundMenuControls
 from xbmcremote.AboutXbmcremoteDialog import AboutXbmcremoteDialog
 from xbmcremote.PreferencesXbmcremoteDialog import PreferencesXbmcremoteDialog
+from xbmcremote.ErrorDialog import ErrorDialog
 
 from threading import Thread
+import socket
 
 # See xbmcremote_lib.Window.py for more details about how this class works
 class XbmcremoteWindow(Window):
@@ -40,21 +42,26 @@ class XbmcremoteWindow(Window):
     def finish_initializing(self, builder): # pylint: disable=E1002
         '''Set up the main window'''
         super(XbmcremoteWindow, self).finish_initializing(builder)
-        _MYXBMCADDR = preferences['ip_entry']
-        _MYXBMCPORT = preferences['port_entry']
-        self.controls = Actions()
+        self.controls = Actions(self)
         self.AboutDialog = AboutXbmcremoteDialog
         self.PreferencesDialog = PreferencesXbmcremoteDialog
-        address_label = self.ui.connected_to
-        try:
-            self.controls.getSocket(_MYXBMCADDR, int(_MYXBMCPORT))
-            address_label.set_label('Connected to: '+_MYXBMCADDR+':'+_MYXBMCPORT)
-            self.connected = True
-        except:
-            address_label.set_label('Connection Failed!')
-            self.connected = False
-        # Code for other initialization actions should be added here.
+        self.ErrorDialog = ErrorDialog
         
+        # Code for other initialization actions should be added here.
+        # Make my threads work
+        gobject.threads_init()
+        
+        self.playing = self.paused = False
+        self.artistid = self.albumid = self.songid = -1
+        self.ip = preferences['ip_entry']
+        self.port = int(preferences['port_entry'])
+        
+        self.connect_to_xbmc()
+        if self.connected:
+            self.updateLibrary()
+            self.updatePlaying()
+            gobject.timeout_add(1000, self.updatePlaying)
+
         #sound menu integration
         self.sound_menu = SoundMenuControls('xbmcremote')
         self.sound_menu._sound_menu_next = self.nextSong
@@ -63,107 +70,77 @@ class XbmcremoteWindow(Window):
         self.sound_menu._sound_menu_is_playing = self.isPlaying   
         self.sound_menu._sound_menu_raise = self.show
         
-        gobject.threads_init()
-        
-        self.artistid = self.albumid = self.songid = -1
-        if self.connected:
-            Thread(target=self.updateLibrary).start()
-        self.playing = False
-        self.updatePlaying()
-        gobject.timeout_add(1000, self.updatePlaying)
-        
+    def connect_to_xbmc(self):
+        address_label = self.ui.connected_to
+        try:
+            self.controls.getSocket(self.ip, self.port)
+            address_label.set_label('Connected to: '+self.ip+':'+str(self.port))
+            self.connected = True
+        except socket.error:
+            address_label.set_label('Connection Failed!')
+            self.connected = False
+             
     def updateLibrary(self):
-        self.getArtists()
-        self.getAlbums()
-        self.getSongs()
+        self.controls.GetArtists()
+        self.controls.GetAlbums()
+        self.controls.GetSongs()
     
     def updatePlaying(self):
         try:
-            self.playerstate = self.controls.checkState()
-            if self.playerstate['type'] != 'response':
-                pass
-            elif self.playerstate['data']['paused'] == False:
-                self.playing = True
-                self.paused = False
-                self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PAUSE)
-            elif self.playerstate['data']['paused'] == True:
-                self.playing = True
-                self.paused = True
-                self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PLAY)
-            else:
-                self.playing = False
-                self.paused = True
-                self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PLAY)
-            return True
+            self.controls.CheckState()
         finally:
             return True
     
     def isPlaying(self):
-        try:
-            self.paused
-        except AttributeError:
-            self.paused = False
-        return not self.paused 
+        return not self.paused
     
-    def getArtists(self):
+    def updateArtistList(self, artistlist):        
         artistview = self.ui.artist_list
         
-        while True:
-            artistlist = self.controls.GetArtists()
-            if artistlist['type'] == 'response':
-                break
-        artists = sorted(artistlist['data']['artists'], key = lambda k: k['label'])
+        artists = sorted(artistlist['artists'], key = lambda k: k['label'])
         artists.insert(0, {'artistid': -1, 'label': '[All Artists]'})
         artist_grid = DictionaryGrid(artists, keys=['label'])
         
         artist_grid.columns['label'].set_title('Artists')
         artist_grid.set_headers_clickable(False)
         
-        artist_grid.connect('selection_changed', self.threadNewArtist)
+        artist_grid.connect('selection_changed', self.newArtist)
         artist_grid.show()
         
         for c in artistview.get_children():
             artistview.remove(c)
         
         artistview.add(artist_grid)
-    
-    def getAlbums(self):
+            
+    def updateAlbumList(self, albumlist):        
         albumview = self.ui.album_list
-        
-        while True:
-            albumlist = self.controls.GetAlbums(self.artistid)
-            if albumlist['type'] == 'response':
-                break
-        albums = sorted(albumlist['data']['albums'], key = lambda k: k['label'])
+            
+        albums = sorted(albumlist['albums'], key = lambda k: k['label'])
         albums.insert(0, {'albumid': -1, 'label': '[All Albums]'})        
         album_grid = DictionaryGrid(albums, keys=['label'])
         
         album_grid.columns['label'].set_title('Albums')
         album_grid.set_headers_clickable(False)
         
-        album_grid.connect('selection_changed', self.threadNewAlbum)
+        album_grid.connect('selection_changed', self.newAlbum)
         album_grid.show()
         
         for c in albumview.get_children():
             albumview.remove(c)
         
         albumview.add(album_grid)
-    
-    def getSongs(self):
+               
+    def updateSongList(self, songlist):        
         songview = self.ui.song_list
-
-        while True:
-            songlist = self.controls.GetSongs(self.artistid, self.albumid)
-            if songlist['type'] == 'response':
-                break
-        songs = sorted(songlist['data']['songs'], key = lambda k: k['label'])
+             
+        songs = sorted(songlist['songs'], key = lambda k: k['label'])
         songs.insert(0, {'songid': -1, 'label': '[All Songs]'})
         song_grid = DictionaryGrid(songs, keys=['label'])
         
         song_grid.columns['label'].set_title('Songs')
         song_grid.set_headers_clickable(False)
         
-        song_grid.connect('selection_changed', self.threadNewSong)
+        song_grid.connect('selection_changed', self.newSong)
         song_grid.show() 
         
         for c in songview.get_children():
@@ -174,35 +151,25 @@ class XbmcremoteWindow(Window):
     def newArtist(self, widget, data=None):
         self.artistid = data[0]['artistid']
         self.albumid = -1
-        self.getAlbums()
-        self.getSongs()
+        self.controls.GetAlbums(self.artistid)
+        self.controls.GetSongs(self.artistid, self.albumid)
         
-    def threadNewArtist(self, widget, data=None):
-        Thread(target=self.newArtist, args=(widget, data)).start()
-
     def newAlbum(self, widget, data=None):
         self.albumid = data[0]['albumid']
-        self.getSongs()
-
-    def threadNewAlbum(self, widget, data=None):
-        Thread(target=self.newAlbum, args=(widget, data)).start()
+        self.controls.GetSongs(self.artistid, self.albumid)
 
     def newSong(self, widget, data=None):
         self.songid = data[0]['songid']
 
-    def threadNewSong(self, widget, data=None):
-        Thread(target=self.newSong, args=(widget, data)).start()
-        
     def play(self):
         self.on_playback_play_clicked(None, None)
 
     def on_playback_play_clicked(self, widget, data=None):
         if not self.playing:
-            response = self.controls.StartPlaying()
+            self.controls.StartPlaying()
             self.sound_menu.song_changed()
         else:
-            response = self.controls.PlayPause()
-        self.actOnAction(response)
+            self.controls.PlayPause()
         
     def nextSong(self):
         self.on_playback_next_clicked(None, None)
@@ -219,18 +186,28 @@ class XbmcremoteWindow(Window):
         self.sound_menu.song_changed()
 
     def on_refresh_clicked(self, widget, data=None):
-        Thread(target=self.updateLibrary).start()
+        if self.connected:
+            self.updateLibrary()
 
     def on_xbmcremote_window_destroy(self, widget, data=None):
-        self.controls.closeSocket()
+        if self.connected:
+            self.controls.kill()
 
-    def actOnAction(self, action):
-        if action['data'] == 'PlaybackResumed' or action['data'] == 'PlaybackStarted':
-            self.playing = True
-            self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PAUSE)
-            self.sound_menu.signal_playing()
-        elif action['data'] == 'PlaybackPaused':
-            self.playing = True
-            self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PLAY)
-            self.sound_menu.signal_paused()
+    def actOnAction(self, data):
+        if data.has_key('playing') and data.has_key('paused'):
+            self.playing = data['playing']
+            self.paused = data['paused']
+            if data['paused']:
+                self.sound_menu.signal_paused()
+                self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PLAY)
+            else:
+                self.sound_menu.signal_playing()
+                self.ui.playback_play.set_stock_id(gtk.STOCK_MEDIA_PAUSE)
+            
+    def handle_error(self, error):
+        """Display the error box."""
+        if self.ErrorDialog is not None:
+            error_dialog = self.ErrorDialog(error['message'])
+            error_dialog.show()
+
             

@@ -1,116 +1,138 @@
-'''
-Created on Aug 17, 2011
+# -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
+### BEGIN LICENSE
+# Copyright (C) 2011 Ben Spiers # This program is free software: you can redistribute it and/or modify it 
+# under the terms of the GNU General Public License version 3, as published 
+# by the Free Software Foundation.
+# 
+# This program is distributed in the hope that it will be useful, but 
+# WITHOUT ANY WARRANTY; without even the implied warranties of 
+# MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR 
+# PURPOSE.  See the GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License along 
+# with this program.  If not, see <http://www.gnu.org/licenses/>.
+### END LICENSE
 
-@author: benspiers
-'''
-
-import socket
-import select
 import XBMCJsonObjects as XJ
-import JSONDecoder as decoder
+from Sender import Sender
+from Decoder import Decoder
+from Queue import Queue
+from threading import Thread
 
 class Actions(object):
-    '''
-    classdocs
-    '''
 
-    def __init__(self):
-        '''
-        Constructor
-        '''
-
-        #create an INET, STREAMing socket
-        self.__s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    
+    def __init__(self, window):
+        self.window = window
+        self.send = Sender(self)
+        self.queue = Queue()
+        self.decoder = Decoder(self)
+        self.start()
+        
     def getSocket(self, IpAddress, Port):
-        
-        #now connect
-        self.__s.connect((IpAddress, Port))
-        
-    def closeSocket(self):
-        
-        self.__s.shutdown(socket.SHUT_RDWR)
-        self.__s.close()
-    
+        self.send.getSocket(IpAddress, Port) 
 
+    def start(self):
+        responder = Thread(target=self.worker, name='Response daemon')
+        responder.daemon = True
+        responder.start()
+        
+    def add(self, data):
+        self.queue.put(data)
+           
+    def sendCallback(self, jsonlist, callback):
+        json = '[' + jsonlist.replace('}\n{', '},{') + ']'
+        self.decoder.decode(json, callback)
+        
+    def worker(self):
+        while True:
+            try:
+                item = self.queue.get()
+                kind = item['kind']
+                data = item['data']
+                callback = item['callback']
+                #Show a nice error dialog or raise an exception
+                if kind == 'error':
+                    self.handle_error(data)
+                #Use callbacks if the data is for something unconventional
+                elif callback is not None:
+                    callback(data)
+                #Otherwise this will work out what to do with it
+                elif kind == 'response':
+                    if data.has_key('playing') and data.has_key('paused'):
+                        self.window.actOnAction(data)
+                    elif data.has_key('artists'):
+                        self.window.updateArtistList(data)
+                    elif data.has_key('albums'):
+                        self.window.updateAlbumList(data)
+                    elif data.has_key('songs'):
+                        self.window.updateSongList(data)
+                    else:
+                        print data
+                elif kind == 'announcement':
+                    print data
+                else:
+                    print data
+
+            except:
+                #TODO Do something
+                pass
     
+    def handle_error(self, error):
+        if self.window is None:
+            raise RuntimeError(error)
+        else:
+            self.window.handle_error(error)
+        
+    def kill(self):
+        self.send.closeSocket()
+
     def PlayPause(self):
         
         action = XJ.XBMC_PLAY
-        return decoder.decodeAnnouncement(self.__sendJson(action))
+        self.send.add(action)
                 
     def PlayNext(self):
         
         action = XJ.XBMC_NEXT
-        return decoder.decodeAnnouncement(self.__sendJson(action))
+        self.send.add(action)
                 
     def PlayPrevious(self):
         
         action = XJ.XBMC_PREV
-        return decoder.decodeAnnouncement(self.__sendJson(action))
+        self.send.add(action)
                 
     def StartPlaying(self):
         
         action = XJ.XBMC_START
-        return decoder.decodeAnnouncement(self.__sendJson(action, 1.0))
+        self.send.add(action)
                 
     def StopPlaying(self):
         
         action = XJ.XBMC_STOP
-        return decoder.decodeAnnouncement(self.__sendJson(action))
+        self.send.add(action)
     
+    def CheckState(self):
+        
+        action = XJ.XBMC_STATE
+        self.send.add(action)
+                  
     def GetArtists(self):
         
         action = XJ.GetArtists()
-        artistlist = self.__sendJson(action, 0.5)
-        artists = ["".join(artistlist)]
-        return decoder.decodeResponse(artists)
-    
+        self.send.add(action, timeout=0.5)
+            
     def GetAlbums(self, artistid=-1):
         
         action = XJ.GetAlbums(artistid)
-        albumlist = self.__sendJson(action, 0.5)
-        albums = ["".join(albumlist)]
-        return decoder.decodeResponse(albums)
+        self.send.add(action, timeout=0.5)
     
     def GetSongs(self, artistid=-1, albumid=-1):
         
         action = XJ.GetSongs(artistid, albumid)
-        songlist = self.__sendJson(action, 0.5)
-        songs = ["".join(songlist)]
-        return decoder.decodeResponse(songs)
-    
-    def checkState(self):
+        self.send.add(action, timeout=0.5)
         
-        action = XJ.XBMC_STATE
-        return decoder.decodeResponse(self.__sendJson(action))
-                  
-    def sendCustomRequest(self, method, params = {}, announcement=True):
+    def SendCustomRequest(self, method, params={}, callback=None, timeout=0.1):
         
         action = XJ.buildJson(method, params, 'custom')
-        if announcement:
-            return decoder.decodeAnnouncement(self.__sendJson(action))
-        else:
-            return decoder.decodeResponse(self.__sendJson(action))
-                  
-    def __sendJson(self, JsonObject, timeout=0.1):
-
-        action = JsonObject
-        self.__s.send(action)
-        #Some functions take unusually long to respond to
-        self.__s.settimeout(timeout)
-        responses = []
-        while True:
-            try: 
-                responses.append(self.__returnResponse())
-            except socket.timeout:
-                return responses
-                
-    def __returnResponse(self):    
-        response = ""
-        # Print the results
-        while True:
-            response += (self.__s.recv(0x4000))
-    
-            if len(select.select([self.__s], [], [], 0)[0]) == 0:
-                return response;
+        self.send.add(action, callback, timeout)
+        
