@@ -59,6 +59,7 @@ class Window(gtk.Window):
         self.PreferencesDialog = None # class
         self.preferences_dialog = None # instance
         self.AboutDialog = None # class
+        self.ErrorDialog = None # class
 
         preferences.connect('changed', self.on_preferences_changed)
 

@@ -21,17 +21,18 @@ import gettext
 from gettext import gettext as _
 gettext.textdomain('xbmcremote')
 
-class MethodfaileddialogDialog(gtk.Dialog):
-    __gtype_name__ = "MethodfaileddialogDialog"
+class ErrorDialog(gtk.Dialog):
+    __gtype_name__ = "ErrorDialog"
 
-    def __new__(cls):
+    def __new__(cls, error):
         """Special static method that's automatically called by Python when 
         constructing a new instance of this class.
         
-        Returns a fully instantiated MethodfaileddialogDialog object.
+        Returns a fully instantiated ErrorDialog object.
         """
-        builder = get_builder('MethodfaileddialogDialog')
-        new_object = builder.get_object('methodfaileddialog_dialog')
+        builder = get_builder('ErrorDialog')
+        new_object = builder.get_object('error_dialog')
+        new_object.error = error
         new_object.finish_initializing(builder)
         return new_object
 
@@ -39,30 +40,23 @@ class MethodfaileddialogDialog(gtk.Dialog):
         """Called when we're finished initializing.
 
         finish_initalizing should be called after parsing the ui definition
-        and creating a MethodfaileddialogDialog object with it in order to
-        finish initializing the start of the new MethodfaileddialogDialog
+        and creating a ErrorDialog object with it in order to
+        finish initializing the start of the new ErrorDialog
         instance.
         """
         # Get a reference to the builder and set up the signals.
         self.builder = builder
         self.ui = builder.get_ui(self)
+        self.ui.method_failed_label.set_label('Server-side error: ' + self.error)
 
     def on_btn_ok_clicked(self, widget, data=None):
         """The user has elected to save the changes.
 
         Called before the dialog returns gtk.RESONSE_OK from run().
         """
-        pass
-
-    def on_btn_cancel_clicked(self, widget, data=None):
-        """The user has elected cancel changes.
-
-        Called before the dialog returns gtk.RESPONSE_CANCEL for run()
-        """
-        pass
-
+        self.destroy()
 
 if __name__ == "__main__":
-    dialog = MethodfaileddialogDialog()
+    dialog = ErrorDialog()
     dialog.show()
     gtk.main()
