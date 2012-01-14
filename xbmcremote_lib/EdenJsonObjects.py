@@ -22,21 +22,27 @@ def buildJson(method, params={}, identifier=1):
     return encoder.encode(jsonstring)
 
 #Control
-XBMC_START = buildJson("AudioPlaylist.Play")
-XBMC_STOP = buildJson("AudioPlayer.Stop")
-XBMC_PLAY = buildJson("AudioPlayer.PlayPause")
-XBMC_NEXT = buildJson("AudioPlayer.SkipNext")
-XBMC_PREV = buildJson("AudioPlayer.SkipPrevious")
-XBMC_STATE = buildJson("AudioPlayer.State")
+XBMC_START = buildJson("Playlist.Play")
+XBMC_STOP = buildJson("Player.Stop")
+XBMC_PLAY = buildJson("Player.PlayPause")
+XBMC_NEXT = buildJson("Player.SkipNext")
+XBMC_PREV = buildJson("Player.SkipPrevious")
+XBMC_STATE = buildJson("Player.GetProperties", {'playerid': 0, 'properties': ['speed', 'partymode', 'shuffled', 'repeat', 'playlistid']})
 
 #Library Requests
 def GetArtists():
     return buildJson("AudioLibrary.GetArtists")
 
 def GetAlbums(artistid=-1):
-    params = {"artistid": artistid}
+    params = {}
+    if artistid != -1:
+        params['artistid'] = artistid
     return buildJson("AudioLibrary.GetAlbums", params)
 
-def GetSongs(artistid=-1, albumid=-1):    
-    params = {"artistid": artistid, "albumid": albumid}
+def GetSongs(artistid=-1, albumid=-1):
+    params = {}
+    if artistid != -1:
+        params['artistid'] = artistid
+    if albumid != -1:
+        params['albumid'] = albumid
     return buildJson("AudioLibrary.GetSongs", params)

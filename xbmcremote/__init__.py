@@ -21,8 +21,8 @@ gettext.textdomain('xbmcremote')
 
 import gtk
 
-from xbmcremote import XbmcremoteWindow, xbmc
-
+from Controller import Controller
+from interfaces.XbmcremoteWindow import XbmcremoteWindow
 from xbmcremote_lib import set_up_logging, preferences, get_version
 from dbus.mainloop.glib import DBusGMainLoop
 
@@ -61,14 +61,8 @@ def main():
     # user's stored preferences are used for 2nd and subsequent sessions
     preferences.db_connect()
     preferences.load()
-
-
-    if options.gui:
-        # Run the application.
-        window = XbmcremoteWindow.XbmcremoteWindow()
-        window.show()
-        gtk.main()
-    else:
-        xbmc.main()
-
-    preferences.save()
+    
+    try:
+        app = Controller(options.gui)
+    finally:
+        preferences.save()

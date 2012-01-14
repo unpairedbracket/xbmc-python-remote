@@ -38,9 +38,9 @@ class Sender(object):
         self.queue.put(data)
             
     def start(self):
-        work = Thread(target=self.worker, name='Network daemon')
-        work.daemon = True
-        work.start()
+        self.work = Thread(target=self.worker, name='Network thread')
+        self.work.daemon = True
+        self.work.start()
 
     def worker(self):
         while True:
@@ -50,9 +50,9 @@ class Sender(object):
                 callback = item['callback']
                 timeout = item['timeout']
                 self.__send(json, callback, timeout)
-            except:
+            except Exception as ex:
                 #TODO Do something
-                pass
+                print ex
     
     def __send(self, json, callback, timeout):
         self.__s.send(json)
