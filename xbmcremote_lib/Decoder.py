@@ -39,4 +39,4 @@ class Decoder(object):
                 result = i['params']['message']
                 
             data = {'kind': kind, 'data': result, 'callback': callback, 'id': identifier}
-            self.controller.add(data) 
+            self.controller.add(data)

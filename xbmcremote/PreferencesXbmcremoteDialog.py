@@ -35,7 +35,9 @@
 
 widget_methods = {
     'ip_entry': ['get_text', 'set_text', 'changed'],
-    'port_entry': ['get_text', 'set_text', 'changed']
+    'port_entry': ['get_text', 'set_text', 'changed'],
+    'version_combo': ['get_active', 'set_active', 'changed'],
+    'mpris2_check': ['get_active', 'set_active', 'toggled']
 }
 
 import gettext

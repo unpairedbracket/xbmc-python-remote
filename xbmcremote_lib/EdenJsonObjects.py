@@ -22,11 +22,11 @@ def buildJson(method, params={}, identifier=1):
     return encoder.encode(jsonstring)
 
 #Control
-XBMC_START = buildJson("Playlist.Play")
-XBMC_STOP = buildJson("Player.Stop")
-XBMC_PLAY = buildJson("Player.PlayPause")
-XBMC_NEXT = buildJson("Player.SkipNext")
-XBMC_PREV = buildJson("Player.SkipPrevious")
+XBMC_START = buildJson("Playlist.Play", {'playerid':0})
+XBMC_STOP = buildJson("Player.Stop", {'playerid': 0})
+XBMC_PLAY = buildJson("Player.PlayPause", {'playerid': 0})
+XBMC_NEXT = buildJson("Player.GoNext", {'playerid': 0})
+XBMC_PREV = buildJson("Player.GoPrevious", {'playerid': 0})
 XBMC_STATE = buildJson("Player.GetProperties", {'playerid': 0, 'properties': ['speed', 'partymode', 'shuffled', 'repeat', 'playlistid']})
 
 #Library Requests

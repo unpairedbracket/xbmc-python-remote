@@ -62,7 +62,7 @@
           <object class="GtkTable" id="table1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="n_rows">2</property>
+            <property name="n_rows">4</property>
             <property name="n_columns">2</property>
             <property name="column_spacing">6</property>
             <property name="row_spacing">6</property>
@@ -127,6 +127,68 @@
                 <property name="bottom_attach">2</property>
               </packing>
             </child>
+            <child>
+              <object class="GtkLabel" id="Version">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xalign">0</property>
+                <property name="label" translatable="yes">Version</property>
+              </object>
+              <packing>
+                <property name="top_attach">2</property>
+                <property name="bottom_attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="version_combo">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">version_list</property>
+                <property name="row_span_column">0</property>
+                <property name="column_span_column">0</property>
+                <property name="active">0</property>
+                <child>
+                  <object class="GtkCellRendererText" id="version_renderer"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">2</property>
+                <property name="bottom_attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="Use Sound Menu?">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xalign">0</property>
+                <property name="label" translatable="yes">Use Sound Menu?</property>
+              </object>
+              <packing>
+                <property name="top_attach">3</property>
+                <property name="bottom_attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="mpris2_check">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_action_appearance">False</property>
+                <property name="use_stock">True</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">3</property>
+                <property name="bottom_attach">4</property>
+              </packing>
+            </child>
           </object>
           <packing>
             <property name="expand">True</property>
@@ -140,5 +202,19 @@
       <action-widget response="-11">btn_help</action-widget>
       <action-widget response="-7">btn_close</action-widget>
     </action-widgets>
+  </object>
+  <object class="GtkListStore" id="version_list">
+    <columns>
+      <!-- column-name Name -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0">Dharma</col>
+      </row>
+      <row>
+        <col id="0">Eden</col>
+      </row>
+    </data>
   </object>
 </interface>

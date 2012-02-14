@@ -13,29 +13,35 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 ### END LICENSE
 
-from interfaces.WindowInterface import WindowInterface
-from interfaces.TextInterface import TextInterface
-from xbmcremote_lib import DharmaJsonObjects as XJ
+
 from xbmcremote_lib.Sender import Sender
 from xbmcremote_lib.Decoder import Decoder
 from xbmcremote_lib.preferences import preferences
 from xbmcremote_lib.sound_menu import SoundMenuControls
-from Queue import Queue, Empty
+from Queue import Queue
 from threading import Thread
 from socket import error as SocketError
-
 
 class Controller(object):
     
     def __init__(self, gui):
+
+        if preferences['version_combo'] == 0:
+            from xbmcremote_lib import DharmaJsonObjects
+            self.XJ = DharmaJsonObjects
+        elif preferences['version_combo'] == 1:
+            from xbmcremote_lib import EdenJsonObjects
+            self.XJ = EdenJsonObjects
         
         self.gui = gui
         if self.gui:
+            from interfaces.WindowInterface import WindowInterface
             self.ui = WindowInterface(self)
         else:
+            from interfaces.TextInterface import TextInterface
             self.ui = TextInterface(self)
             
-        self.sound_menu_integration = True
+        self.sound_menu_integration = preferences['mpris2_check']
         self.connected = False
         self.queue = Queue()
         
@@ -119,10 +125,11 @@ class Controller(object):
                         self.playing = data['playing']
                         self.paused = data['paused']
                         self.ui.paused(self.paused)
-                        if data['paused']:
-                            self.sound_menu.signal_paused()
-                        else:
-                            self.sound_menu.signal_playing()
+                        if self.sound_menu_integration:
+                            if data['paused']:
+                                self.sound_menu.signal_paused()
+                            else:
+                                self.sound_menu.signal_playing()
                     elif self.ui.methods.has_key(identifier):
                         self.ui.methods[identifier](data)
                     else:
@@ -152,51 +159,51 @@ class Controller(object):
         self.killed = True
 
     def PlayPause(self):
-        action = XJ.XBMC_PLAY
+        action = self.XJ.XBMC_PLAY
         self.send.add(action)
                 
     def PlayNext(self):
         
-        action = XJ.XBMC_NEXT
+        action = self.XJ.XBMC_NEXT
         self.send.add(action)
                 
     def PlayPrevious(self):
         
-        action = XJ.XBMC_PREV
+        action = self.XJ.XBMC_PREV
         self.send.add(action)
                 
     def StartPlaying(self):
         
-        action = XJ.XBMC_START
+        action = self.XJ.XBMC_START
         self.send.add(action)
                 
     def StopPlaying(self):
         
-        action = XJ.XBMC_STOP
+        action = self.XJ.XBMC_STOP
         self.send.add(action)
     
     def CheckState(self):
         
-        action = XJ.XBMC_STATE
+        action = self.XJ.XBMC_STATE
         self.send.add(action)
                   
     def GetArtists(self):
         
-        action = XJ.GetArtists()
+        action = self.XJ.GetArtists()
         self.send.add(action, timeout=0.5)
             
     def GetAlbums(self, artistid=-1):
         
-        action = XJ.GetAlbums(artistid)
+        action = self.XJ.GetAlbums(artistid)
         self.send.add(action, timeout=0.5)
     
     def GetSongs(self, artistid=-1, albumid=-1):
         
-        action = XJ.GetSongs(artistid, albumid)
+        action = self.XJ.GetSongs(artistid, albumid)
         self.send.add(action, timeout=0.5)
         
     def SendCustomRequest(self, method, params={}, callback=None, timeout=0.1):
         
-        action = XJ.buildJson(method, params, 'custom')
+        action = self.XJ.buildJson(method, params, 'custom')
         self.send.add(action, callback, timeout)
         

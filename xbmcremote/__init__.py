@@ -21,8 +21,7 @@ gettext.textdomain('xbmcremote')
 
 import gtk
 
-from Controller import Controller
-from interfaces.XbmcremoteWindow import XbmcremoteWindow
+from Controller import Controller    
 from xbmcremote_lib import set_up_logging, preferences, get_version
 from dbus.mainloop.glib import DBusGMainLoop
 
@@ -56,12 +55,14 @@ def main():
     default_preferences = {
     'ip_entry': '192.168.0.1',
     'port_entry': '9090',
+    'version_combo': 0,
+    'mpris2_check': False
     }
     preferences.update(default_preferences)
     # user's stored preferences are used for 2nd and subsequent sessions
     preferences.db_connect()
     preferences.load()
-    
+
     try:
         app = Controller(options.gui)
     finally:

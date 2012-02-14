@@ -20,8 +20,10 @@ class TextInterface(BaseInterface):
     
     def __init__(self, controller):
         super(TextInterface, self).__init__(controller)
+        self.methods = {}
         self.commands = {'next': self.controller.PlayNext, 'prev': self.controller.PlayPrevious, 'play': self.controller.PlayPause,
-                         'pause': self.controller.PlayPause, 'start': self.controller.StartPlaying, 'stop': self.controller.StopPlaying}
+                         'pause': self.controller.PlayPause, 'start': self.controller.StartPlaying, 'stop': self.controller.StopPlaying,
+                         'status':self.controller.CheckState}
         
     def start_loop(self):        
         while True:
