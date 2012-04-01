@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="xbmcremote">
+  <schema id="net.launchpad.xbmcremote" path="/net/launchpad/xbmcremote/">
+    <key name="ip-address" type="s">
+      <default>'192.168.0.1'</default>
+      <summary>XBMC IP Address</summary>
+      <description>IP Address of the computer running XBMC</description>
+    </key>
+    <key name="port" type="s">
+      <default>'9090'</default>
+      <summary>XBMC Port</summary>
+      <description>Port to connect to XBMC</description>
+    </key>
+    <key name="version" type="i">
+      <default>0</default>
+      <summary>XBMC IP Address</summary>
+      <description>IP Address of the computer running XBMC</description>
+    </key>
+    <key name="mpris2" type="b">
+      <default>false</default>
+      <summary>Use the MPIRS2 Dbus interface?</summary>
+      <description>IP Address of the computer running XBMC</description>
+    </key>
+  </schema>
+</schemalist>

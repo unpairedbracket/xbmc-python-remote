@@ -15,9 +15,8 @@
 
 '''Enhances builder connections, provides object to access glade objects'''
 
-import gobject  # pylint: disable=E0611
+from gi.repository import GObject, Gtk # pylint: disable=E0611
 
-import gtk
 import inspect
 import functools
 import logging
@@ -33,8 +32,8 @@ from xml.etree.cElementTree import ElementTree
 
 
 # pylint: disable=R0904
-# the many public methods is a feature of gtk.Builder
-class Builder(gtk.Builder):
+# the many public methods is a feature of Gtk.Builder
+class Builder(Gtk.Builder):
     ''' extra features
     connects glade defined handler to default_handler if necessary
     auto connects widget to handler with matching name or alias
@@ -44,7 +43,7 @@ class Builder(gtk.Builder):
     '''
 
     def __init__(self):
-        gtk.Builder.__init__(self)
+        Gtk.Builder.__init__(self)
         self.widgets = {}
         self.glade_handler_dict = {}
         self.connections = []
@@ -60,7 +59,7 @@ class Builder(gtk.Builder):
     An apprentice guru might wonder which signal does what he wants,
     now he can define any likely candidates in glade and notice which
     ones get triggered when he plays with the project.
-    this method does not appear in gtk.Builder'''
+    this method does not appear in Gtk.Builder'''
         logger.debug('''tried to call non-existent function:%s()
         expected in %s
         args:%s
@@ -70,18 +69,18 @@ class Builder(gtk.Builder):
     def get_name(self, widget):
         ''' allows a handler to get the name (id) of a widget
 
-        this method does not appear in gtk.Builder'''
+        this method does not appear in Gtk.Builder'''
         return self._reverse_widget_dict.get(widget)
 
     def add_from_file(self, filename):
         '''parses xml file and stores wanted details'''
-        gtk.Builder.add_from_file(self, filename)
+        Gtk.Builder.add_from_file(self, filename)
 
         # extract data for the extra interfaces
         tree = ElementTree()
         tree.parse(filename)
 
-        ele_widgets = tree.getiterator("object")
+        ele_widgets = tree.getiterator('object')
         for ele_widget in ele_widgets:
             name = ele_widget.attrib['id']
             widget = self.get_object(name)
@@ -93,7 +92,7 @@ class Builder(gtk.Builder):
             self._reverse_widget_dict[widget] = name
 
             # populate connections list
-            ele_signals = ele_widget.findall("signal")
+            ele_signals = ele_widget.findall('signal')
 
             connections = [
                 (name,
@@ -103,10 +102,10 @@ class Builder(gtk.Builder):
             if connections:
                 self.connections.extend(connections)
 
-        ele_signals = tree.getiterator("signal")
+        ele_signals = tree.getiterator('signal')
         for ele_signal in ele_signals:
             self.glade_handler_dict.update(
-            {ele_signal.attrib["handler"]: None})
+            {ele_signal.attrib['handler']: None})
 
     def connect_signals(self, callback_obj):
         '''connect the handlers defined in glade
@@ -131,7 +130,7 @@ class Builder(gtk.Builder):
                  item[0], filename)
 
         # connect glade define handlers
-        gtk.Builder.connect_signals(self, connection_dict)
+        Gtk.Builder.connect_signals(self, connection_dict)
 
         # let's tell the user how we applied the glade design
         for connection in self.connections:
@@ -143,7 +142,7 @@ class Builder(gtk.Builder):
         '''Creates the ui object with widgets as attributes
 
         connects signals by 2 methods
-        this method does not appear in gtk.Builder'''
+        this method does not appear in Gtk.Builder'''
 
         result = UiFactory(self.widgets)
 
@@ -170,9 +169,9 @@ class UiFactory():
 
         # Mangle any non-usable names (like with spaces or dashes)
         # into pythonic ones
-        cannot_message = """cannot bind ui.%s, name already exists
-        consider using a pythonic name instead of design name '%s'"""
-        consider_message = """consider using a pythonic name instead of design name '%s'"""
+        cannot_message = '''cannot bind ui.%s, name already exists
+        consider using a pythonic name instead of design name "%s"'''
+        consider_message = '''consider using a pythonic name instead of design name "%s"'''
         
         for (widget_name, widget) in widget_dict.items():
             pyname = make_pyname(widget_name)
@@ -206,9 +205,25 @@ def make_pyname(name):
     return pyname
 
 
+# Until bug https://bugzilla.gnome.org/show_bug.cgi?id=652127 is fixed, we 
+# need to reimplement inspect.getmembers.  GObject introspection doesn't
+# play nice with it.
+def getmembers(obj, check):
+    members = []
+    for k in dir(obj):
+        try:
+            attr = getattr(obj, k)
+        except:
+            continue
+        if check(attr):
+            members.append((k, attr))
+    members.sort()
+    return members
+
+
 def dict_from_callback_obj(callback_obj):
     '''a dictionary interface to callback_obj'''
-    methods = inspect.getmembers(callback_obj, inspect.ismethod)
+    methods = getmembers(callback_obj, inspect.ismethod)
 
     aliased_methods = [x[1] for x in methods if hasattr(x[1], 'aliases')]
 
@@ -248,22 +263,23 @@ def auto_connect_by_name(callback_obj, builder):
         try:
             widget_type = type(widget)
             while widget_type:
-                signal_ids.extend(gobject.signal_list_ids(widget_type))
-                widget_type = gobject.type_parent(widget_type)
+                signal_ids.extend(GObject.signal_list_ids(widget_type))
+                widget_type = GObject.type_parent(widget_type)
         except RuntimeError:  # pylint wants a specific error
             pass
-        signal_names = [gobject.signal_name(sid) for sid in signal_ids]
+        signal_names = [GObject.signal_name(sid) for sid in signal_ids]
 
         # Now, automatically find any the user didn't specify in glade
         for sig in signal_names:
             # using convention suggested by glade
-            handler_names = ["on_%s_%s" % (widget_name, sig)]
+            sig = sig.replace('-', '_')
+            handler_names = ['on_%s_%s' % (widget_name, sig)]
 
             # Using the convention that the top level window is not
             # specified in the handler name. That is use
             # on_destroy() instead of on_windowname_destroy()
             if widget is callback_obj:
-                handler_names.append("on_%s" % sig)
+                handler_names.append('on_%s' % sig)
 
             do_connect(item, sig, handler_names,
              callback_handler_dict, builder.connections)
@@ -284,7 +300,7 @@ def do_connect(item, signal_name, handler_names,
             widget.connect(signal_name, callback_handler_dict[handler_name])
             connections.append(connection)
 
-            logger.debug("connect builder by name '%s','%s', '%s'",
+            logger.debug('connect builder by name "%s","%s", "%s"',
              widget_name, signal_name, handler_name)
 
 
@@ -303,4 +319,4 @@ def log_unconnected_functions(callback_handler_dict, connections):
             pass
 
     for handler_name in unconnected:
-        logger.debug("Not connected to builder '%s'", handler_name)
+        logger.debug('Not connected to builder "%s"', handler_name)

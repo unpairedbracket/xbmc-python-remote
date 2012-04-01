@@ -19,24 +19,24 @@ import gettext
 from gettext import gettext as _
 gettext.textdomain('xbmcremote')
 
-import gtk
+from gi.repository import Gtk
 
 from Controller import Controller    
-from xbmcremote_lib import set_up_logging, preferences, get_version
+from xbmcremote_lib import set_up_logging, get_version
 from dbus.mainloop.glib import DBusGMainLoop
 
 def parse_options():
-    """Support for command line options"""
-    parser = optparse.OptionParser(version="%%prog %s" % get_version())
+    '''Support for command line options'''
+    parser = optparse.OptionParser(version='%%prog %s' % get_version())
     parser.add_option(
-        "-v", "--verbose", action="count", dest="verbose",
-        help=_("Show debug messages (-vv debugs xbmcremote_lib also)"))
+        '-v', '--verbose', action='count', dest='verbose',
+        help=_('Show debug messages (-vv debugs xbmcremote_lib also)'))
     parser.add_option(
-        "-t", "--no_gui", action="store_false", dest="gui",
-        help=_("Run in terminal."))
+        '-t', '--no_gui', action='store_false', dest='gui',
+        help=_('Run in terminal.'))
     parser.add_option(
-        "-g", "--gui", action="store_true", dest="gui",
-        help=_("Run with gui. This is the default option"))
+        '-g', '--gui', action='store_true', dest='gui',
+        help=_('Run with gui. This is the default option'))
     parser.set_defaults(gui=True)
     (options, args) = parser.parse_args()
 
@@ -49,21 +49,5 @@ def main():
 
     'constructor for your class instances'
     options = parse_options()
-    # preferences
-    # set some values for our first session
-    # TODO: replace defaults with your own values
-    default_preferences = {
-    'ip_entry': '192.168.0.1',
-    'port_entry': '9090',
-    'version_combo': 0,
-    'mpris2_check': False
-    }
-    preferences.update(default_preferences)
-    # user's stored preferences are used for 2nd and subsequent sessions
-    preferences.db_connect()
-    preferences.load()
 
-    try:
-        app = Controller(options.gui)
-    finally:
-        preferences.save()
+    app = Controller(options.gui)

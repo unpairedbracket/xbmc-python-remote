@@ -18,26 +18,26 @@ import json
 encoder = json.JSONEncoder()
 
 def buildJson(method, params={}, identifier=1):
-    jsonstring = {"jsonrpc": "2.0", "method": method, "params": params, "id": identifier}
+    jsonstring = {'jsonrpc': '2.0', 'method': method, 'params': params, 'id': identifier}
     return encoder.encode(jsonstring)
 
 #Control
-XBMC_START = buildJson("Playlist.Play", {'playerid':0})
-XBMC_STOP = buildJson("Player.Stop", {'playerid': 0})
-XBMC_PLAY = buildJson("Player.PlayPause", {'playerid': 0})
-XBMC_NEXT = buildJson("Player.GoNext", {'playerid': 0})
-XBMC_PREV = buildJson("Player.GoPrevious", {'playerid': 0})
-XBMC_STATE = buildJson("Player.GetProperties", {'playerid': 0, 'properties': ['speed', 'partymode', 'shuffled', 'repeat', 'playlistid']})
+XBMC_START = buildJson('Playlist.Play', {'playerid':0})
+XBMC_STOP = buildJson('Player.Stop', {'playerid': 0})
+XBMC_PLAY = buildJson('Player.PlayPause', {'playerid': 0})
+XBMC_NEXT = buildJson('Player.GoNext', {'playerid': 0})
+XBMC_PREV = buildJson('Player.GoPrevious', {'playerid': 0})
+XBMC_STATE = buildJson('Player.GetProperties', {'playerid': 0, 'properties': ['speed', 'partymode', 'shuffled', 'repeat', 'playlistid']})
 
 #Library Requests
 def GetArtists():
-    return buildJson("AudioLibrary.GetArtists")
+    return buildJson('AudioLibrary.GetArtists')
 
 def GetAlbums(artistid=-1):
     params = {}
     if artistid != -1:
         params['artistid'] = artistid
-    return buildJson("AudioLibrary.GetAlbums", params)
+    return buildJson('AudioLibrary.GetAlbums', params)
 
 def GetSongs(artistid=-1, albumid=-1):
     params = {}
@@ -45,4 +45,11 @@ def GetSongs(artistid=-1, albumid=-1):
         params['artistid'] = artistid
     if albumid != -1:
         params['albumid'] = albumid
-    return buildJson("AudioLibrary.GetSongs", params)
+    return buildJson('AudioLibrary.GetSongs', params)
+
+def GetPlayers():
+    return buildJson('Player.GetPlayers')
+
+def GetNowPlaying(playerid=0):
+    params = {'playerid': playerid, 'properties': ['title','artist','album']}
+    return buildJson('Player.GetItem', params, identifier='now_playing')

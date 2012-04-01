@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-requires gtk+ 3.0 -->
   <!-- interface-requires preferences_xbmcremote_dialog 1.0 -->
-  <!-- interface-naming-policy project-wide -->
+  <object class="GtkListStore" id="version_list">
+    <columns>
+      <!-- column-name Name -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0">Dharma</col>
+      </row>
+      <row>
+        <col id="0">Eden</col>
+      </row>
+    </data>
+  </object>
   <object class="PreferencesXbmcremoteDialog" id="preferences_xbmcremote_dialog">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -10,18 +23,19 @@
     <property name="icon">../media/xbmcremote.svg</property>
     <property name="type_hint">normal</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox1">
+      <object class="GtkBox" id="dialog-vbox1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area1">
+          <object class="GtkButtonBox" id="dialog-action_area1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="btn_help">
                 <property name="label">gtk-help</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -38,6 +52,7 @@
             <child>
               <object class="GtkButton" id="btn_close">
                 <property name="label">gtk-close</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -75,8 +90,6 @@
                 <property name="caps_lock_warning">False</property>
                 <property name="primary_icon_activatable">False</property>
                 <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -117,8 +130,6 @@
                 <property name="caps_lock_warning">False</property>
                 <property name="primary_icon_activatable">False</property>
                 <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -175,6 +186,7 @@
             </child>
             <child>
               <object class="GtkCheckButton" id="mpris2_check">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
@@ -202,19 +214,5 @@
       <action-widget response="-11">btn_help</action-widget>
       <action-widget response="-7">btn_close</action-widget>
     </action-widgets>
-  </object>
-  <object class="GtkListStore" id="version_list">
-    <columns>
-      <!-- column-name Name -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0">Dharma</col>
-      </row>
-      <row>
-        <col id="0">Eden</col>
-      </row>
-    </data>
   </object>
 </interface>

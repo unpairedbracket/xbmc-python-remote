@@ -17,14 +17,14 @@ class BaseInterface(object):
     
     def show(self):
         '''
-        Override this to show a window if there is one, using gtk.Window.show(), 
+        Override this to show a window if there is one, using Gtk.Window.show(), 
         or bring the terminal window to the foreground if there is one of those.
         '''
         pass
     
     def start_loop(self):
         '''
-        Override this and start the main loop of the Interface, using gtk.main()
+        Override this and start the main loop of the Interface, using Gtk.main()
         for gtk windows or some kind of interactive loop for terminal interfaces.
         ''' 
         pass

@@ -17,7 +17,6 @@
 
 while keeping its api constant'''
 from . helpers import set_up_logging
-from . preferences import preferences
 from . Window import Window
 from . xbmcremoteconfig import get_version
 

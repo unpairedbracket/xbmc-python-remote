@@ -17,7 +17,7 @@ import gettext
 from gettext import gettext as _
 gettext.textdomain('xbmcremote')
 
-import gtk
+from gi.repository import Gtk
 import logging
 logger = logging.getLogger('xbmcremote')
 
@@ -74,7 +74,7 @@ class XbmcremoteWindow(Window):
             
     def on_xbmcremote_window_destroy(self, widget, data=None):
         self.controller.kill()
-        gtk.main_quit()
+        Gtk.main_quit()
             
     def handle_error(self, error):
         """Display the error box."""

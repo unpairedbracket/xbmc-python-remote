@@ -16,8 +16,8 @@
 
 from xbmcremote_lib.Sender import Sender
 from xbmcremote_lib.Decoder import Decoder
-from xbmcremote_lib.preferences import preferences
 from xbmcremote_lib.sound_menu import SoundMenuControls
+from gi.repository import Gio
 from Queue import Queue
 from threading import Thread
 from socket import error as SocketError
@@ -26,22 +26,22 @@ class Controller(object):
     
     def __init__(self, gui):
 
-        if preferences['version_combo'] == 0:
-            from xbmcremote_lib import DharmaJsonObjects
-            self.XJ = DharmaJsonObjects
-        elif preferences['version_combo'] == 1:
-            from xbmcremote_lib import EdenJsonObjects
-            self.XJ = EdenJsonObjects
-        
         self.gui = gui
         if self.gui:
-            from interfaces.WindowInterface import WindowInterface
-            self.ui = WindowInterface(self)
+            from interfaces.WindowInterface import WindowInterface as Interface
         else:
-            from interfaces.TextInterface import TextInterface
-            self.ui = TextInterface(self)
-            
-        self.sound_menu_integration = preferences['mpris2_check']
+            from interfaces.TextInterface import TextInterface as Interface
+
+        self.settings = Gio.Settings("net.launchpad.xbmcremote")
+        if self.settings.get_string('version') == 0:
+            from xbmcremote_lib import DharmaJsonObjects as XJ
+        elif self.settings.get_string('version') == 1:
+            from xbmcremote_lib import EdenJsonObjects as XJ
+        
+        self.XJ = XJ
+        self.ui = Interface(self)
+
+        self.sound_menu_integration = self.settings['mpris2']
         self.connected = False
         self.queue = Queue()
         
@@ -55,8 +55,8 @@ class Controller(object):
         self.playing = self.paused = False
 
         #Server settings
-        self.ip = preferences['ip_entry']
-        self.port = int(preferences['port_entry'])
+        self.ip = self.settings.get_string('ip-address')
+        self.port = int(self.settings.get_string('port'))
         
         if self.sound_menu_integration:
             self.integrate_sound_menu()
@@ -201,6 +201,14 @@ class Controller(object):
         
         action = self.XJ.GetSongs(artistid, albumid)
         self.send.add(action, timeout=0.5)
+        
+    def GetNowPlaying(self):
+        action = self.XJ.GetNowPlaying(0)
+        self.send.add(action)
+    
+    def GetPlayers(self):
+        action = self.XJ.GetPlayers()
+        self.send.add(action)
         
     def SendCustomRequest(self, method, params={}, callback=None, timeout=0.1):
         

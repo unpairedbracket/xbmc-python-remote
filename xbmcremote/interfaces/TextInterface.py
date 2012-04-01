@@ -28,7 +28,7 @@ class TextInterface(BaseInterface):
     def start_loop(self):        
         while True:
             time.sleep(0.5)
-            command = raw_input("What should I do? ")
+            command = raw_input('What should I do? ')
             if command in self.commands:
                 self.commands[command]()
             elif command == 'exit':

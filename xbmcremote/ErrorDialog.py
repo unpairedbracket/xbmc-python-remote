@@ -13,7 +13,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 ### END LICENSE
 
-import gtk
+from gi.repository import Gtk
 
 from xbmcremote_lib.helpers import get_builder
 
@@ -21,7 +21,7 @@ import gettext
 from gettext import gettext as _
 gettext.textdomain('xbmcremote')
 
-class ErrorDialog(gtk.Dialog):
+class ErrorDialog(Gtk.Dialog):
     __gtype_name__ = "ErrorDialog"
 
     def __new__(cls, error):
@@ -52,11 +52,11 @@ class ErrorDialog(gtk.Dialog):
     def on_btn_ok_clicked(self, widget, data=None):
         """The user has elected to save the changes.
 
-        Called before the dialog returns gtk.RESONSE_OK from run().
+        Called before the dialog returns Gtk.RESONSE_OK from run().
         """
         self.destroy()
 
 if __name__ == "__main__":
     dialog = ErrorDialog()
     dialog.show()
-    gtk.main()
+    Gtk.main()

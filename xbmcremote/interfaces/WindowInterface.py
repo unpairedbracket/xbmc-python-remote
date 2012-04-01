@@ -16,8 +16,8 @@
 from xbmcremote_lib.DummyInterface import BaseInterface
 from XbmcremoteWindow import XbmcremoteWindow
 from quickly.widgets.dictionary_grid import DictionaryGrid
-import gtk
-import gobject
+from gi.repository import Gtk
+from gi.repository import GObject
 
 class WindowInterface(BaseInterface):
     
@@ -27,32 +27,34 @@ class WindowInterface(BaseInterface):
         self.window = XbmcremoteWindow()
         self.methods = {'artist_list': self.updateArtistList,
                         'album_list': self.updateAlbumList,
-                        'song_list': self.updateSongList, }
+                        'song_list': self.updateSongList, 
+                        'now_playing': self.update_now_playing}
         self.window.set_interface(self)
         
     def refresh(self, try_connect=True):
         super(WindowInterface, self).refresh(try_connect)
         
         if self.controller.connected:
-            gobject.idle_add(self.window.ui.connected_to.set_label, 'Connected to: '+self.controller.ip+':'+str(self.controller.port))
-            self.updateLibrary()
+            GObject.idle_add(self.window.ui.connected_to.set_label, 'Connected to: '+self.controller.ip+':'+str(self.controller.port))
             self.updatePlaying()
+            self.updateLibrary()
             if not self.updating:
-                #gobject.timeout_add(1000, self.updatePlaying)
+                #GObject.timeout_add(1000, self.updatePlaying)
                 self.updating = True
         else:
-            gobject.idle_add(self.window.ui.connected_to.set_label, 'Connection Failed!')
+            GObject.idle_add(self.window.ui.connected_to.set_label, 'Connection Failed!')
     
     def show(self):
         self.window.show()
     
     def start_loop(self):
-        gobject.threads_init()
-        gtk.main()
+        GObject.threads_init()
+        Gtk.main()
         
     def updatePlaying(self):
         try:
             self.controller.CheckState()
+            self.controller.GetNowPlaying()
         finally:
             return True
     
@@ -63,9 +65,9 @@ class WindowInterface(BaseInterface):
         
     def paused(self, paused):
         if paused:
-            gobject.idle_add(self.window.ui.playback_play.set_stock_id, gtk.STOCK_MEDIA_PLAY)
+            GObject.idle_add(self.window.ui.playback_play.set_stock_id, Gtk.STOCK_MEDIA_PLAY)
         else:
-            gobject.idle_add(self.window.ui.playback_play.set_stock_id, gtk.STOCK_MEDIA_PAUSE)
+            GObject.idle_add(self.window.ui.playback_play.set_stock_id, Gtk.STOCK_MEDIA_PAUSE)
 
     def updateArtistList(self, artistlist):        
         artist_view = self.window.ui.artist_list
@@ -78,7 +80,7 @@ class WindowInterface(BaseInterface):
         artist_grid.set_headers_clickable(False)
         
         artist_grid.connect('selection_changed', self.window.newArtist)
-        gobject.idle_add(self.update_view, artist_view, artist_grid)
+        GObject.idle_add(self.update_view, artist_view, artist_grid)
             
     def updateAlbumList(self, albumlist):        
         album_view = self.window.ui.album_list
@@ -91,7 +93,7 @@ class WindowInterface(BaseInterface):
         album_grid.set_headers_clickable(False)
         
         album_grid.connect('selection_changed', self.window.newAlbum)
-        gobject.idle_add(self.update_view, album_view, album_grid)
+        GObject.idle_add(self.update_view, album_view, album_grid)
                
     def updateSongList(self, songlist):        
         song_view = self.window.ui.song_list
@@ -104,7 +106,7 @@ class WindowInterface(BaseInterface):
         song_grid.set_headers_clickable(False)
         
         song_grid.connect('selection_changed', self.window.newSong)
-        gobject.idle_add(self.update_view, song_view, song_grid)
+        GObject.idle_add(self.update_view, song_view, song_grid)
         
     def update_view(self, view, grid):
         grid.show()
@@ -114,7 +116,9 @@ class WindowInterface(BaseInterface):
         
         view.add(grid)
 
-
-
-             
-        
+    def update_now_playing(self, data):
+        print data
+        GObject.idle_add(self.window.ui.artist_label.set_label, data['item']['artist'])
+        GObject.idle_add(self.window.ui.album_label.set_label, data['item']['album'])
+        GObject.idle_add(self.window.ui.song_label.set_label, data['item']['title'])
+    

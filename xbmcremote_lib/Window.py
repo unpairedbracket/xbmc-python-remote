@@ -13,17 +13,16 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 ### END LICENSE
 
-import gtk
+from gi.repository import Gtk, Gio
 import logging
 logger = logging.getLogger('xbmcremote_lib')
 
 from . helpers import get_builder, show_uri, get_help_uri
-from . preferences import preferences
 
 # This class is meant to be subclassed by XbmcremoteWindow.  It provides
 # common functions and some boilerplate.
-class Window(gtk.Window):
-    __gtype_name__ = "Window"
+class Window(Gtk.Window):
+    __gtype_name__ = 'Window'
 
     # To construct a new instance of this method, the following notable 
     # methods are called in this order:
@@ -61,14 +60,15 @@ class Window(gtk.Window):
         self.AboutDialog = None # class
         self.ErrorDialog = None # class
 
-        preferences.connect('changed', self.on_preferences_changed)
+        self.settings = Gio.Settings("net.launchpad.xbmcremote")
+        self.settings.connect('changed', self.on_preferences_changed)
 
         # Optional Launchpad integration
         # This shouldn't crash if not found as it is simply used for bug reporting.
         # See https://wiki.ubuntu.com/UbuntuDevelopment/Internationalisation/Coding
         # for more information about Launchpad integration.
         try:
-            import LaunchpadIntegration
+            from gi.repository import LaunchpadIntegration
             LaunchpadIntegration.add_items(self.ui.helpMenu, 1, True, True)
             LaunchpadIntegration.set_sourcepackagename('xbmcremote')
         except ImportError:
@@ -120,14 +120,12 @@ class Window(gtk.Window):
         self.destroy()
 
     def on_destroy(self, widget, data=None):
-        """Called when the XbmcremoteWindow is closed."""
+        '''Called when the XbmcremoteWindow is closed.'''
         # Clean up code for saving application state should be added here.
-        gtk.main_quit()
+        Gtk.main_quit()
 
-    def on_preferences_changed(self, widget, data=None):
-        logger.debug('main window received preferences changed')
-        for key in data:
-            logger.debug('preference changed: %s = %s' % (key, preferences[key]))
+    def on_preferences_changed(self, settings, key, data=None):
+        logger.debug('preference changed: %s = %s' % (key, str(settings.get_value(key))))
 
     def on_preferences_dialog_destroyed(self, widget, data=None):
         '''only affects gui

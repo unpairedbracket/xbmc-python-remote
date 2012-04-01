@@ -13,11 +13,11 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 ### END LICENSE
 
-import gtk
+from gi.repository import Gtk
 
 from . helpers import get_builder
 
-class AboutDialog(gtk.AboutDialog):
+class AboutDialog(Gtk.AboutDialog):
     __gtype_name__ = "AboutDialog"
 
     def __new__(cls):

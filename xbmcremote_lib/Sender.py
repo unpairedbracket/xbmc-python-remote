@@ -66,7 +66,7 @@ class Sender(object):
                 return self.controller.sendCallback(responses, callback)
 
     def __returnResponse(self):    
-        response = ""
+        response = ''
         while True:
             response += (self.__s.recv(0x4000))
     
