@@ -1,8 +1,11 @@
 [Desktop Entry]
-_Name=Xbmcremote
-_Comment=Xbmcremote application
+_Name=XBMC Remote
+_Comment=Remotely Control XBMC installations on other computers
 Categories=GNOME;Utility;
-Exec=xbmcremote
-Icon=xbmcremote
+Exec=xbmcremote --gui
+Icon=/usr/share/xbmcremote/media/xbmcremote.svg
 Terminal=false
 Type=Application
+Categories=GNOME;GTK;AudioVideo;Audio;Music;Player;
+StartupNotify=true
+Name[en_GB]=XBMC Remot

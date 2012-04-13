@@ -86,13 +86,13 @@ class InstallAndUpdateDataDirectory(DistUtilsExtra.auto.install_auto):
 
 DistUtilsExtra.auto.setup(
     name='xbmcremote',
-    version='0.1',
+    version='12.04.4',
     license='GPL-3',
-    #author='Your Name',
-    #author_email='email@ubuntu.com',
-    #description='UI for managing …',
-    #long_description='Here a longer description',
-    #url='https://launchpad.net/xbmcremote',
+    author='Ben Spiers',
+    author_email='ben.spiers22@gmail.com' ,
+    description='Program for controlling XBMC running on other computers',
+    long_description='Control XBMC over TCP using the JSON-RPC Api. Currently supports Dharma and Eden',
+    url='https://launchpad.net/xbmcremote',
     cmdclass={'install': InstallAndUpdateDataDirectory}
     )
 

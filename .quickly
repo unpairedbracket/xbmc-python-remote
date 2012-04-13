@@ -1,3 +1,4 @@
 project = xbmcremote
 version = 12.03
 template = ubuntu-application
+lp_id = xbmcremote
