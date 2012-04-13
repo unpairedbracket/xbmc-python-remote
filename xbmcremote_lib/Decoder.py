@@ -33,10 +33,15 @@ class Decoder(object):
                 kind = 'response'
                 identifier = i['id']
                 result = i['result']
-            elif (i.has_key('method')) and (i['method'] == 'Announcement'):
-                kind = 'announcement'
-                identifier = None
-                result = i['params']['message']
+            elif (i.has_key('method')):
+                if i['method'] == 'Announcement':
+                    kind = 'announcement'
+                    identifier = None
+                    result = i['params']['message']
+                else:
+                    kind = 'notification'
+                    identifier = None
+                    result = i['params']['data']
                 
             data = {'kind': kind, 'data': result, 'callback': callback, 'id': identifier}
             self.controller.add(data)
