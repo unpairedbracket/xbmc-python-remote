@@ -40,5 +40,10 @@ if (os.path.exists(os.path.join(PROJECT_ROOT_DIRECTORY, 'xbmcremote'))
 if python_path:
     os.putenv('PYTHONPATH', "%s:%s" % (os.getenv('PYTHONPATH', ''), ':'.join(python_path))) # for subprocesses
 
+# This is a horrible hack and I don't like it but I don't think I have much of a choice
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
+
 import xbmcremote
 xbmcremote.main()
