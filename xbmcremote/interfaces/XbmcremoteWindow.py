@@ -22,9 +22,9 @@ import logging
 logger = logging.getLogger('xbmcremote')
 
 from xbmcremote_lib import Window
-from ..AboutXbmcremoteDialog import AboutXbmcremoteDialog
-from ..PreferencesXbmcremoteDialog import PreferencesXbmcremoteDialog
-from ..ErrorDialog import ErrorDialog
+from xbmcremote.AboutXbmcremoteDialog import AboutXbmcremoteDialog
+from xbmcremote.PreferencesXbmcremoteDialog import PreferencesXbmcremoteDialog
+from xbmcremote.ErrorDialog import ErrorDialog
 
 # See xbmcremote_lib.Window.py for more details about how this class works
 class XbmcremoteWindow(Window):

@@ -33,9 +33,9 @@ class Controller(object):
             from interfaces.TextInterface import TextInterface as Interface
 
         self.settings = Gio.Settings("net.launchpad.xbmcremote")
-        if self.settings.get_string('version') == 0:
+        if self.settings.get_int('version') == 0:
             from xbmcremote_lib import DharmaJsonObjects as XJ
-        elif self.settings.get_string('version') == 1:
+        elif self.settings.get_int('version') == 1:
             from xbmcremote_lib import EdenJsonObjects as XJ
         
         self.XJ = XJ
@@ -97,7 +97,7 @@ class Controller(object):
         self.queue.put(data)
            
     def sendCallback(self, jsonlist, callback):
-        json = '[' + jsonlist.replace('}\n{', '},{') + ']'
+        json = '[' + jsonlist.replace('}\n{', '},{').replace('}{','},{') + ']'
         self.decoder.decode(json, callback)
         
     def worker(self):
@@ -122,16 +122,26 @@ class Controller(object):
                     print data
                 elif kind == 'response':
                     if identifier == 'state' or identifier == 'control':
-                        self.playing = data['playing']
-                        self.paused = data['paused']
-                        self.ui.paused(self.paused)
-                        if self.sound_menu_integration:
-                            if data['paused']:
-                                self.sound_menu.signal_paused()
-                            else:
-                                self.sound_menu.signal_playing()
+                        if data.has_key('playing'):
+                            self.playing = data['playing']
+                            self.paused = data['paused']
+                            self.ui.paused(self.paused)
+                            if self.sound_menu_integration:
+                                if data['paused']:
+                                    self.sound_menu.signal_paused()
+                                else:
+                                    self.sound_menu.signal_playing()
+                        if data.has_key('speed'):
+                            self.set_speed(data['speed'])
+                    elif data.has_key('speed'):
+                            self.set_speed(data['speed'])
                     elif self.ui.methods.has_key(identifier):
                         self.ui.methods[identifier](data)
+                    else:
+                        print data
+                elif kind == 'notification':
+                    if data.has_key('player'):
+                        self.set_speed(data['player']['speed'])
                     else:
                         print data
                 elif kind == 'announcement':
@@ -150,6 +160,21 @@ class Controller(object):
             except Exception as ex:
                 #TODO Do something
                 print 'Error:', ex
+                
+    def set_speed(self, speed):
+        if speed == 0:
+            self.playing = True
+            self.paused = True
+            self.ui.paused(self.paused)
+        elif speed == 1:
+            self.playing = True
+            self.paused = False     
+            self.ui.paused(self.paused)
+        if self.sound_menu_integration:
+                if self.paused:
+                    self.sound_menu.signal_paused()
+                else:
+                    self.sound_menu.signal_playing()
     
     def handle_error(self, error):
         self.ui.handle_error(error)

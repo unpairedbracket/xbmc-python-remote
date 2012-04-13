@@ -118,7 +118,5 @@ class WindowInterface(BaseInterface):
 
     def update_now_playing(self, data):
         print data
-        GObject.idle_add(self.window.ui.artist_label.set_label, data['item']['artist'])
-        GObject.idle_add(self.window.ui.album_label.set_label, data['item']['album'])
-        GObject.idle_add(self.window.ui.song_label.set_label, data['item']['title'])
+        GObject.idle_add(self.window.ui.now_playing_label.set_label, ' '.join([data['item']['title'], 'by', data['item']['artist'], 'from', data['item']['album']]))
     
