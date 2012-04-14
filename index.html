@@ -31,30 +31,31 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <p><img src="http://xbmc.org/wp-content/uploads/2011/09/confluence-horizontal.jpg" alt="XBMC"></p>
+        <p><img class="window" src="images/window.png" alt="XBMC"></p>
 
-<p>A simple program for remote controlling xbmc installations, written in Python and using the new JSON API</p>
+        <p>A simple program for remote controlling xbmc installations, written in Python and using the new JSON API</p>
 
-<h3>How Does it work?</h3>
+        <h3>How Does it work?</h3>
+        <p>
+          XBMC Remote connects to XBMC (locally or over a network) over TCP and sends and receives data
+          according to <a href="http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v4">the JSON-RPC API</a>
+        </p>
 
-<p>XBMC Remote connects to XBMC (locally or over a network) over TCP and sends and receives data according to <a href="http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v4">the JSON-RPC API</a></p>
+        <h3>What can it do?</h3>
+        <p>
+          At the moment it can control playback and list the music library. It supports XBMC Dharma and (partially) Eden. 
+          It can be controlled by the MPRIS D-Bus interface, for instance by Ubuntu Unity's sound menu and several Gnome Shell extensions.
+        </p>
 
-<h3>What can it do?</h3>
+        <h3>Getting XBMC Remote</h3>
+        <p>On Ubuntu, it's easy. Just add my ppa to your software sources and install <code>xbmcremote</code></p>
+        <pre><code>$ sudo add-apt-repository
+        $ sudo apt-get update
+        $ sudo apt-get install xbmcremote
+        </code></pre>
 
-<p>At the moment it can control playback and list the music library. It supports XBMC Dharma and (partially) Eden. It can be controlled by the MPRIS D-Bus interface, for instance by Ubuntu Unity's sound menu and several Gnome Shell extensions.</p>
-
-<h3>Getting XBMC Remote</h3>
-
-<p>On Ubuntu, it's easy. Just add my ppa to your software sources and install <code>xbmcremote</code></p>
-
-<pre><code>$ sudo add-apt-repository
-$ sudo apt-get update
-$ sudo apt-get install xbmcremote
-</code></pre>
-
-<h3>Author</h3>
-
-<p>Written by Ben Spiers (<a href="/NamelessOne2345" class="user-mention">@NamelessOne2345</a>) using Rick Spencer's <code>Quickly</code> RAD framework</p>
+        <h3>Author</h3>
+        <p>Written by Ben Spiers (<a href="/NamelessOne2345" class="user-mention">@NamelessOne2345</a>) using Rick Spencer's <code>Quickly</code> RAD framework</p>
       </section>
     </div>
 
