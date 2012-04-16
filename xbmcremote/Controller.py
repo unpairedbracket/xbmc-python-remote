@@ -17,6 +17,7 @@
 from xbmcremote_lib.Sender import Sender
 from xbmcremote_lib.Decoder import Decoder
 from xbmcremote_lib.sound_menu import SoundMenuControls
+from xbmcremote_lib.JsonObjects import XJ 
 from gi.repository import Gio
 from Queue import Queue
 from threading import Thread
@@ -33,10 +34,6 @@ class Controller(object):
             from interfaces.TextInterface import TextInterface as Interface
 
         self.settings = Gio.Settings("net.launchpad.xbmcremote")
-        if self.settings.get_int('version') == 0:
-            from xbmcremote_lib import DharmaJsonObjects as XJ
-        elif self.settings.get_int('version') == 1:
-            from xbmcremote_lib import EdenJsonObjects as XJ
         
         self.XJ = XJ
         self.ui = Interface(self)
