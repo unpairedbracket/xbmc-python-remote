@@ -13,13 +13,13 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 ### END LICENSE
 
-from xbmcremote_lib.DummyInterface import BaseInterface
+from xbmcremote.interfaces import BaseInterface
 from XbmcremoteWindow import XbmcremoteWindow
 from quickly.widgets.dictionary_grid import DictionaryGrid
 from gi.repository import Gtk
 from gi.repository import GObject
 
-class WindowInterface(BaseInterface):
+class GtkInterface(BaseInterface):
     
     def __init__(self, controller):
         self.controller = controller
@@ -32,7 +32,7 @@ class WindowInterface(BaseInterface):
         self.window.set_interface(self)
         
     def refresh(self, try_connect=True):
-        super(WindowInterface, self).refresh(try_connect)
+        super(GtkInterface, self).refresh(try_connect)
         
         if self.controller.connected:
             GObject.idle_add(self.window.ui.connected_to.set_label, 'Connected to: '+self.controller.ip+':'+str(self.controller.port))

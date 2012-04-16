@@ -28,7 +28,7 @@ class Controller(object):
 
         self.gui = gui
         if self.gui:
-            from interfaces.WindowInterface import WindowInterface as Interface
+            from interfaces.GtkInterface import GtkInterface as Interface
         else:
             from interfaces.TextInterface import TextInterface as Interface
 
