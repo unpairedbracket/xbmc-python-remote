@@ -13,7 +13,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 ### END LICENSE
 
-from xbmcremote_lib.DummyInterface import BaseInterface
+from xbmcremote.interfaces import BaseInterface
 import time
 
 class TextInterface(BaseInterface):
@@ -37,9 +37,6 @@ class TextInterface(BaseInterface):
                 self.controller.SendCustomRequest(command, callback=self.echo)
             else:
                 print 'Unknown command'
-                
-    def handle_error(self, error):
-        print 'Error:', error['message'], 'Code:', error['code']
     
     def echo(self, message):
         print message

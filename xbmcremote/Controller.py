@@ -107,10 +107,7 @@ class Controller(object):
                 callback = item['callback']
                 #Show a nice error dialog or raise an exception
                 if kind == 'error':
-                    if identifier == 'state':
-                        self.playing = False
-                    else:
-                        self.handle_error(data)
+                    self.handle_error(data)
                 #Use callbacks if the data is for something unconventional
                 elif callback is not None:
                     callback(data)
@@ -120,7 +117,10 @@ class Controller(object):
                 elif kind == 'response':
                     if identifier == 'state' or identifier == 'control':
                         if data.has_key('playing'):
-                            self.playing = data['playing']
+                            if data['paused']:
+                                self.set_speed(0)
+                            else:
+                                self.set_speed(1)
                             self.paused = data['paused']
                             self.ui.paused(self.paused)
                             if self.sound_menu_integration:
@@ -160,18 +160,13 @@ class Controller(object):
                 
     def set_speed(self, speed):
         if speed == 0:
-            self.playing = True
             self.paused = True
-            self.ui.paused(self.paused)
         elif speed == 1:
-            self.playing = True
-            self.paused = False     
-            self.ui.paused(self.paused)
+            self.paused = False
+        self.playing = True
+        self.ui.paused(self.paused)
         if self.sound_menu_integration:
-                if self.paused:
-                    self.sound_menu.signal_paused()
-                else:
-                    self.sound_menu.signal_playing()
+            self.sound_menu.send_signal(self.paused)
     
     def handle_error(self, error):
         self.ui.handle_error(error)

@@ -76,9 +76,3 @@ class XbmcremoteWindow(Window):
         self.controller.kill()
         Gtk.main_quit()
             
-    def handle_error(self, error):
-        """Display the error box."""
-        if self.ErrorDialog is not None:
-            error_dialog = self.ErrorDialog(error['message'])
-            error_dialog.show()
-            

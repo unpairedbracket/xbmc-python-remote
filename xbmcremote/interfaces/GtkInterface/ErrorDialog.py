@@ -24,7 +24,7 @@ gettext.textdomain('xbmcremote')
 class ErrorDialog(Gtk.Dialog):
     __gtype_name__ = "ErrorDialog"
 
-    def __new__(cls, error):
+    def __new__(cls):
         """Special static method that's automatically called by Python when 
         constructing a new instance of this class.
         
@@ -32,7 +32,6 @@ class ErrorDialog(Gtk.Dialog):
         """
         builder = get_builder('ErrorDialog')
         new_object = builder.get_object('error_dialog')
-        new_object.error = error
         new_object.finish_initializing(builder)
         return new_object
 
@@ -47,14 +46,18 @@ class ErrorDialog(Gtk.Dialog):
         # Get a reference to the builder and set up the signals.
         self.builder = builder
         self.ui = builder.get_ui(self)
-        self.ui.method_failed_label.set_label('Server-side error: ' + self.error)
+        
+    def set_error(self, error):
+        self.error = error
+        self.ui.method_failed_label.set_label('Server-side error ' + str(self.error['code']) + ': ' + self.error['message'])
 
     def on_btn_ok_clicked(self, widget, data=None):
         """The user has elected to save the changes.
 
-        Called before the dialog returns Gtk.RESONSE_OK from run().
+        Called before the dialog returns Gtk.ResponseType.OK from run().
         """
         self.destroy()
+
 
 if __name__ == "__main__":
     dialog = ErrorDialog()

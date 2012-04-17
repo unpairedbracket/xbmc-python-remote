@@ -12,6 +12,9 @@ class BaseInterface(object):
         if try_connect and not self.controller.connected:
             self.controller.connect_to_xbmc(True)
             
+    def handle_error(self, error):
+        print 'Error ' + str(error['code']) + ': ' + error['message'] 
+            
     
     def show(self):
         '''

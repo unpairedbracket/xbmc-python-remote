@@ -119,4 +119,12 @@ class GtkInterface(BaseInterface):
     def update_now_playing(self, data):
         print data
         GObject.idle_add(self.window.ui.now_playing_label.set_label, ' '.join([data['item']['title'], 'by', data['item']['artist'], 'from', data['item']['album']]))
-    
+
+    def handle_error(self, error):
+        if self.window.ErrorDialog is not None:
+            error_dialog = self.window.ErrorDialog()
+            error_dialog.set_error(error)
+            GObject.idle_add(error_dialog.show)
+        
+        
+        

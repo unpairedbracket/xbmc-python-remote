@@ -331,6 +331,12 @@ class SoundMenuControls(dbus.service.Object):
             self._sound_menu_pause()
             self.signal_paused()
 
+    def send_signal(self, paused):
+        if paused:
+            self.signal_paused()
+        else:
+            self.signal_playing()
+
     def signal_playing(self):
         """signal_playing - Tell the Sound Menu that the player has
         started playing. Implementations many need to call this function in order
