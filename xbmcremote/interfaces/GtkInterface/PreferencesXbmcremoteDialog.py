@@ -38,8 +38,14 @@ class PreferencesXbmcremoteDialog(PreferencesDialog):
         super(PreferencesXbmcremoteDialog, self).finish_initializing(builder)
 
         # Bind each preference widget to gsettings
-        settings = Gio.Settings("net.launchpad.xbmcremote")
-        widget = self.builder.get_object('ip_entry')
-        settings.bind("ip-address", widget, "text", Gio.SettingsBindFlags.DEFAULT)
+        settings = Gio.Settings('net.launchpad.xbmcremote')
+        ip_widget = self.builder.get_object('ip_entry')
+        port_widget = self.builder.get_object('port_entry')
+        version_widget = self.builder.get_object('version_combo')
+        mpris_widget = self.builder.get_object('mpris2_check')
+        settings.bind('ip-address', ip_widget, 'text', Gio.SettingsBindFlags.DEFAULT)
+        settings.bind('port', port_widget, 'text', Gio.SettingsBindFlags.DEFAULT)
+        settings.bind('version', version_widget, 'active', Gio.SettingsBindFlags.DEFAULT)
+        settings.bind('mpris2', mpris_widget, 'active', Gio.SettingsBindFlags.DEFAULT)
 
         # Code for other initialization actions should be added here.
