@@ -45,17 +45,20 @@ class XbmcremoteWindow(Window):
         self.controller = interface.controller
 
     def newArtist(self, widget, data=None):
-        self.artistid = data[0]['artistid']
-        self.albumid = -1
-        self.controller.GetAlbums(self.artistid)
-        self.controller.GetSongs(self.artistid, self.albumid)
-        
+        if data != []:
+            self.artistid = data[0]['artistid']
+            self.albumid = -1
+            self.controller.GetAlbums(self.artistid)
+            self.controller.GetSongs(self.artistid, self.albumid)
+
     def newAlbum(self, widget, data=None):
-        self.albumid = data[0]['albumid']
-        self.controller.GetSongs(self.artistid, self.albumid)
+        if data != []:
+            self.albumid = data[0]['albumid']
+            self.controller.GetSongs(self.artistid, self.albumid)
 
     def newSong(self, widget, data=None):
-        self.songid = data[0]['songid']
+        if data != []:
+            self.songid = data[0]['songid']
 
     def on_playback_play_clicked(self, widget, data=None):
         if not self.controller.playing:
@@ -75,4 +78,3 @@ class XbmcremoteWindow(Window):
     def on_xbmcremote_window_destroy(self, widget, data=None):
         self.controller.kill()
         Gtk.main_quit()
-            
