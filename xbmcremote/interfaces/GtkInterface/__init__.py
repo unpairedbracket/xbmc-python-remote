@@ -22,7 +22,7 @@ from gi.repository import GObject
 class GtkInterface(BaseInterface):
     
     def __init__(self, controller):
-        self.controller = controller
+        BaseInterface.__init__(self, controller)
         self.updating = False
         self.window = XbmcremoteWindow()
         self.methods = {'artist_list': self.updateArtistList,

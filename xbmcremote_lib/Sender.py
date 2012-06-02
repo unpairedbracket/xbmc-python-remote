@@ -17,10 +17,13 @@ import socket
 import select
 from Queue import Queue
 from threading import Thread
+from gi.repository import GObject
 
-class Sender(object):
+class Sender(GObject.GObject):
 
     def __init__(self, controller):
+        GObject.GObject.__init__(self)
+        controller.connect("xbmc_send", self.add)
         self.__s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.queue = Queue()
         self.controller = controller
@@ -32,8 +35,8 @@ class Sender(object):
     def closeSocket(self):
         self.__s.shutdown(socket.SHUT_RDWR)
         self.__s.close()
-        
-    def add(self, json, callback=None, timeout = 0.1):
+
+    def add(self, controller, json, callback, timeout, data=None):
         data = {'json': json, 'callback': callback, 'timeout': timeout}
         self.queue.put(data)
             
