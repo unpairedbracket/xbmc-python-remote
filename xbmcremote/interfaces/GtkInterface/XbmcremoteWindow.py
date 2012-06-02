@@ -78,4 +78,3 @@ class XbmcremoteWindow(Window):
     def on_xbmcremote_window_destroy(self, widget, data=None):
         self.controller.kill()
         Gtk.main_quit()
-            
