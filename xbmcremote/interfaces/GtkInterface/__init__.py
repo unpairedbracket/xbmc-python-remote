@@ -39,7 +39,7 @@ class GtkInterface(BaseInterface):
             self.updatePlaying()
             self.updateLibrary()
             if not self.updating:
-                #GObject.timeout_add(1000, self.updatePlaying)
+                GObject.timeout_add(1000, self.updatePlaying)
                 self.updating = True
         else:
             GObject.idle_add(self.window.ui.connected_to.set_label, 'Connection Failed!')
@@ -117,7 +117,6 @@ class GtkInterface(BaseInterface):
         view.add(grid)
 
     def update_now_playing(self, data):
-        print data
         GObject.idle_add(self.window.ui.now_playing_label.set_label, ' '.join([data['item']['title'], 'by', data['item']['artist'], 'from', data['item']['album']]))
 
     def handle_error(self, error):

@@ -238,7 +238,7 @@ class Controller(GObject.GObject):
 
     def SendCustomRequest(self, method, params={}, callback=None, timeout=0.1):
         
-        action = self.XJ.buildJson(method, params, 'custom')
+        action = self.XJ.XbmcJson.Custom.__getattr__(method)(params, identifier='custom')
         self.json_send(action, callback, timeout)
 
     def json_send(self, json, callback=None, timeout=0.1):
