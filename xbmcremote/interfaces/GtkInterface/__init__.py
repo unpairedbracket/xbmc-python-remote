@@ -117,7 +117,6 @@ class GtkInterface(BaseInterface):
         view.add(grid)
 
     def update_now_playing(self, data):
-        print data
         GObject.idle_add(self.window.ui.now_playing_label.set_label, ' '.join([data['item']['title'], 'by', data['item']['artist'], 'from', data['item']['album']]))
 
     def handle_error(self, error):
