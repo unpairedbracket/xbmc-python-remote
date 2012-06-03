@@ -229,6 +229,6 @@ class Controller(object):
         
     def SendCustomRequest(self, method, params={}, callback=None, timeout=0.1):
         
-        action = self.XJ.buildJson(method, params, 'custom')
+        action = self.XJ.XbmcJson.Custom.__getattr__(method)(params, identifier='custom')
         self.send.add(action, callback, timeout)
         
