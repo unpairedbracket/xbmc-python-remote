@@ -39,7 +39,7 @@ class GtkInterface(BaseInterface):
             self.updatePlaying()
             self.updateLibrary()
             if not self.updating:
-                #GObject.timeout_add(1000, self.updatePlaying)
+                GObject.timeout_add(1000, self.updatePlaying)
                 self.updating = True
         else:
             GObject.idle_add(self.window.ui.connected_to.set_label, 'Connection Failed!')
