@@ -33,7 +33,7 @@ class ProperJson(object):
 JsonRpc = ProperJson()
 
 #Control
-XBMC_GET_PLAYERS = JsonRpc.Playlist.GetPlayers
+XBMC_GET_PLAYERS = JsonRpc.Playlist.GetPlayers()
 XBMC_START = JsonRpc.Playlist.Play(playerid=0)
 XBMC_STOP = JsonRpc.Player.Stop(playerid=0)
 XBMC_PLAY = JsonRpc.Player.PlayPause(playerid=0)
