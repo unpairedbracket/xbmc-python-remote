@@ -43,38 +43,46 @@ class XbmcremoteWindow(Window):
     def set_interface(self, interface):
         self.interface = interface
         self.controller = interface.controller
+    
+    def join_args(self, *args):
+        strs = map(str, args)
+        string = ' '.join(strs)
+        return string
 
     def newArtist(self, widget, data=None):
         if data != []:
             self.artistid = data[0]['artistid']
             self.albumid = -1
-            self.controller.GetAlbums(self.artistid)
-            self.controller.GetSongs(self.artistid, self.albumid)
+#            self.controller.GetAlbums(self.artistid)
+            self.interface.emit("xbmc_get", "albums", self.join_args(self.artistid))
+#            self.controller.GetSongs(self.artistid, self.albumid)
+            self.interface.emit("xbmc_get", "songs", self.join_args(self.artistid, self.albumid))
 
     def newAlbum(self, widget, data=None):
         if data != []:
             self.albumid = data[0]['albumid']
-            self.controller.GetSongs(self.artistid, self.albumid)
+#            self.controller.GetSongs(self.artistid, self.albumid)
+            self.interface.emit("xbmc_get", "songs", self.join_args(self.artistid, self.albumid))
 
     def newSong(self, widget, data=None):
         if data != []:
             self.songid = data[0]['songid']
 
     def on_playback_play_clicked(self, widget, data=None):
-        if not self.controller.playing:
-            self.controller.StartPlaying()
+        if self.controller.playing:
+            self.interface.emit("xbmc_control", "play", None)
         else:
-            self.controller.PlayPause()
+            self.interface.emit("xbmc_control", "start", None)
 
     def on_playback_next_clicked(self, widget, data=None):
-        self.controller.PlayNext()
-        
+        self.interface.emit("xbmc_control", "next", None)
+
     def on_playback_previous_clicked(self, widget, data=None):
-        self.controller.PlayPrevious()
+        self.interface.emit("xbmc_control", "prev", None)
 
     def on_refresh_clicked(self, widget, data=None):
         self.interface.refresh(True)
-            
+
     def on_xbmcremote_window_destroy(self, widget, data=None):
         self.controller.kill()
         Gtk.main_quit()

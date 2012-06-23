@@ -24,7 +24,11 @@ from threading import Thread
 from socket import error as SocketError
 
 class Controller(GObject.GObject):
-    __gsignals__ = {"xbmc_send": (GObject.SIGNAL_RUN_FIRST, None, (str, str, float))}
+    __gsignals__ = {
+            "xbmc_send": (GObject.SIGNAL_RUN_FIRST, None, (str, str, float)),
+            "xbmc_init": (GObject.SIGNAL_RUN_FIRST, None, ())
+        }
+
 
     def __init__(self, gui):
         GObject.GObject.__init__(self)
@@ -34,6 +38,23 @@ class Controller(GObject.GObject):
         else:
             from interfaces.TextInterface import TextInterface as Interface
 
+        self.control_methods = {
+                'play': self.PlayPause,
+                'next': self.PlayNext,
+                'prev': self.PlayPrevious,
+                'start': self.StartPlaying,
+                'stop': self.StopPlaying
+            }
+
+        self.data_methods = {
+                'artists': self.GetArtists,
+                'albums': self.GetAlbums,
+                'songs': self.GetSongs,
+                'state': self.CheckState,
+                'players': self.GetPlayers,
+                'now_playing':self.GetNowPlaying,
+                'custom': self.SendCustomRequest
+            }
         self.settings = Gio.Settings("net.launchpad.xbmcremote")
         
         self.XJ = XJ
@@ -68,13 +89,22 @@ class Controller(GObject.GObject):
         self.responder.daemon = True
         self.responder.start()
         
-    def get_data(self, interface, request, data=None):
-        """General method handler for requesting data"""
-        print
-        print interface
-        print request
-        print data
-        print
+    def get_data(self, interface, request, params):
+        print params
+        try:
+            paramlist = params.split()
+        except:
+            self.data_methods[request]()
+        else:
+            self.data_methods[request](paramlist)
+
+    def send_control(self, interface, request, params):
+        try:
+            paramlist = params.split()
+        except:
+            self.control_methods[request]()
+        else:
+            self.control_methods[request](paramlist)
 
     def integrate_sound_menu(self):
         #sound menu integration
@@ -92,16 +122,24 @@ class Controller(GObject.GObject):
             self.connected = False
         else:
             self.connected = True
+            self.initialise_connection()
         finally:
+        #TODO This is bad, mmkay
             if not from_refresh:
                 self.ui.refresh(False)
-            
+
+    def initialise_connection(self):
+        self.emit('xbmc_init')
+
+    def do_xbmc_init(instance):
+        print 'init'
+
     def is_playing(self):
         return not self.paused
 
     def add(self, data):
         self.queue.put(data)
-           
+
     def sendCallback(self, jsonlist, callback):
         json = '[' + jsonlist.replace('}\n{', '},{').replace('}{','},{') + ']'
         self.decoder.decode(json, callback)
@@ -184,60 +222,59 @@ class Controller(GObject.GObject):
         self.send.closeSocket()
         self.killed = True
 
-    def PlayPause(self):
+    def PlayPause(self, data=[]):
         action = self.XJ.XBMC_PLAY
         self.json_send(action)
 
-    def PlayNext(self):
-        
+    def PlayNext(self, data=[]):
         action = self.XJ.XBMC_NEXT
         self.json_send(action)
 
-    def PlayPrevious(self):
-        
+    def PlayPrevious(self, data=[]):
         action = self.XJ.XBMC_PREV
         self.json_send(action)
 
-    def StartPlaying(self):
-        
+    def StartPlaying(self, data=[]):
         action = self.XJ.XBMC_START
         self.json_send(action)
 
-    def StopPlaying(self):
-        
+    def StopPlaying(self, data=[]):
         action = self.XJ.XBMC_STOP
         self.json_send(action)
 
-    def CheckState(self):
-        
+    def CheckState(self, data=[]):
         action = self.XJ.XBMC_STATE
         self.json_send(action)
 
-    def GetArtists(self):
-        
+    def GetArtists(self, data=[]):
         action = self.XJ.GetArtists()
         self.json_send(action, timeout=0.5)
 
-    def GetAlbums(self, artistid=-1):
-        
+    def GetAlbums(self, data=[-1]):
+        print data
+        artistid = int(data[0])
         action = self.XJ.GetAlbums(artistid)
         self.json_send(action, timeout=0.5)
 
-    def GetSongs(self, artistid=-1, albumid=-1):
-        
+    def GetSongs(self, data=[-1,-1]):
+        artistid = int(data[0])
+        albumid = int(data[1])
         action = self.XJ.GetSongs(artistid, albumid)
         self.json_send(action, timeout=0.5)
 
-    def GetNowPlaying(self):
-        action = self.XJ.GetNowPlaying(0)
+    def GetNowPlaying(self, data=[]):
+        action = self.XJ.GetNowPlaying(0) #TODO: Use a player number from XBMC
         self.json_send(action)
 
-    def GetPlayers(self):
+    def GetPlayers(self, data=[]):
         action = self.XJ.GetPlayers()
         self.json_send(action)
 
-    def SendCustomRequest(self, method, params={}, callback=None, timeout=0.1):
-        
+    def SendCustomRequest(self, data=[-1,-1,-1,-1]):
+        method = int(data[0])
+        params = int(data[1])
+        callback = eval(data[2])
+        timeout = float(data[3])
         action = self.XJ.XbmcJson.Custom.__getattr__(method)(params, identifier='custom')
         self.json_send(action, callback, timeout)
 

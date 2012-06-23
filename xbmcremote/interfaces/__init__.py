@@ -2,15 +2,15 @@ from gi.repository import GObject
 
 class BaseInterface(GObject.GObject):
     __gsignals__ = {
-            'xbmc_get': (GObject.SIGNAL_RUN_FIRST, None, (str,)),
-            'xbmc_control': (GObject.SIGNAL_RUN_FIRST, None, (str,))
-            }
+            'xbmc_get': (GObject.SIGNAL_RUN_FIRST, None, (str, str,)),
+            'xbmc_control': (GObject.SIGNAL_RUN_FIRST, None, (str, str,))
+        }
 
     def __init__(self, controller):
         GObject.GObject.__init__(self)
         self.controller = controller
         self.connect('xbmc_get', self.controller.get_data)
-        #self.connect('xbmc_control', self.controller.control)
+        self.connect('xbmc_control', self.controller.send_control)
 
     def refresh(self, try_connect=True):  
         '''

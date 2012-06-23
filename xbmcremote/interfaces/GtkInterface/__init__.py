@@ -31,6 +31,11 @@ class GtkInterface(BaseInterface):
                         'now_playing': self.update_now_playing}
         self.window.set_interface(self)
         
+    def join_args(self, *args):
+        strs = map(str, args)
+        string = ' '.join(strs)
+        return string
+
     def refresh(self, try_connect=True):
         super(GtkInterface, self).refresh(try_connect)
         
@@ -53,15 +58,20 @@ class GtkInterface(BaseInterface):
         
     def updatePlaying(self):
         try:
-            self.controller.CheckState()
-            self.controller.GetNowPlaying()
+            self.emit("xbmc_get", "state", None)
+        #    self.controller.CheckState()
+            self.emit("xbmc_get", "now_playing", None)
+        #    self.controller.GetNowPlaying()
         finally:
             return True
     
     def updateLibrary(self):
-        self.controller.GetArtists()
-        self.controller.GetAlbums()
-        self.controller.GetSongs()
+        self.emit("xbmc_get", "artists", None)
+#        self.controller.GetArtists()
+        self.emit("xbmc_get", "albums", None)
+#        self.controller.GetAlbums()
+        self.emit("xbmc_get", "songs", None)
+#        self.controller.GetSongs()
         
     def paused(self, paused):
         if paused:
