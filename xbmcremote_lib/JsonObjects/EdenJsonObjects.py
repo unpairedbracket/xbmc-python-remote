@@ -54,6 +54,14 @@ def GetAlbums(artistid=-1):
         return JsonRpc.AudioLibrary.GetAlbums(artistid=artistid, identifier='album_list')
 
 def GetSongs(artistid=-1, albumid=-1):
+    command = 'JsonRpc.AudioLibrary.GetSongs('
+    if artistid != -1:
+        command += 'artistid=artistid, '
+    if albumid != -1 :
+        command +='albumid=albumid, '
+    command += 'identifier="song_list")'
+    print eval(command)
+
     if artistid == -1 and albumid == -1:
         return JsonRpc.AudioLibrary.GetSongs(identifier='song_list')
     elif albumid == -1:
