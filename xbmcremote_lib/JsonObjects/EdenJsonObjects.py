@@ -48,28 +48,18 @@ def GetArtists():
     return JsonRpc.AudioLibrary.GetArtists(identifier='artist_list')
 
 def GetAlbums(artistid=-1):
-    if artistid == -1:
-        return JsonRpc.AudioLibrary.GetAlbums(identifier='album_list')
-    else:
-        return JsonRpc.AudioLibrary.GetAlbums(artistid=artistid, identifier='album_list')
+    params = {}
+    if artistid != -1:
+        params['artistid'] = artistid
+    return JsonRpc.AudioLibrary.GetAlbums(identifier='album_list', **params)
 
 def GetSongs(artistid=-1, albumid=-1):
-    command = 'JsonRpc.AudioLibrary.GetSongs('
+    params = {}
     if artistid != -1:
-        command += 'artistid=artistid, '
+        params['artistid'] = artistid
     if albumid != -1 :
-        command +='albumid=albumid, '
-    command += 'identifier="song_list")'
-    print eval(command)
-
-    if artistid == -1 and albumid == -1:
-        return JsonRpc.AudioLibrary.GetSongs(identifier='song_list')
-    elif albumid == -1:
-        return JsonRpc.AudioLibrary.GetSongs(artistid=artistid, identifier='song_list')
-    elif artistid == -1:
-        return JsonRpc.AudioLibrary.GetSongs(albumid=albumid, identifier='song_list')
-    else:
-        return JsonRpc.AudioLibrary.GetSongs(artistid=artistid, albumid=albumid, identifier='song_list')
+        params['albumid'] = albumid
+    return JsonRpc.AudioLibrary.GetSongs(identifier='song_list', **params)
 
 def GetPlayers():
     return JsonRpc.Player.GetPlayers
