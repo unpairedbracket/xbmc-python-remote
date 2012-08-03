@@ -21,8 +21,8 @@ class Decoder(object):
         self.decoder = JSONDecoder()
         self.controller = controller
     
-    def decode(self, Json, callback=None):
-        js = self.decoder.decode(Json)
+    def decode(self, instance, json):
+        js = self.decoder.decode(json)
         for i in js:
             #check for a valid response
             if i.has_key('error'):
@@ -43,5 +43,5 @@ class Decoder(object):
                     identifier = None
                     result = i['params']['data']
                 
-            data = {'kind': kind, 'data': result, 'callback': callback, 'id': identifier}
+            data = {'kind': kind, 'data': result, 'id': identifier}
             self.controller.add(data)

@@ -148,14 +148,10 @@ class Controller(GObject.GObject):
                 kind = item['kind']
                 data = item['data']
                 identifier = item['id']
-                callback = item['callback']
                 #Show a nice error dialog or raise an exception
                 if kind == 'error':
                     self.handle_error(data)
-                #Use callbacks if the data is for something unconventional
-                elif callback is not None:
-                    callback(data)
-                #Otherwise this will work out what to do with it
+                #This will work out what to do with it
                 elif data == 'OK':
                     print data
                 elif kind == 'response':
@@ -270,11 +266,10 @@ class Controller(GObject.GObject):
     def SendCustomRequest(self, data=[-1,-1,-1,-1]):
         method = int(data[0])
         params = int(data[1])
-        callback = eval(data[2])
         timeout = float(data[3])
         action = self.XJ.XbmcJson.Custom.__getattr__(method)(params, identifier='custom')
-        self.json_send(action, callback, timeout)
+        self.json_send(action, timeout)
 
-    def json_send(self, json, callback=None, timeout=0.1):
+    def json_send(self, json, timeout=0.1):
         """General method for emitting the xbmc_send signal"""
-        self.emit("xbmc_send", json, callback, timeout)
+        self.emit("xbmc_send", json, timeout)

@@ -41,8 +41,8 @@ class Sender(GObject.GObject):
         self.__s.shutdown(socket.SHUT_RDWR)
         self.__s.close()
 
-    def add(self, controller, json, callback, timeout, data=None):
-        data = {'json': json, 'callback': callback, 'timeout': timeout}
+    def add(self, controller, json, timeout, data=None):
+        data = {'json': json, 'timeout': timeout}
         self.queue.put(data)
             
     def start(self):
@@ -58,9 +58,8 @@ class Sender(GObject.GObject):
             try:
                 item = self.queue.get()
                 json = item['json']
-                callback = item['callback']
                 timeout = item['timeout']
-                self.__send(json, callback, timeout)
+                self.__send(json, timeout)
             except Exception as ex:
                 #TODO Do something
                 print ex
