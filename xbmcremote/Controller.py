@@ -67,6 +67,7 @@ class Controller(GObject.GObject):
         #Initialise parts
         self.send = Sender(self)
         self.decoder = Decoder(self)
+        self.send.connect("xbmc_received", self.decoder.decode)
         
         #Start program running with responder thread
         self.start_running()
@@ -140,10 +141,6 @@ class Controller(GObject.GObject):
     def add(self, data):
         self.queue.put(data)
 
-    def sendCallback(self, jsonlist, callback):
-        json = '[' + jsonlist.replace('}\n{', '},{').replace('}{','},{') + ']'
-        self.decoder.decode(json, callback)
-        
     def worker(self):
         while True:
             try:

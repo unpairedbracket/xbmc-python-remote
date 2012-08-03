@@ -15,17 +15,22 @@
 
 import socket
 import select
-from Queue import Queue
+from Queue import Queue, Empty
 from threading import Thread
 from gi.repository import GObject
 
 class Sender(GObject.GObject):
+
+    __gsignals__ = {
+            "xbmc_received": (GObject.SIGNAL_RUN_FIRST, None, (str,))
+        }
 
     def __init__(self, controller):
         GObject.GObject.__init__(self)
         controller.connect("xbmc_send", self.add)
         self.__s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.queue = Queue()
+        self.recv_queue = Queue()
         self.controller = controller
         self.start()
         
@@ -41,9 +46,12 @@ class Sender(GObject.GObject):
         self.queue.put(data)
             
     def start(self):
-        self.work = Thread(target=self.worker, name='Network thread')
+        self.work = Thread(target=self.worker, name='Network sender thread')
         self.work.daemon = True
         self.work.start()
+        self.recv = Thread(target=self.recver, name='Network receiver thread')
+        self.recv.daemon = True
+        self.recv.start()
 
     def worker(self):
         while True:
@@ -56,22 +64,30 @@ class Sender(GObject.GObject):
             except Exception as ex:
                 #TODO Do something
                 print ex
-    
-    def __send(self, json, callback, timeout):
-        self.__s.send(json)
-        #Some functions take unusually long to respond to
-        self.__s.settimeout(timeout)
-        responses = ''
-        while True:
-            try: 
-                responses += self.__returnResponse()
-            except socket.timeout:
-                return self.controller.sendCallback(responses, callback)
 
-    def __returnResponse(self):    
-        response = ''
+    def recver(self):
+        """receives messages from xbmc"""
         while True:
-            response += (self.__s.recv(0x4000))
-    
-            if len(select.select([self.__s], [], [], 0)[0]) == 0:
-                return response;
+            try:
+                timeout = self.queue.get(True, 5.0)
+            except Empty:
+                timeout = 1.0
+            try:
+                responses = ''
+                response = ''
+                self.__s.settimeout(timeout)
+                while True:
+                    response += (self.__s.recv(0x4000))
+                    if len(select.select([self.__s], [], [], 0)[0]) == 0:
+                        responses += response
+                        response = ''
+            except socket.timeout:
+                #Just need to 'normalise' the responses
+                #in case there's more than one in there
+                responses = '[' + responses.replace('}\n{', '},{').replace('}{','},{') + ']'
+                #self.controller.sendCallback(responses, callback)
+                self.emit("xbmc_received", responses)
+
+    def __send(self, json, timeout):
+        self.__s.send(json)
+        self.recv_queue.put(timeout)
