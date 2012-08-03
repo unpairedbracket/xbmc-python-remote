@@ -25,8 +25,8 @@ from socket import error as SocketError
 
 class Controller(GObject.GObject):
     __gsignals__ = {
-            "xbmc_send": (GObject.SIGNAL_RUN_FIRST, None, (str, str, float)),
-            "xbmc_init": (GObject.SIGNAL_RUN_FIRST, None, ())
+            "xbmc_init": (GObject.SIGNAL_RUN_FIRST, None, ()),
+            "xbmc_send": (GObject.SIGNAL_RUN_FIRST, None, (str, float)),
         }
 
 
