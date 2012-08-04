@@ -117,6 +117,8 @@ class Controller(GObject.GObject):
         self.sound_menu._sound_menu_raise = self.ui.show
         
     def connect_to_xbmc(self, from_refresh=False):
+        self.ip = self.settings.get_string('ip-address')
+        self.port = int(self.settings.get_string('port'))
         try:
             self.send.getSocket(self.ip, self.port)
         except SocketError:
