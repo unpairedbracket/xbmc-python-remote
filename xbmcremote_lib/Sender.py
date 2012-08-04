@@ -59,7 +59,8 @@ class Sender(GObject.GObject):
                 item = self.queue.get()
                 json = item['json']
                 timeout = item['timeout']
-                self.__send(json, timeout)
+                self.__s.send(json)
+                self.recv_queue.put(timeout)
             except Exception as ex:
                 #TODO Do something
                 print ex
@@ -87,6 +88,3 @@ class Sender(GObject.GObject):
                 #self.controller.sendCallback(responses, callback)
                 self.emit("xbmc_received", responses)
 
-    def __send(self, json, timeout):
-        self.__s.send(json)
-        self.recv_queue.put(timeout)
