@@ -54,6 +54,7 @@ class Sender(GObject.GObject):
         self.recv.start()
 
     def worker(self):
+        """sends messages to xbmc"""
         while True:
             try:
                 item = self.queue.get()
@@ -63,7 +64,7 @@ class Sender(GObject.GObject):
                 self.recv_queue.put(timeout)
             except Exception as ex:
                 #TODO Do something
-                print ex
+                print 'Sender error: ', ex
 
     def recver(self):
         """receives messages from xbmc"""
