@@ -69,22 +69,26 @@ class Sender(GObject.GObject):
         """receives messages from xbmc"""
         while True:
             try:
-                timeout = self.queue.get(True, 5.0)
-            except Empty:
-                timeout = 1.0
-            try:
-                responses = ''
-                response = ''
-                self.__s.settimeout(timeout)
-                while True:
-                    response += (self.__s.recv(0x4000))
-                    if len(select.select([self.__s], [], [], 0)[0]) == 0:
-                        responses += response
-                        response = ''
-            except socket.timeout:
-                #Just need to 'normalise' the responses
-                #in case there's more than one in there
-                responses = '[' + responses.replace('}\n{', '},{').replace('}{','},{') + ']'
-                #self.controller.sendCallback(responses, callback)
-                self.emit("xbmc_received", responses)
+                try:
+                    timeout = self.queue.get(True, 2.0)
+                except Empty:
+                    timeout = 1.0
+                try:
+                    responses = ''
+                    response = ''
+                    self.__s.settimeout(timeout)
+                    while True:
+                        response += (self.__s.recv(0x4000))
+                        if len(select.select([self.__s], [], [], 0)[0]) == 0:
+                            responses += response
+                            response = ''
+                except socket.timeout:
+                #A timeout means there really is nothing left
+                #so the response is complete
+                    #Just need to 'normalise' the responses
+                    #in case there's more than one in there
+                    responses = '[' + responses.replace('}\n{', '},{').replace('}{','},{') + ']'
+                    self.emit("xbmc_received", responses)
+            except Exception as ex:
+                print 'Reveiver error: ', ex
 
