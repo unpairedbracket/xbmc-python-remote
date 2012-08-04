@@ -23,7 +23,6 @@ class GtkInterface(BaseInterface):
     
     def __init__(self, controller):
         BaseInterface.__init__(self, controller)
-        self.updating = False
         self.window = XbmcremoteWindow()
         self.methods = {'artist_list': self.updateArtistList,
                         'album_list': self.updateAlbumList,
@@ -43,9 +42,6 @@ class GtkInterface(BaseInterface):
             GObject.idle_add(self.window.ui.connected_to.set_label, 'Connected to: '+self.controller.ip+':'+str(self.controller.port))
             self.updatePlaying()
             self.updateLibrary()
-            if not self.updating:
-                GObject.timeout_add(1000, self.updatePlaying)
-                self.updating = True
         else:
             GObject.idle_add(self.window.ui.connected_to.set_label, 'Connection Failed!')
     
