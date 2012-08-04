@@ -91,7 +91,6 @@ class Controller(GObject.GObject):
         self.responder.start()
         
     def get_data(self, interface, request, params):
-        print params
         try:
             paramlist = params.split()
         except:
@@ -246,7 +245,6 @@ class Controller(GObject.GObject):
         self.json_send(action, timeout=0.5)
 
     def GetAlbums(self, data=[-1]):
-        print data
         artistid = int(data[0])
         action = self.XJ.GetAlbums(artistid)
         self.json_send(action, timeout=0.5)
