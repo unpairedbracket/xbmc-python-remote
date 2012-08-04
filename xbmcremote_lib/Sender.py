@@ -41,7 +41,7 @@ class Sender(GObject.GObject):
         self.__s.shutdown(socket.SHUT_RDWR)
         self.__s.close()
 
-    def add(self, controller, json, timeout, data=None):
+    def add(self, signaller, json, timeout, data=None):
         data = {'json': json, 'timeout': timeout}
         self.queue.put(data)
             
