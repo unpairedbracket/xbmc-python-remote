@@ -56,7 +56,7 @@ class Controller(GObject.GObject):
                 'custom': self.SendCustomRequest
             }
         self.settings = Gio.Settings("net.launchpad.xbmcremote")
-        
+        self.player = 0
         self.XJ = XJ
         self.ui = Interface(self)
 
@@ -178,7 +178,11 @@ class Controller(GObject.GObject):
                     else:
                         print data
                 elif kind == 'notification':
+                    if data.has_key('item'):
+                        if data['item']['type'] == 'song':
+                            self.GetNowPlaying()
                     if data.has_key('player'):
+                        self.player = data['player']['playerid']
                         self.set_speed(data['player']['speed'])
                     else:
                         print data
@@ -256,7 +260,7 @@ class Controller(GObject.GObject):
         self.json_send(action, timeout=0.5)
 
     def GetNowPlaying(self, data=[]):
-        action = self.XJ.GetNowPlaying(0) #TODO: Use a player number from XBMC
+        action = self.XJ.GetNowPlaying(self.player)
         self.json_send(action)
 
     def GetPlayers(self, data=[]):
