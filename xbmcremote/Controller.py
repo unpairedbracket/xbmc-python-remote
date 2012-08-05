@@ -27,6 +27,7 @@ class Controller(GObject.GObject):
     __gsignals__ = {
             "xbmc_init": (GObject.SIGNAL_RUN_FIRST, None, ()),
             "xbmc_send": (GObject.SIGNAL_RUN_FIRST, None, (str, float)),
+            "xbmc_new_playing": (GObject.SIGNAL_RUN_FIRST, None, (str, str, str)),
             "xbmc_error": (GObject.SIGNAL_RUN_FIRST, None, (str, int, str))
         }
 
