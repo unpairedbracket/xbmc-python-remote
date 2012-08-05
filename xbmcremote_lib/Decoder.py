@@ -40,7 +40,7 @@ class Decoder(object):
                     result = i['params']['message']
                 else:
                     kind = 'notification'
-                    identifier = None
+                    identifier = i['method']
                     result = i['params']['data']
                 
             data = {'kind': kind, 'data': result, 'id': identifier}
