@@ -155,25 +155,13 @@ class Controller(GObject.GObject):
                     self.handle_error(item)
                 #This will work out what to do with responses and notifications
                 elif data == 'OK':
-                    print data
+                    #This tells us exactly nothing useful
+                    pass
                 elif kind == 'response':
-                    if identifier == 'state' or identifier == 'control':
-                        if data.has_key('playing'):
-                            if data['paused']:
-                                self.set_speed(0)
-                            else:
-                                self.set_speed(1)
-                            self.paused = data['paused']
-                            self.ui.paused(self.paused)
-                            if self.sound_menu_integration:
-                                if data['paused']:
-                                    self.sound_menu.signal_paused()
-                                else:
-                                    self.sound_menu.signal_playing()
-                        if data.has_key('speed'):
-                            self.set_speed(data['speed'])
+                    if identifier == 'now_playing':
+                        self.emit("xbmc_new_playing", data['item']['artist'], data['item']['album'], data['item']['title'])
                     elif data.has_key('speed'):
-                            self.set_speed(data['speed'])
+                        self.set_speed(data['speed'])
                     elif self.ui.methods.has_key(identifier):
                         self.ui.methods[identifier](data)
                     else:
@@ -202,8 +190,8 @@ class Controller(GObject.GObject):
                     print 'Weirdly,', data
             except Exception as ex:
                 #TODO Do something
-                print 'Error:', ex
-                
+                print 'Processing error:', ex
+
     def set_speed(self, speed):
         if speed == 0:
             self.paused = True
