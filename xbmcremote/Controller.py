@@ -175,17 +175,6 @@ class Controller(GObject.GObject):
                         self.set_speed(data['player']['speed'])
                     else:
                         print data
-                elif kind == 'announcement':
-                    if data == 'PlaybackStarted':
-                        self.playing = True
-                    elif data == 'PlaybackStopped':
-                        self.playing = False
-                    elif data == 'PlaybackPaused':
-                        self.paused = True
-                    elif data == 'PlaybackResumed':
-                        self.paused = False
-                    else:
-                        print data
                 else:
                     print 'Weirdly,', data
             except Exception as ex:
