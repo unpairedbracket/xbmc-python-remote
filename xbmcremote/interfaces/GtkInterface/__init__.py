@@ -29,6 +29,7 @@ class GtkInterface(BaseInterface):
                         'song_list': self.updateSongList, 
                         'now_playing': self.update_now_playing}
         self.window.set_interface(self)
+        self.controller.connect("xbmc_error", self.handle_error)
         
     def join_args(self, *args):
         strs = map(str, args)
@@ -125,10 +126,10 @@ class GtkInterface(BaseInterface):
     def update_now_playing(self, data):
         GObject.idle_add(self.window.ui.now_playing_label.set_label, ' '.join([data['item']['title'], 'by', data['item']['artist'], 'from', data['item']['album']]))
 
-    def handle_error(self, error):
+    def handle_error(self, signaller, message, code, identifier, data=None):
         if self.window.ErrorDialog is not None:
             error_dialog = self.window.ErrorDialog()
-            error_dialog.set_error(error)
+            error_dialog.set_error(message, code, identifier)
             GObject.idle_add(error_dialog.show)
         
         

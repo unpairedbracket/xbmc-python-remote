@@ -47,9 +47,11 @@ class ErrorDialog(Gtk.Dialog):
         self.builder = builder
         self.ui = builder.get_ui(self)
         
-    def set_error(self, error):
-        self.error = error
-        self.ui.method_failed_label.set_label('Server-side error ' + str(self.error['code']) + ': ' + self.error['message'])
+    def set_error(self, message, code, identifier=None):
+        if identifier == None:
+            self.ui.method_failed_label.set_label('Server-side error ' + str(code) + ': ' + message)
+        else:
+            self.ui.method_failed_label.set_label('Server-side error ' + str(code) + ': ' + message + ' (' + identifier + ')')
 
     def on_btn_ok_clicked(self, widget, data=None):
         """The user has elected to save the changes.

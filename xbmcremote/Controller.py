@@ -27,6 +27,7 @@ class Controller(GObject.GObject):
     __gsignals__ = {
             "xbmc_init": (GObject.SIGNAL_RUN_FIRST, None, ()),
             "xbmc_send": (GObject.SIGNAL_RUN_FIRST, None, (str, float)),
+            "xbmc_error": (GObject.SIGNAL_RUN_FIRST, None, (str, int, str))
         }
 
 
@@ -149,10 +150,10 @@ class Controller(GObject.GObject):
                 kind = item['kind']
                 data = item['data']
                 identifier = item['id']
-                #Show a nice error dialog or raise an exception
+                #Show a nice error dialog or print the error
                 if kind == 'error':
-                    self.handle_error(data)
-                #This will work out what to do with it
+                    self.handle_error(item)
+                #This will work out what to do with responses and notifications
                 elif data == 'OK':
                     print data
                 elif kind == 'response':
@@ -214,8 +215,11 @@ class Controller(GObject.GObject):
             self.sound_menu.send_signal(self.paused)
     
     def handle_error(self, error):
-        self.ui.handle_error(error)
-        
+        message = error['data']['message']
+        code =  error['data']['code']
+        identifier = error['id']
+        self.emit("xbmc_error", message, code, identifier)
+
     def kill(self):
         self.send.closeSocket()
         self.killed = True
