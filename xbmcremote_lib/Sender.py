@@ -71,7 +71,7 @@ class Sender(GObject.GObject):
         while True:
             try:
                 try:
-                    timeout = self.queue.get(True, 2.0)
+                    timeout = self.recv_queue.get(True, 2.0)
                 except Empty:
                     timeout = 1.0
                 try:
