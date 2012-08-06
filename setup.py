@@ -86,7 +86,7 @@ class InstallAndUpdateDataDirectory(DistUtilsExtra.auto.install_auto):
 
 DistUtilsExtra.auto.setup(
     name='xbmcremote',
-    version='12.04.5',
+    version='12.08',
     license='GPL-3',
     author='Ben Spiers',
     author_email='ben.spiers22@gmail.com' ,
