@@ -163,12 +163,14 @@ class Controller(GObject.GObject):
                     else:
                         print data
                 elif kind == 'notification':
-                    if data.has_key('item'):
-                        if data['item']['type'] == 'song':
-                            self.GetNowPlaying()
-                    if data.has_key('player'):
+                    if identifier == 'Player.OnPlay' and not self.paused:
+                        #This can mean unpaused or new song.
+                        #Check now playing just in case.
+                        self.GetNowPlaying()
+                    if identifier in ['Player.OnPlay', 'Player.OnPause']:
                         self.player = data['player']['playerid']
                         self.set_speed(data['player']['speed'])
+                        self.playing = True
                     else:
                         print data
                 else:
