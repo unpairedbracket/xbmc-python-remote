@@ -184,7 +184,8 @@ class Controller(XbmcRemoteObject):
         self.ui.paused(self.paused)
         if self.sound_menu_integration:
             self.sound_menu.send_signal(self.paused)
-    
+        #TODO signal this
+
     def handle_error(self, error):
         message = error['data']['message']
         code =  error['data']['code']
