@@ -17,22 +17,18 @@
 from xbmcremote_lib.Sender import Sender
 from xbmcremote_lib.Decoder import Decoder
 from xbmcremote_lib.JsonObjects import XJ
+from xbmcremote_lib.XbmcRemoteObject import XbmcRemoteObject
+from xbmcremote_lib.Signals import Signals
 from gi.repository import GObject, Gio
 from Queue import Queue
 from threading import Thread
 from socket import error as SocketError
 
-class Controller(GObject.GObject):
-    __gsignals__ = {
-            "xbmc_init": (GObject.SIGNAL_RUN_FIRST, None, ()),
-            "xbmc_send": (GObject.SIGNAL_RUN_FIRST, None, (str, float)),
-            "xbmc_new_playing": (GObject.SIGNAL_RUN_FIRST, None, (str, str, str)),
-            "xbmc_error": (GObject.SIGNAL_RUN_FIRST, None, (str, int, str))
-        }
-
+class Controller(XbmcRemoteObject):
 
     def __init__(self, gui):
-        GObject.GObject.__init__(self)
+        self.signals = Signals()
+        XbmcRemoteObject.__init__(self, self)
         self.gui = gui
         if self.gui:
             from interfaces.GtkInterface import GtkInterface as Interface
@@ -68,7 +64,7 @@ class Controller(GObject.GObject):
         #Initialise parts
         self.send = Sender(self)
         self.decoder = Decoder(self)
-        self.send.connect("xbmc_received", self.decoder.decode)
+        self.connect("xbmc_received", self.decoder.decode)
         
         #Start program running with responder thread
         self.start_running()
@@ -128,7 +124,7 @@ class Controller(GObject.GObject):
                 self.ui.refresh(False)
 
     def initialise_connection(self):
-        self.emit('xbmc_init')
+        self.emit('xbmc_connected')
 
     def do_xbmc_init(instance):
         print 'init'

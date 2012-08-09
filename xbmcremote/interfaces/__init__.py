@@ -1,14 +1,9 @@
-from gi.repository import GObject
+from xbmcremote_lib.XbmcRemoteObject import XbmcRemoteObject
 
-class BaseInterface(GObject.GObject):
-    __gsignals__ = {
-            'xbmc_get': (GObject.SIGNAL_RUN_FIRST, None, (str, str,)),
-            'xbmc_control': (GObject.SIGNAL_RUN_FIRST, None, (str, str,))
-        }
+class BaseInterface(XbmcRemoteObject):
 
     def __init__(self, controller):
-        GObject.GObject.__init__(self)
-        self.controller = controller
+        XbmcRemoteObject.__init__(self, controller)
         self.connect('xbmc_get', self.controller.get_data)
         self.connect('xbmc_control', self.controller.send_control)
 

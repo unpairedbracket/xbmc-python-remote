@@ -27,7 +27,7 @@ class SoundMenuInterface(BaseInterface):
         self.sound_menu._sound_menu_pause = self.sound_menu._sound_menu_play = self.play_pause
         self.sound_menu._sound_menu_is_playing = self.controller.is_playing
 
-        self.controller.connect("xbmc_new_playing", self.update_now_playing)
+        self.connect("xbmc_new_playing", self.update_now_playing)
 
     def update_now_playing(self, signaller, artist=None, album=None, title=None, data=None):
         print artist, album, title
@@ -36,14 +36,13 @@ class SoundMenuInterface(BaseInterface):
         self.send_signal(self.controller.paused)
 
     def play_pause(self):
-        print play
-        self.interface.emit("xbmc_control", "play", None)
+        self.emit("xbmc_control", "play", None)
 
     def play_next(self):
-        self.interface.emit("xbmc_control", "next", None)
+        self.emit("xbmc_control", "next", None)
 
     def play_prev(self):
-        self.interface.emit("xbmc_control", "prev", None)
+        self.emit("xbmc_control", "prev", None)
 
     def send_signal(self, paused):
         if paused:

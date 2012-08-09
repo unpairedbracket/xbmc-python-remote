@@ -29,8 +29,8 @@ class GtkInterface(BaseInterface):
                         'song_list': self.updateSongList, 
                         'now_playing': self.update_now_playing}
         self.window.set_interface(self)
-        self.controller.connect("xbmc_error", self.handle_error)
-        self.controller.connect("xbmc_new_playing", self.update_now_playing)
+        self.connect("xbmc_error", self.handle_error)
+        self.connect("xbmc_new_playing", self.update_now_playing)
         
     def join_args(self, *args):
         strs = map(str, args)

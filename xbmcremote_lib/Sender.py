@@ -17,22 +17,17 @@ import socket
 import select
 from Queue import Queue, Empty
 from threading import Thread
-from gi.repository import GObject
+from xbmcremote_lib.XbmcRemoteObject import XbmcRemoteObject
 
-class Sender(GObject.GObject):
-
-    __gsignals__ = {
-            "xbmc_received": (GObject.SIGNAL_RUN_FIRST, None, (str,))
-        }
+class Sender(XbmcRemoteObject):
 
     def __init__(self, controller):
-        GObject.GObject.__init__(self)
-        controller.connect("xbmc_send", self.add)
+        XbmcRemoteObject.__init__(self, controller)
+        self.connect("xbmc_send", self.add)
+        self.connect("xbmc_connected", self.start)
         self.__s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.queue = Queue()
         self.recv_queue = Queue()
-        self.controller = controller
-        self.start()
         
     def getSocket(self, IpAddress, Port):
         self.__s.connect((IpAddress, Port))
@@ -45,7 +40,7 @@ class Sender(GObject.GObject):
         data = {'json': json, 'timeout': timeout}
         self.queue.put(data)
             
-    def start(self):
+    def start(self, signaller, data=None):
         self.work = Thread(target=self.worker, name='Network sender thread')
         self.work.daemon = True
         self.work.start()
