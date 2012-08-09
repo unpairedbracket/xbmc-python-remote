@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 ### BEGIN LICENSE
 # Copyright (C) 2011 Rick Spencer <rick.spencer@canonical.com>
@@ -33,7 +34,7 @@ Type=Application
 MimeType=application/x-ogg;application/ogg;audio/x-vorbis+ogg;audio/x-scpls;audio/x-mp3;audio/x-mpeg;audio/mpeg;audio/x-mpegurl;audio/x-flac;
 
 In order for the sound menu to run, a dbus loop must be running before
-the player is created and before the Gtk. mainloop is run. you can add
+the player is created and before the gtk. mainloop is run. you can add
 DBusGMainLoop(set_as_default=True) to your application's __main__ function.
 
 The Ubuntu Sound Menu integrates with applications via the MPRIS2 dbus api,
@@ -330,12 +331,6 @@ class SoundMenuControls(dbus.service.Object):
         else:
             self._sound_menu_pause()
             self.signal_paused()
-
-    def send_signal(self, paused):
-        if paused:
-            self.signal_paused()
-        else:
-            self.signal_playing()
 
     def signal_playing(self):
         """signal_playing - Tell the Sound Menu that the player has

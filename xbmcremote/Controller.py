@@ -16,7 +16,6 @@
 
 from xbmcremote_lib.Sender import Sender
 from xbmcremote_lib.Decoder import Decoder
-from xbmcremote_lib.sound_menu import SoundMenuControls
 from xbmcremote_lib.JsonObjects import XJ
 from gi.repository import GObject, Gio
 from Queue import Queue
@@ -110,13 +109,9 @@ class Controller(GObject.GObject):
 
     def integrate_sound_menu(self):
         #sound menu integration
-        self.sound_menu = SoundMenuControls('xbmcremote')
-        self.sound_menu._sound_menu_next = self.PlayNext
-        self.sound_menu._sound_menu_previous = self.PlayPrevious
-        self.sound_menu._sound_menu_pause = self.sound_menu._sound_menu_play = self.PlayPause
-        self.sound_menu._sound_menu_is_playing = self.is_playing   
-        self.sound_menu._sound_menu_raise = self.ui.show
-        
+        from interfaces.SoundMenuInterface import SoundMenuInterface
+        self.sound_menu = SoundMenuInterface(self)
+
     def connect_to_xbmc(self, from_refresh=False):
         self.ip = self.settings.get_string('ip-address')
         self.port = int(self.settings.get_string('port'))
