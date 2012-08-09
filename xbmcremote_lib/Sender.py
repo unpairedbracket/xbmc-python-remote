@@ -90,6 +90,8 @@ class Sender(GObject.GObject):
                     #in case there's more than one in there
                     responses = '[' + responses.replace('}\n{', '},{').replace('}{','},{') + ']'
                     self.emit("xbmc_received", responses)
+                except socket.error:
+                    print 'Not connected'
             except Exception as ex:
                 print 'Reveiver error: ', ex
 
