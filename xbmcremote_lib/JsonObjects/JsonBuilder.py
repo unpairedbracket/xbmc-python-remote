@@ -16,7 +16,7 @@
 import json
 
 class JsonBuilder(object):
-    """(Hopefully) Smartly builds json requests"""
+    """Smartly builds json requests"""
     def __init__(self, name=None):
         #If name specified, use name.method
         try:
