@@ -56,7 +56,7 @@ def update_desktop_file(datadir):
         fin = file('xbmcremote.desktop.in', 'r')
         fout = file(fin.name + '.new', 'w')
 
-        for line in fin:            
+        for line in fin:
             if 'Icon=' in line:
                 line = "Icon=%s\n" % (datadir + 'media/xbmcremote.svg')
             fout.write(line)
@@ -79,7 +79,7 @@ class InstallAndUpdateDataDirectory(DistUtilsExtra.auto.install_auto):
         update_config(previous_values)
 
 
-        
+
 ##################################################################################
 ###################### YOU SHOULD MODIFY ONLY WHAT IS BELOW ######################
 ##################################################################################

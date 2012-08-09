@@ -16,11 +16,11 @@
 from json import JSONDecoder
 
 class Decoder(object):
-    
+
     def __init__(self, controller):
         self.decoder = JSONDecoder()
         self.controller = controller
-    
+
     def decode(self, instance, json):
         js = self.decoder.decode(json)
         for i in js:
@@ -42,6 +42,6 @@ class Decoder(object):
                     kind = 'notification'
                     identifier = i['method']
                     result = i['params']['data']
-                
+
             data = {'kind': kind, 'data': result, 'id': identifier}
             self.controller.add(data)

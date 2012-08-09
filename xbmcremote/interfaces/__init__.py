@@ -7,7 +7,7 @@ class BaseInterface(XbmcRemoteObject):
         self.connect('xbmc_get', self.controller.get_data)
         self.connect('xbmc_control', self.controller.send_control)
 
-    def refresh(self, try_connect=True):  
+    def refresh(self, try_connect=True):
         '''
         Override this to refresh the interface before starting its main loop.
         If False is passed to try_connect you should not try to connect using

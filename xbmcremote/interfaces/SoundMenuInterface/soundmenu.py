@@ -120,7 +120,7 @@ class SoundMenuControls(dbus.service.Object):
         bus_str = """org.mpris.MediaPlayer2.%s""" % desktop_name
         bus_name = dbus.service.BusName(bus_str, bus=dbus.SessionBus())
         dbus.service.Object.__init__(self, bus_name, "/org/mpris/MediaPlayer2")
-        self.__playback_status = "Stopped"    
+        self.__playback_status = "Stopped"
 
         self.song_changed()
 
@@ -130,21 +130,21 @@ class SoundMenuControls(dbus.service.Object):
         This method is not typically overriden. It should be called
         by implementations of this class when the player has changed
         songs.
-            
+
         named arguments:
             artists - a list of strings representing the artists"
             album - a string for the name of the album
             title - a string for the title of the song
 
         """
-        
+
         if artists is None:
             artists = ["Artist Unknown"]
         if album is None:
             album = "Album Uknown"
         if title is None:
             title = "Title Uknown"
-   
+
         self.__meta_data = dbus.Dictionary({"xesam:album":album,
                             "xesam:title":title,
                             "xesam:artist":artists,
@@ -360,12 +360,12 @@ class SoundMenuControls(dbus.service.Object):
         d = dbus.Dictionary({"PlaybackStatus":self.__playback_status},
                                     "sv",variant_level=1)
         self.PropertiesChanged("org.mpris.MediaPlayer2.Player",d,[])
-            
+
 
     def _sound_menu_is_playing(self):
-        """_sound_menu_is_playing         
+        """_sound_menu_is_playing
 
-        Check if the the player is playing,.        
+        Check if the the player is playing,.
         Implementations should overrirde this function 
         so that the Sound Menu can check whether to display
         Play or Pause functionality.
@@ -388,7 +388,7 @@ class SoundMenuControls(dbus.service.Object):
 
         Reponds to the Sound Menu when the user has click the 
         Pause button.
-        
+
         Implementations should overrirde this function 
         to pause playback when called.
 
@@ -409,7 +409,7 @@ class SoundMenuControls(dbus.service.Object):
 
         Reponds to the Sound Menu when the user has click the 
         Play button.
-        
+
         Implementations should overrirde this function 
         to play playback when called.
 

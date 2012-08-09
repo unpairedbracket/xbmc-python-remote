@@ -172,7 +172,7 @@ class UiFactory():
         cannot_message = '''cannot bind ui.%s, name already exists
         consider using a pythonic name instead of design name "%s"'''
         consider_message = '''consider using a pythonic name instead of design name "%s"'''
-        
+
         for (widget_name, widget) in widget_dict.items():
             pyname = make_pyname(widget_name)
             if pyname != widget_name:

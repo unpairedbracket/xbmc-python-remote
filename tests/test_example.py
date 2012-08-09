@@ -32,5 +32,5 @@ class TestExample(unittest.TestCase):
         public_members.sort()
         self.assertEqual(self.AboutXbmcremoteDialog_members, public_members)
 
-if __name__ == '__main__':    
+if __name__ == '__main__':
     unittest.main()

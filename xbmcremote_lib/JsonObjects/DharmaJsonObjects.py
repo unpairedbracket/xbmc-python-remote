@@ -37,6 +37,6 @@ def GetAlbums(artistid=-1):
     params = {"artistid": artistid}
     return buildJson("AudioLibrary.GetAlbums", params, identifier="album_list")
 
-def GetSongs(artistid=-1, albumid=-1):    
+def GetSongs(artistid=-1, albumid=-1):
     params = {"artistid": artistid, "albumid": albumid}
     return buildJson("AudioLibrary.GetSongs", params, identifier="song_list")

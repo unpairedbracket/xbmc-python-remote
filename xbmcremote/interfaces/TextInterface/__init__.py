@@ -17,15 +17,15 @@ from xbmcremote.interfaces import BaseInterface
 import time
 
 class TextInterface(BaseInterface):
-    
+
     def __init__(self, controller):
         super(TextInterface, self).__init__(controller)
         self.methods = {}
         self.commands = {'next': self.controller.PlayNext, 'prev': self.controller.PlayPrevious, 'play': self.controller.PlayPause,
                          'pause': self.controller.PlayPause, 'start': self.controller.StartPlaying, 'stop': self.controller.StopPlaying,
                          'status':self.controller.CheckState}
-        
-    def start_loop(self):        
+
+    def start_loop(self):
         while True:
             time.sleep(0.5)
             command = raw_input('What should I do? ')
@@ -37,11 +37,11 @@ class TextInterface(BaseInterface):
                 self.controller.SendCustomRequest(command, callback=self.echo)
             else:
                 print 'Unknown command'
-    
+
     def echo(self, message):
         print message
 
-                
+
     def paused(self, paused):
         if paused:
             print 'Playback Paused'

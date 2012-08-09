@@ -29,7 +29,7 @@ from ErrorDialog import ErrorDialog
 # See xbmcremote_lib.Window.py for more details about how this class works
 class XbmcremoteWindow(Window):
     __gtype_name__ = 'XbmcremoteWindow'
-    
+
     def finish_initializing(self, builder): # pylint: disable=E1002
         '''Set up the main window'''
         super(XbmcremoteWindow, self).finish_initializing(builder)
@@ -39,11 +39,11 @@ class XbmcremoteWindow(Window):
         self.ErrorDialog = ErrorDialog
         # Code for other initialization actions should be added here.
         self.artistid = self.albumid = self.songid = -1
-        
+
     def set_interface(self, interface):
         self.interface = interface
         self.controller = interface.controller
-    
+
     def join_args(self, *args):
         strs = map(str, args)
         string = ' '.join(strs)

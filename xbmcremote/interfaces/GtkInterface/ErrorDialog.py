@@ -27,7 +27,7 @@ class ErrorDialog(Gtk.Dialog):
     def __new__(cls):
         """Special static method that's automatically called by Python when 
         constructing a new instance of this class.
-        
+
         Returns a fully instantiated ErrorDialog object.
         """
         builder = get_builder('ErrorDialog')
@@ -46,7 +46,7 @@ class ErrorDialog(Gtk.Dialog):
         # Get a reference to the builder and set up the signals.
         self.builder = builder
         self.ui = builder.get_ui(self)
-        
+
     def set_error(self, message, code, identifier=None):
         if identifier == None:
             self.ui.method_failed_label.set_label('Server-side error ' + str(code) + ': ' + message)

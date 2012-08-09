@@ -20,14 +20,14 @@ import subprocess
 class TestPylint(unittest.TestCase):
     def test_project_errors_only(self):
         '''run pylint in error only mode
-        
+
         your code may well work even with pylint errors
         but have some unusual code'''
         return_code = subprocess.call(["pylint", '-E', 'xbmcremote'])
         # not needed because nosetests displays pylint console output
         #self.assertEqual(return_code, 0)
 
-    # un-comment the following for loads of diagnostics   
+    # un-comment the following for loads of diagnostics
     #~ def test_project_full_report(self):
         #~ '''Only for the brave
 #~ 

@@ -21,7 +21,7 @@ gettext.textdomain('xbmcremote')
 
 from gi.repository import Gtk
 
-from Controller import Controller    
+from Controller import Controller
 from xbmcremote_lib import set_up_logging, get_version
 from dbus.mainloop.glib import DBusGMainLoop
 

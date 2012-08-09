@@ -28,10 +28,10 @@ class Sender(XbmcRemoteObject):
         self.__s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.queue = Queue()
         self.recv_queue = Queue()
-        
+
     def getSocket(self, IpAddress, Port):
         self.__s.connect((IpAddress, Port))
-        
+
     def closeSocket(self):
         self.__s.shutdown(socket.SHUT_RDWR)
         self.__s.close()
@@ -39,7 +39,7 @@ class Sender(XbmcRemoteObject):
     def add(self, signaller, json, timeout, data=None):
         data = {'json': json, 'timeout': timeout}
         self.queue.put(data)
-            
+
     def start(self, signaller, data=None):
         self.work = Thread(target=self.worker, name='Network sender thread')
         self.work.daemon = True

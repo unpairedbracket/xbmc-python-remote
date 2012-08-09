@@ -60,33 +60,33 @@ class Controller(XbmcRemoteObject):
         self.sound_menu_integration = self.settings['mpris2']
         self.connected = False
         self.queue = Queue()
-        
+
         #Initialise parts
         self.send = Sender(self)
         self.decoder = Decoder(self)
         self.connect("xbmc_received", self.decoder.decode)
-        
+
         #Start program running with responder thread
         self.start_running()
-        
+
         self.playing = self.paused = False
 
         #Server settings
         self.ip = self.settings.get_string('ip-address')
         self.port = int(self.settings.get_string('port'))
-        
+
         if self.sound_menu_integration:
             self.integrate_sound_menu()
-        
+
         self.ui.show()
         self.ui.refresh()
         self.ui.start_loop()
-        
+
     def start_running(self):
         self.responder = Thread(target=self.worker, name='Response thread')
         self.responder.daemon = True
         self.responder.start()
-        
+
     def get_data(self, interface, request, params):
         try:
             paramlist = params.split()

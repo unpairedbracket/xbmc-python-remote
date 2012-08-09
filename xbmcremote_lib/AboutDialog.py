@@ -23,7 +23,7 @@ class AboutDialog(Gtk.AboutDialog):
     def __new__(cls):
         """Special static method that's automatically called by Python when 
         constructing a new instance of this class.
-        
+
         Returns a fully instantiated AboutDialog object.
         """
         builder = get_builder('AboutXbmcremoteDialog')
@@ -38,7 +38,7 @@ class AboutDialog(Gtk.AboutDialog):
         and creating a AboutDialog object with it in order
         to finish initializing the start of the new AboutXbmcremoteDialog
         instance.
-        
+
         Put your initialization code in here and leave __init__ undefined.
         """
         # Get a reference to the builder and set up the signals.
