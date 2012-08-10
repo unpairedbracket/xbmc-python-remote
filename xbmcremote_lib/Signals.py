@@ -25,5 +25,9 @@ class Signals(GObject.GObject):
             "xbmc_received": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
             "xbmc_get": (GObject.SIGNAL_RUN_FIRST, None, (str, str,)),
             "xbmc_control": (GObject.SIGNAL_RUN_FIRST, None, (str, str,)),
-            "xbmc_connected": (GObject.SIGNAL_RUN_FIRST, None, ())
+            "xbmc_connected": (GObject.SIGNAL_RUN_FIRST, None, ()),
+            "xbmc_disconnected": (GObject.SIGNAL_RUN_FIRST, None, ()),
+            "xbmc_interface_init": (GObject.SIGNAL_RUN_FIRST, None, ()),
+            "xbmc_response": (GObject.SIGNAL_RUN_FIRST, None, (str, str,)),
+            "xbmc_paused": (GObject.SIGNAL_RUN_FIRST, None, (bool,)),
         }

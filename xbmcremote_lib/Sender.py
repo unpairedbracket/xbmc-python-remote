@@ -23,14 +23,24 @@ class Sender(XbmcRemoteObject):
 
     def __init__(self, controller):
         XbmcRemoteObject.__init__(self, controller)
-        self.connect("xbmc_send", self.add)
+        self.connect("xbmc_init", self.socket_connect)
         self.connect("xbmc_connected", self.start)
-        self.__s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.connect("xbmc_send", self.add)
         self.queue = Queue()
         self.recv_queue = Queue()
 
-    def getSocket(self, IpAddress, Port):
-        self.__s.connect((IpAddress, Port))
+    def socket_connect(self, from_refresh=False):
+        self.state['ip'] = self.settings.get_string('ip-address')
+        self.state['port'] = int(self.settings.get_string('port'))
+        try:
+            self.__s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.__s.connect((self.state['ip'], self.state['port']))
+        except socket.error:
+            self.state['connected'] = False
+            self.emit('xbmc_disconnected')
+        else:
+            self.state['connected'] = True
+            self.emit('xbmc_connected')
 
     def closeSocket(self):
         self.__s.shutdown(socket.SHUT_RDWR)
@@ -83,8 +93,9 @@ class Sender(XbmcRemoteObject):
                 #so the response is complete
                     #Just need to 'normalise' the responses
                     #in case there's more than one in there
-                    responses = '[' + responses.replace('}\n{', '},{').replace('}{','},{') + ']'
-                    self.emit("xbmc_received", responses)
+                    if responses != '':
+                        responses = '[' + responses.replace('}\n{', '},{').replace('}{','},{') + ']'
+                        self.emit("xbmc_received", responses)
                 except socket.error:
                     print 'Not connected'
             except Exception as ex:

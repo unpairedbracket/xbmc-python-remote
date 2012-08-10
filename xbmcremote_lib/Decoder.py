@@ -14,14 +14,16 @@
 ### END LICENSE
 
 from json import JSONDecoder
+from xbmcremote_lib.XbmcRemoteObject import XbmcRemoteObject
 
-class Decoder(object):
+class Decoder(XbmcRemoteObject):
 
-    def __init__(self, controller):
+    def __init__(self, application):
+        XbmcRemoteObject.__init__(self, application)
         self.decoder = JSONDecoder()
-        self.controller = controller
+        self.connect("xbmc_received", self.decode)
 
-    def decode(self, instance, json):
+    def decode(self, signaller, json, data=None):
         js = self.decoder.decode(json)
         for i in js:
             #check for a valid response
@@ -33,7 +35,7 @@ class Decoder(object):
                 kind = 'response'
                 identifier = i['id']
                 result = i['result']
-            elif (i.has_key('method')):
+            elif i.has_key('method'):
                 if i['method'] == 'Announcement':
                     kind = 'announcement'
                     identifier = None
@@ -42,6 +44,8 @@ class Decoder(object):
                     kind = 'notification'
                     identifier = i['method']
                     result = i['params']['data']
+            else:
+                break
 
             data = {'kind': kind, 'data': result, 'id': identifier}
-            self.controller.add(data)
+            self.application.controller.add(data)

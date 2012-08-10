@@ -14,32 +14,22 @@
 ### END LICENSE
 
 
-from xbmcremote_lib.Sender import Sender
-from xbmcremote_lib.Decoder import Decoder
 from xbmcremote_lib.JsonObjects import XJ
 from xbmcremote_lib.XbmcRemoteObject import XbmcRemoteObject
-from xbmcremote_lib.Signals import Signals
-from gi.repository import GObject, Gio
 from Queue import Queue
 from threading import Thread
 from socket import error as SocketError
 
 class Controller(XbmcRemoteObject):
 
-    def __init__(self, gui):
-        self.signals = Signals()
-        XbmcRemoteObject.__init__(self, self)
-        self.gui = gui
-        if self.gui:
-            from interfaces.GtkInterface import GtkInterface as Interface
-        else:
-            from interfaces.TextInterface import TextInterface as Interface
-
+    def __init__(self, application):
+        XbmcRemoteObject.__init__(self, application)
         self.control_methods = {
                 'play': self.PlayPause,
                 'next': self.PlayNext,
                 'prev': self.PlayPrevious,
                 'start': self.StartPlaying,
+                'pause': self.PlayPause,
                 'stop': self.StopPlaying
             }
 
@@ -52,37 +42,16 @@ class Controller(XbmcRemoteObject):
                 'now_playing':self.GetNowPlaying,
                 'custom': self.SendCustomRequest
             }
-        self.settings = Gio.Settings("net.launchpad.xbmcremote")
-        self.player = 0
-        self.XJ = XJ
-        self.ui = Interface(self)
 
-        self.sound_menu_integration = self.settings['mpris2']
-        self.connected = False
+        self.XJ = XJ
+
         self.queue = Queue()
 
-        #Initialise parts
-        self.send = Sender(self)
-        self.decoder = Decoder(self)
-        self.connect("xbmc_received", self.decoder.decode)
+        self.connect('xbmc_get', self.get_data)
+        self.connect('xbmc_control', self.send_control)
+        self.connect('xbmc_init', self.start_running)
 
-        #Start program running with responder thread
-        self.start_running()
-
-        self.playing = self.paused = False
-
-        #Server settings
-        self.ip = self.settings.get_string('ip-address')
-        self.port = int(self.settings.get_string('port'))
-
-        if self.sound_menu_integration:
-            self.integrate_sound_menu()
-
-        self.ui.show()
-        self.ui.refresh()
-        self.ui.start_loop()
-
-    def start_running(self):
+    def start_running(self, signaller, data=None):
         self.responder = Thread(target=self.worker, name='Response thread')
         self.responder.daemon = True
         self.responder.start()
@@ -102,35 +71,6 @@ class Controller(XbmcRemoteObject):
             self.control_methods[request]()
         else:
             self.control_methods[request](paramlist)
-
-    def integrate_sound_menu(self):
-        #sound menu integration
-        from interfaces.SoundMenuInterface import SoundMenuInterface
-        self.sound_menu = SoundMenuInterface(self)
-
-    def connect_to_xbmc(self, from_refresh=False):
-        self.ip = self.settings.get_string('ip-address')
-        self.port = int(self.settings.get_string('port'))
-        try:
-            self.send.getSocket(self.ip, self.port)
-        except SocketError:
-            self.connected = False
-        else:
-            self.connected = True
-            self.initialise_connection()
-        finally:
-        #TODO This is bad, mmkay
-            if not from_refresh:
-                self.ui.refresh(False)
-
-    def initialise_connection(self):
-        self.emit('xbmc_connected')
-
-    def do_xbmc_init(instance):
-        print 'init'
-
-    def is_playing(self):
-        return not self.paused
 
     def add(self, data):
         self.queue.put(data)
@@ -154,19 +94,17 @@ class Controller(XbmcRemoteObject):
                         self.emit("xbmc_new_playing", data['item']['artist'], data['item']['album'], data['item']['title'])
                     elif data.has_key('speed'):
                         self.set_speed(data['speed'])
-                    elif self.ui.methods.has_key(identifier):
-                        self.ui.methods[identifier](data)
                     else:
-                        print data
+                        self.emit('xbmc_response', identifier, data)
                 elif kind == 'notification':
-                    if identifier == 'Player.OnPlay' and not self.paused:
+                    if identifier == 'Player.OnPlay' and not self.state['paused']:
                         #This can mean unpaused or new song.
                         #Check now playing just in case.
                         self.GetNowPlaying()
                     if identifier in ['Player.OnPlay', 'Player.OnPause']:
-                        self.player = data['player']['playerid']
+                        self.state['player'] = data['player']['playerid']
                         self.set_speed(data['player']['speed'])
-                        self.playing = True
+                        self.state['playing'] = True
                     else:
                         print data
                 else:
@@ -177,13 +115,11 @@ class Controller(XbmcRemoteObject):
 
     def set_speed(self, speed):
         if speed == 0:
-            self.paused = True
+            self.state['paused'] = True
         elif speed == 1:
-            self.paused = False
-        self.playing = True
-        self.ui.paused(self.paused)
-        if self.sound_menu_integration:
-            self.sound_menu.send_signal(self.paused)
+            self.state['paused'] = False
+        self.state['playing'] = True
+        self.emit('xbmc_paused', self.state['paused'])
         #TODO signal this
 
     def handle_error(self, error):
@@ -191,10 +127,6 @@ class Controller(XbmcRemoteObject):
         code =  error['data']['code']
         identifier = error['id']
         self.emit("xbmc_error", message, code, identifier)
-
-    def kill(self):
-        self.send.closeSocket()
-        self.killed = True
 
     def PlayPause(self, data=[]):
         action = self.XJ.XBMC_PLAY
@@ -236,7 +168,7 @@ class Controller(XbmcRemoteObject):
         self.json_send(action, timeout=0.5)
 
     def GetNowPlaying(self, data=[]):
-        action = self.XJ.GetNowPlaying(self.player)
+        action = self.XJ.GetNowPlaying(self.state['player'])
         self.json_send(action)
 
     def GetPlayers(self, data=[]):
@@ -244,10 +176,11 @@ class Controller(XbmcRemoteObject):
         self.json_send(action)
 
     def SendCustomRequest(self, data=[-1,-1,-1,-1]):
-        method = int(data[0])
-        params = int(data[1])
-        timeout = float(data[3])
-        action = self.XJ.XbmcJson.Custom.__getattr__(method)(params, identifier='custom')
+        print data
+        method = str(data[0])
+        params = str(data[1])
+        timeout = float(data[2])
+        action = self.XJ.JsonRpc.Custom.__getattr__(method)(params, identifier='custom')
         self.json_send(action, timeout)
 
     def json_send(self, json, timeout=0.1):

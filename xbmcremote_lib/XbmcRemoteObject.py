@@ -16,8 +16,10 @@
 
 class XbmcRemoteObject(object):
 
-    def __init__(self, controller):
-        self.controller = controller
-        self.signals = self.controller.signals
+    def __init__(self, application):
+        self.application = application
+        self.settings = application.settings
+        self.state = application.state
+        self.signals = self.application.signals
         self.connect = self.signals.connect
         self.emit = self.signals.emit

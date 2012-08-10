@@ -18,31 +18,32 @@ import time
 
 class TextInterface(BaseInterface):
 
-    def __init__(self, controller):
-        super(TextInterface, self).__init__(controller)
-        self.methods = {}
-        self.commands = {'next': self.controller.PlayNext, 'prev': self.controller.PlayPrevious, 'play': self.controller.PlayPause,
-                         'pause': self.controller.PlayPause, 'start': self.controller.StartPlaying, 'stop': self.controller.StopPlaying,
-                         'status':self.controller.CheckState}
+    def __init__(self, application):
+        self.loop = None
+        BaseInterface.__init__(self, application)
+        self.controls = ['next', 'prev', 'play', 'pause', 'start', 'stop']
+        self.requests = ['artists', 'albums', 'songs', 'state', 'players',
+                         'now_playing']
 
     def start_loop(self):
         while True:
             time.sleep(0.5)
             command = raw_input('What should I do? ')
-            if command in self.commands:
-                self.commands[command]()
+            if command in self.controls:
+                self.emit('xbmc_control', command, None)
+            elif command in self.requests:
+                self.emit('xbmc_get', command, None)
             elif command == 'exit':
                 break
             elif '.' in command:
-                self.controller.SendCustomRequest(command, callback=self.echo)
+                self.emit('xbmc_get', 'custom', command + ' {} 0.5')
             else:
                 print 'Unknown command'
 
     def echo(self, message):
         print message
 
-
-    def paused(self, paused):
+    def paused(self, signaller, paused, data=None):
         if paused:
             print 'Playback Paused'
         else:

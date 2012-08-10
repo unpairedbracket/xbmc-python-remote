@@ -21,57 +21,46 @@ from gi.repository import GObject
 
 class GtkInterface(BaseInterface):
 
-    def __init__(self, controller):
-        BaseInterface.__init__(self, controller)
+    def __init__(self, application):
+        BaseInterface.__init__(self, application)
         self.window = XbmcremoteWindow()
         self.methods = {'artist_list': self.updateArtistList,
                         'album_list': self.updateAlbumList,
                         'song_list': self.updateSongList, 
                         'now_playing': self.update_now_playing}
         self.window.set_interface(self)
-        self.connect("xbmc_error", self.handle_error)
-        self.connect("xbmc_new_playing", self.update_now_playing)
 
-    def join_args(self, *args):
-        strs = map(str, args)
-        string = ' '.join(strs)
-        return string
+    def refresh(self, signaller, data=None):
+        GObject.idle_add(self.window.ui.connected_to.set_label, 'Connected to: '+self.state['ip']+':'+str(self.state['port']))
+        self.updatePlaying()
+        self.updateLibrary()
 
-    def refresh(self, try_connect=True):
-        super(GtkInterface, self).refresh(try_connect)
-
-        if self.controller.connected:
-            GObject.idle_add(self.window.ui.connected_to.set_label, 'Connected to: '+self.controller.ip+':'+str(self.controller.port))
-            self.updatePlaying()
-            self.updateLibrary()
-        else:
-            GObject.idle_add(self.window.ui.connected_to.set_label, 'Connection Failed!')
+    def disconnected(self, signaller, data=None):
+        GObject.idle_add(self.window.ui.connected_to.set_label, 'Connection Failed')
 
     def show(self):
         self.window.show()
 
     def start_loop(self):
-        GObject.threads_init()
+        self.connect('xbmc_connected', self.refresh)
+        self.connect("xbmc_new_playing", self.update_now_playing)
+        self.show()
+        self.refresh(None)
         Gtk.main()
 
     def updatePlaying(self):
         try:
             self.emit("xbmc_get", "state", None)
-        #    self.controller.CheckState()
             self.emit("xbmc_get", "now_playing", None)
-        #    self.controller.GetNowPlaying()
         finally:
             return True
 
     def updateLibrary(self):
         self.emit("xbmc_get", "artists", None)
-#        self.controller.GetArtists()
         self.emit("xbmc_get", "albums", None)
-#        self.controller.GetAlbums()
         self.emit("xbmc_get", "songs", None)
-#        self.controller.GetSongs()
 
-    def paused(self, paused):
+    def paused(self, signaller, paused, data=None):
         if paused:
             GObject.idle_add(self.window.ui.playback_play.set_stock_id, Gtk.STOCK_MEDIA_PLAY)
         else:

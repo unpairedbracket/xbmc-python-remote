@@ -21,7 +21,7 @@ gettext.textdomain('xbmcremote')
 
 from gi.repository import Gtk
 
-from Controller import Controller
+from Application import Application
 from xbmcremote_lib import set_up_logging, get_version
 from dbus.mainloop.glib import DBusGMainLoop
 
@@ -50,4 +50,4 @@ def main():
     'constructor for your class instances'
     options = parse_options()
 
-    app = Controller(options.gui)
+    app = Application(options.gui)

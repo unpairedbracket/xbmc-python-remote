@@ -18,22 +18,21 @@ from soundmenu import SoundMenuControls
 
 class SoundMenuInterface(BaseInterface):
 
-    def __init__(self, controller):
-        BaseInterface.__init__(self, controller)
+    def __init__(self, application):
+        BaseInterface.__init__(self, application)
 
         self.sound_menu = SoundMenuControls('xbmcremote')
         self.sound_menu._sound_menu_next = self.play_next
         self.sound_menu._sound_menu_previous = self.play_prev
         self.sound_menu._sound_menu_pause = self.sound_menu._sound_menu_play = self.play_pause
-        self.sound_menu._sound_menu_is_playing = self.controller.is_playing
-
+        self.sound_menu._sound_menu_is_playing = lambda: not self.state['paused']
         self.connect("xbmc_new_playing", self.update_now_playing)
 
     def update_now_playing(self, signaller, artist=None, album=None, title=None, data=None):
         print artist, album, title
         self.sound_menu.song_changed(artist, album, title)
         self.sound_menu.signal_playing()
-        self.send_signal(self.controller.paused)
+        self.paused(None, self.state['paused'])
 
     def play_pause(self):
         self.emit("xbmc_control", "play", None)
@@ -44,7 +43,7 @@ class SoundMenuInterface(BaseInterface):
     def play_prev(self):
         self.emit("xbmc_control", "prev", None)
 
-    def send_signal(self, paused):
+    def paused(self, signaller, paused, data=None):
         if paused:
             self.sound_menu.signal_paused()
         else:

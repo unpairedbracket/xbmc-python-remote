@@ -42,7 +42,7 @@ class XbmcremoteWindow(Window):
 
     def set_interface(self, interface):
         self.interface = interface
-        self.controller = interface.controller
+        self.application = interface.application
 
     def join_args(self, *args):
         strs = map(str, args)
@@ -53,15 +53,12 @@ class XbmcremoteWindow(Window):
         if data != []:
             self.artistid = data[0]['artistid']
             self.albumid = -1
-#            self.controller.GetAlbums(self.artistid)
             self.interface.emit("xbmc_get", "albums", self.join_args(self.artistid))
-#            self.controller.GetSongs(self.artistid, self.albumid)
             self.interface.emit("xbmc_get", "songs", self.join_args(self.artistid, self.albumid))
 
     def newAlbum(self, widget, data=None):
         if data != []:
             self.albumid = data[0]['albumid']
-#            self.controller.GetSongs(self.artistid, self.albumid)
             self.interface.emit("xbmc_get", "songs", self.join_args(self.artistid, self.albumid))
 
     def newSong(self, widget, data=None):
@@ -69,7 +66,8 @@ class XbmcremoteWindow(Window):
             self.songid = data[0]['songid']
 
     def on_playback_play_clicked(self, widget, data=None):
-        if self.controller.playing:
+        print self.interface.state
+        if self.interface.state['playing']:
             self.interface.emit("xbmc_control", "play", None)
         else:
             self.interface.emit("xbmc_control", "start", None)
@@ -81,8 +79,10 @@ class XbmcremoteWindow(Window):
         self.interface.emit("xbmc_control", "prev", None)
 
     def on_refresh_clicked(self, widget, data=None):
-        self.interface.refresh(True)
+        if self.interface.state['connected']:
+            self.interface.refresh(None)
+        else:
+            self.interface.emit('xbmc_init')
 
     def on_xbmcremote_window_destroy(self, widget, data=None):
-        self.controller.kill()
         Gtk.main_quit()
