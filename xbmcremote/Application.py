@@ -43,12 +43,12 @@ class Application(object):
         if gui:
             from interfaces.GtkInterface import GtkInterface
             self.interfaces.append(GtkInterface)
+            if self.settings.get_boolean('mpris2'):
+                from interfaces.SoundMenuInterface import SoundMenuInterface
+                self.interfaces.append(SoundMenuInterface)
         else:
             from interfaces.TextInterface import TextInterface
             self.interfaces.append(TextInterface)
-        if self.settings.get_boolean('mpris2'):
-            from interfaces.SoundMenuInterface import SoundMenuInterface
-            self.interfaces.append(SoundMenuInterface)
 
         self.interface_instances = []
         for Interface in self.interfaces:
