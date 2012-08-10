@@ -79,10 +79,7 @@ class XbmcremoteWindow(Window):
         self.interface.emit("xbmc_control", "prev", None)
 
     def on_refresh_clicked(self, widget, data=None):
-        if self.interface.state['connected']:
-            self.interface.refresh(None)
-        else:
-            self.interface.emit('xbmc_init')
+        self.interface.emit('xbmc_init')
 
     def on_xbmcremote_window_destroy(self, widget, data=None):
         Gtk.main_quit()
