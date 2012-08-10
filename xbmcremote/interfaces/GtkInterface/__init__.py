@@ -117,7 +117,9 @@ class GtkInterface(BaseInterface):
         GObject.idle_add(self.window.ui.now_playing_label.set_label, ' '.join([title, 'by', artist, 'from', album]))
 
     def handle_error(self, signaller, message, code, identifier, data=None):
-        if self.window.ErrorDialog is not None:
+        if identifier == 'now_playing' and code == -32100:
+            GObject.idle_add(self.window.ui.now_playing_label.set_label, 'Not Playing')
+        elif self.window.ErrorDialog is not None:
             error_dialog = self.window.ErrorDialog()
             error_dialog.set_error(message, code, identifier)
             GObject.idle_add(error_dialog.show)
