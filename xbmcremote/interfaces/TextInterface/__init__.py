@@ -15,6 +15,7 @@
 
 from xbmcremote.interfaces import BaseInterface
 import time
+import readline
 
 class TextInterface(BaseInterface):
 
