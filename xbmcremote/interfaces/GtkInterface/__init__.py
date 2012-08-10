@@ -29,6 +29,7 @@ class GtkInterface(BaseInterface):
                         'song_list': self.updateSongList, 
                         'now_playing': self.update_now_playing}
         self.window.set_interface(self)
+        GObject.threads_init()
 
     def refresh(self, signaller, data=None):
         GObject.idle_add(self.window.ui.connected_to.set_label, 'Connected to: '+self.state['ip']+':'+str(self.state['port']))
