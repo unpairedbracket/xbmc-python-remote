@@ -93,7 +93,7 @@ _sound_menu_play
 _sound_menu_pause
 
 """
-
+# pylint: disable-all
 import dbus
 import dbus.service
 

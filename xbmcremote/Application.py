@@ -39,20 +39,7 @@ class Application(object):
         self.send = Sender(self)
         self.decoder = Decoder(self)
 
-        self.interfaces = []
-        if gui:
-            from interfaces.GtkInterface import GtkInterface
-            self.interfaces.append(GtkInterface)
-            if self.settings.get_boolean('mpris2'):
-                from interfaces.SoundMenuInterface import SoundMenuInterface
-                self.interfaces.append(SoundMenuInterface)
-        else:
-            from interfaces.TextInterface import TextInterface
-            self.interfaces.append(TextInterface)
-
-        self.interface_instances = []
-        for Interface in self.interfaces:
-            self.interface_instances.append(Interface(self))
+        self.frontends = self.instantiate_frontends(gui)
 
         self.emit('xbmc_init')
         self.emit('xbmc_interface_init')
@@ -60,4 +47,19 @@ class Application(object):
     def kill(self):
         self.send.closeSocket()
         self.killed = True
+    def instantiate_frontends(self, gui):
+        '''Take care of the messy interface business'''
+        frontends = []
+        if gui:
+            from frontends.GtkFrontend import GtkFrontend
+            frontends.append(GtkFrontend)
+            if self.settings.get_boolean('mpris2'):
+                from frontends.SoundMenuFrontend import SoundMenuFrontend
+                frontends.append(SoundMenuFrontend)
+        else:
+            from frontends.TextFrontend import TextFrontend
+            frontends.append(TextFrontend)
 
+        instances = []
+        for frontend in frontends:
+            instances.append(frontend(self))
