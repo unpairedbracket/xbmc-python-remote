@@ -159,9 +159,12 @@ class Controller(XbmcRemoteObject):
         action = self.xbmc_json.XBMC_PREV
         self._json_send(action)
 
-    def start_playing(self):
+    def start_playing(self, songid=None):
         '''Send the start playing signal'''
         action = self.xbmc_json.XBMC_START
+        if songid is not None:
+            queue = self.xbmc_json.queue_song(songid)
+            action = ''.join(['[', queue, ',', action, ']'])
         self._json_send(action)
 
     def stop_playing(self):
@@ -202,7 +205,10 @@ class Controller(XbmcRemoteObject):
     def play_song_now(self, songid):
         '''Start the process of playing a song from the library immediately'''
         self.songid = songid
-        self.get_position('get_position_for_play_now')
+        if self.state['playing']:
+            self.get_position('get_position_for_play_now')
+        else:
+            self.start_playing(songid=songid)
 
     def play_song_next(self, songid):
         '''Start the process of playing a song from the library next'''
