@@ -36,13 +36,15 @@ JsonRpc = ProperJson()
 #Control
 #TODO These should be functions
 XBMC_GET_PLAYERS = JsonRpc.Playlist.GetPlayers()
-#TODO These should use actual player IDs
 XBMC_START = JsonRpc.Playlist.Play(playerid=0)
 XBMC_STOP = JsonRpc.Player.Stop(playerid=0)
 XBMC_PLAY = JsonRpc.Player.PlayPause(playerid=0)
 XBMC_NEXT = JsonRpc.Player.GoNext(playerid=0)
 XBMC_PREV = JsonRpc.Player.GoPrevious(playerid=0)
-XBMC_STATE =JsonRpc.Player.GetProperties(playerid=0, properties=['speed', 'partymode', 'shuffled', 'repeat', 'playlistid'], identifier='state')
+XBMC_STATE = JsonRpc.Player.GetProperties(
+        playerid=0,
+        properties=['speed', 'partymode', 'shuffled', 'repeat', 'playlistid'],
+        identifier='state')
 
 #Library Requests
 def GetArtists():
@@ -65,8 +67,33 @@ def GetSongs(artistid=-1, albumid=-1):
 def GetPlayers():
     return JsonRpc.Player.GetPlayers
 
+def insert_song(songid, position=0):
+    return JsonRpc.Playlist.Insert(playlistid=0, position=position, 
+                                     item={'songid': songid})
+
+def insert_and_play(songid, position=0):
+    insert =  JsonRpc.Playlist.Insert(playlistid=0, position=position, 
+                                     item={'songid': songid})
+    play = JsonRpc.Player.GoTo(playerid=0, position=position)
+    return ''.join(['[', insert, ',', play, ']'])
+
+def queue_song(songid):
+    return JsonRpc.Playlist.Add(playlistid=0, item={'songid': songid})
+
+def GetPosition(identifier):
+    return JsonRpc.Player.GetProperties(playerid=0, properties=['position'],
+                                        identifier=identifier)
+
 def GetNowPlaying(playerid=0):
-    return JsonRpc.Player.GetItem(playerid=playerid, properties=['title','artist','album'], identifier='now_playing')
+    return JsonRpc.Player.GetItem(
+        playerid=playerid, properties=['title','artist','album'],
+        identifier='now_playing'
+    )
+
+def custom_method(method_name, params, identifier):
+    """creates JSON strings for custom methods"""
+    return JsonRpc.Custom.__getattr__(method_name)(identifier=identifier,
+                                                   **params)
 
 ''' Here are all the JSON methods there are
 Application.GetProperties

@@ -19,6 +19,8 @@ from gi.repository import Gtk
 from . helpers import get_builder
 
 class AboutDialog(Gtk.AboutDialog):
+    '''Special base class only to be used as a parent.'''
+
     __gtype_name__ = "AboutDialog"
 
     def __new__(cls):

@@ -19,7 +19,8 @@ import json
 encoder = json.JSONEncoder()
 
 def buildJson(method, params={}, identifier=1):
-    jsonstring = {"jsonrpc": "2.0", "method": method, "params": params, "id": identifier}
+    jsonstring = {"jsonrpc": "2.0", "method": method,
+                  "params": params, "id": identifier}
     return encoder.encode(jsonstring)
 
 #Control

@@ -14,6 +14,12 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 ### END LICENSE
 
+'''
+Module contains the Application class.
+
+It is the center of the program and "owns" all other objects, and they use
+its attributes (eg. settings) to stay in sync with one another.
+'''
 
 from xbmcremote_lib.Sender import Sender
 from xbmcremote_lib.Decoder import Decoder
@@ -21,16 +27,23 @@ from xbmcremote_lib.Signals import Signals
 from xbmcremote.Controller import Controller
 from gi.repository import Gio
 
+
 class Application(object):
+
+    '''
+    Usually this is the main entry point for the program proper.
+
+    It sets up and initialises all the other parts, but occasionally it can
+    be substituted for something else - in a unit test, for example.
+    '''
+
+    state = {'playing': False, 'paused': False,
+             'player': 0, 'ip': '', 'port': 0,
+             'connected': False}
 
     def __init__(self, gui):
 
         self.settings = Gio.Settings("net.launchpad.xbmcremote")
-        self.state = {
-                        'playing': False, 'paused': False,
-                        'player': 0, 'ip': '', 'port': 0,
-                        'connected':False
-                     }
 
         self.signals = Signals()
         self.emit = self.signals.emit
@@ -41,12 +54,11 @@ class Application(object):
 
         self.frontends = self.instantiate_frontends(gui)
 
+    def start_app(self):
+        '''Start the main body of the program running.'''
         self.emit('xbmc_init')
-        self.emit('xbmc_interface_init')
+        self.emit('xbmc_frontend_init')
 
-    def kill(self):
-        self.send.closeSocket()
-        self.killed = True
     def instantiate_frontends(self, gui):
         '''Take care of the messy interface business'''
         frontends = []

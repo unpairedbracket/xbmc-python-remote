@@ -13,11 +13,17 @@
 # You should have received a copy of the GNU General Public License along 
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 ### END LICENSE
+
+'''
+Imports the appropriate version of the JSON API. Dharma isn't really
+supported any more, it probably doesn't even work.
+'''
+
 from gi.repository import Gio
 
 settings = Gio.Settings("net.launchpad.xbmcremote")
 
 if settings.get_int('version') == 0:
-    import DharmaJsonObjects as XJ
+    import DharmaJsonObjects as xbmc_json
 elif settings.get_int('version') == 1:
-    import EdenJsonObjects as XJ
+    import EdenJsonObjects as xbmc_json

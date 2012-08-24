@@ -65,8 +65,10 @@ class Window(Gtk.Window):
         self.settings.connect('changed', self.on_preferences_changed)
 
         # Optional Launchpad integration
-        # This shouldn't crash if not found as it is simply used for bug reporting.
-        # See https://wiki.ubuntu.com/UbuntuDevelopment/Internationalisation/Coding
+        # This shouldn't crash if not found 
+        # as it is simply used for bug reporting.
+        # See 
+        # https://wiki.ubuntu.com/UbuntuDevelopment/Internationalisation/Coding
         # for more information about Launchpad integration.
         try:
             from gi.repository import LaunchpadIntegration
@@ -82,7 +84,8 @@ class Window(Gtk.Window):
         #  https://wiki.ubuntu.com/DesktopExperienceTeam/ApplicationIndicators
         try:
             from xbmcremote import indicator
-            # self is passed so methods of this class can be called from indicator.py
+            # self is passed so methods of this class can be called 
+            # from indicator.py
             # Comment this next line out to disable appindicator
             self.indicator = indicator.new_application_indicator(self)
         except ImportError:
@@ -112,7 +115,8 @@ class Window(Gtk.Window):
         elif self.PreferencesDialog is not None:
             logger.debug('create new preferences_dialog')
             self.preferences_dialog = self.PreferencesDialog() # pylint: disable=E1102
-            self.preferences_dialog.connect('destroy', self.on_preferences_dialog_destroyed)
+            self.preferences_dialog.connect(
+                    'destroy', self.on_preferences_dialog_destroyed)
             self.preferences_dialog.show()
         # destroy command moved into dialog to allow for a help button
 
@@ -126,7 +130,8 @@ class Window(Gtk.Window):
         Gtk.main_quit()
 
     def on_preferences_changed(self, settings, key, data=None):
-        logger.debug('preference changed: %s = %s' % (key, str(settings.get_value(key))))
+        logger.debug('preference changed: %s = %s' % (
+            key, str(settings.get_value(key))))
 
     def on_preferences_dialog_destroyed(self, widget, data=None):
         '''only affects gui

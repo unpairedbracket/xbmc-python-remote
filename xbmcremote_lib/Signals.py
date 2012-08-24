@@ -19,15 +19,54 @@ from gi.repository import GObject
 class Signals(GObject.GObject):
     __gsignals__ = {
             "xbmc_init": (GObject.SIGNAL_RUN_FIRST, None, ()),
-            "xbmc_send": (GObject.SIGNAL_RUN_FIRST, None, (str, float)),
-            "xbmc_new_playing": (GObject.SIGNAL_RUN_FIRST, None, (str, str, str)),
-            "xbmc_error": (GObject.SIGNAL_RUN_FIRST, None, (str, int, str)),
-            "xbmc_received": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
-            "xbmc_get": (GObject.SIGNAL_RUN_FIRST, None, (str, str,)),
-            "xbmc_control": (GObject.SIGNAL_RUN_FIRST, None, (str, str,)),
+            "xbmc_frontend_init": (GObject.SIGNAL_RUN_FIRST, None, ()),
+            "xbmc_reconnect": (GObject.SIGNAL_RUN_FIRST, None, ()),
             "xbmc_connected": (GObject.SIGNAL_RUN_FIRST, None, ()),
             "xbmc_disconnected": (GObject.SIGNAL_RUN_FIRST, None, ()),
-            "xbmc_interface_init": (GObject.SIGNAL_RUN_FIRST, None, ()),
+            "xbmc_control": (GObject.SIGNAL_RUN_FIRST, None, (str, str,)),
+            "xbmc_send": (GObject.SIGNAL_RUN_FIRST, None, (str, float)),
+            "xbmc_received": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
+            "xbmc_decoded": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
             "xbmc_response": (GObject.SIGNAL_RUN_FIRST, None, (str, str,)),
             "xbmc_paused": (GObject.SIGNAL_RUN_FIRST, None, (bool,)),
+            "xbmc_error": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
+            "xbmc_kill": (GObject.SIGNAL_RUN_FIRST, None, ()),
         }
+
+'''
+    def do_xbmc_init(self, *data):
+        print "Signal: init", data
+
+    def do_xbmc_frontend_init(self, *data):
+        print "Signal: frontend_init", data
+
+    def do_xbmc_reconnect(self, *data):
+        print "Signal: reconnect", data
+
+    def do_xbmc_connected(self, *data):
+        print "Signal: connected", data
+
+    def do_xbmc_disconnected(self, *data):
+        print "Signal: disconnected", data
+
+    def do_xbmc_control(self, *data):
+        print "Signal: control", data
+
+    def do_xbmc_send(self, *data):
+        print "Signal: send", data
+
+    def do_xbmc_received(self, *data):
+        print "Signal: received", data
+
+    def do_xbmc_response(self, *data):
+        print "Signal: response", data
+
+    def do_xbmc_paused(self, *data):
+        print "Signal: paused", data
+
+    def do_xbmc_error(self, *data):
+        print "Signal: error", data
+
+    def do_xbmc_kill(self, *data):
+        print "Signal: kill", data
+'''

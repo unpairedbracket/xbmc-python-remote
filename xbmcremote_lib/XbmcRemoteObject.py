@@ -21,5 +21,5 @@ class XbmcRemoteObject(object):
         self.settings = application.settings
         self.state = application.state
         self.signals = self.application.signals
-        self.connect = self.signals.connect
+        self.signal_connect = self.signals.connect
         self.emit = self.signals.emit

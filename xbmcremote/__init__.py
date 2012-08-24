@@ -14,13 +14,16 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 ### END LICENSE
 
+'''
+xbmcremote package: contains most of the important parts of the program.
+See also: xbmcremote_lib
+'''
+
 import optparse
 
 import gettext
-from gettext import gettext as _
+_ = gettext.gettext
 gettext.textdomain('xbmcremote')
-
-from gi.repository import Gtk
 
 from Application import Application
 from xbmcremote_lib import set_up_logging, get_version
@@ -39,16 +42,18 @@ def parse_options():
         '-g', '--gui', action='store_true', dest='gui',
         help=_('Run with gui. This is the default option'))
     parser.set_defaults(gui=True)
-    (options, args) = parser.parse_args()
+    options = parser.parse_args()
 
-    set_up_logging(options)
-    return options
+    set_up_logging(options[0])
+    return options[0]
 
 def main():
+    '''Turn on the DBus Mainloop and start the program'''
     #turn on the dbus mainloop
     DBusGMainLoop(set_as_default=True)
 
-    'constructor for your class instances'
+    #constructor for your class instances
     options = parse_options()
 
     app = Application(options.gui)
+    app.start_app()
