@@ -51,7 +51,7 @@ class Controller(XbmcRemoteObject):
             'current_position': self.get_position,
             'play_now': self.play_song_now,
             'play_next': self.play_song_next,
-            'queue_song': self.queue_song,
+            'play_last': self.play_song_last,
             'custom': self.send_custom_request
         }
 
@@ -213,12 +213,19 @@ class Controller(XbmcRemoteObject):
     def play_song_next(self, songid):
         '''Start the process of playing a song from the library next'''
         self.songid = songid
-        self.get_position('get_position_for_play_next')
+        if self.state['playing']:
+            self.get_position('get_position_for_play_next')
+        else:
+            self.start_playing(songid)
 
-    def queue_song(self, songid):
+    def play_song_last(self, songid):
         '''Start the process of playing a song from the library next'''
-        action = self.xbmc_json.queue_song(songid)
-        self._json_send(action)
+        self.songid = songid
+        if self.state['playing']:
+            action = self.xbmc_json.queue_song(songid)
+            self._json_send(action)
+        else:
+            self.start_playing(songid)
 
     def insert_song(self, songid, position):
         '''Insert the song'''
