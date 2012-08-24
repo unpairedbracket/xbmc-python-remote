@@ -93,8 +93,7 @@ class Controller(XbmcRemoteObject):
                 print message
                 if data == 'OK':
                     #This tells us exactly nothing
-                    print identifier, ' should be a notification'
-                    #pass
+                    pass
                 elif kind == 'error':
                     self.handle_error(message)
                 elif kind == 'response':
@@ -120,11 +119,10 @@ class Controller(XbmcRemoteObject):
 
     def _handle_notification(self, data, identifier):
         '''Handle a notification from xbmc'''
-        if (identifier == 'Player.OnPlay'
-                and not self.state['paused']):
-            #This can mean unpaused or new song.
-            #Check now playing just in case.
+        if identifier == 'Player.OnPlay' and not self.state['paused']:
             self.get_now_playing()
+        elif identifier == 'Player.OnStop':
+            self.state['playing'] = False
         if identifier in ['Player.OnPlay', 'Player.OnPause']:
             self.state['player'] = data['player']['playerid']
             self.set_speed(data['player']['speed'])
