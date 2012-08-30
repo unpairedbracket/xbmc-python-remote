@@ -58,6 +58,8 @@ class Sender(XbmcRemoteObject):
             self.emit('xbmc_connected')
 
     def close_socket(self, signaller, data=None):
+        self.state['connected'] = False
+        self.emit('xbmc_disconnected')
         self.__socket.shutdown(socket.SHUT_RDWR)
         self.__socket.close()
 
@@ -87,35 +89,38 @@ class Sender(XbmcRemoteObject):
     def recver(self):
         """receives messages from xbmc"""
         while True:
-            try:
+            if self.state['connected']:
                 try:
-                    timeout = self.recv_queue.get(True, 2.0)
-                except Empty:
-                    timeout = 1.0
-                try:
-                    responses = ''
-                    response = ''
-                    self.__socket.settimeout(timeout)
-                    while True:
-                        response += (self.__socket.recv(0x4000))
-                        if len(select.select([self.__socket], [], [], 0)[0]) == 0:
-                            responses += response
-                            response = ''
-                except socket.timeout:
-                #A timeout means there really is nothing left
-                #so the response is complete
-                    #Just need to 'normalise' the responses
-                    #in case there's more than one in there
-                    if responses != '':
-                        responses = '[' + responses.replace('}\n{',
-                                    '},{').replace('}{',
-                                    '},{').replace('}[',
-                                    '},[').replace(']{',
-                                    '],{').replace('][',
-                                    '],[') + ']'
-                        self.emit("xbmc_received", responses)
-                except socket.error:
-                    print 'Not connected'
-            except Exception as ex:
-                print 'Reveiver error: ', ex
+                    try:
+                        timeout = self.recv_queue.get(False)
+                    except Empty:
+                        timeout = 0.1
+                    try:
+                        responses = ''
+                        response = ''
+                        self.__socket.settimeout(timeout)
+                        while True:
+                            response += (self.__socket.recv(0x4000))
+                            if len(select.select([self.__socket], [], [], 0)[0]) == 0:
+                                responses += response
+                                response = ''
+                    except socket.timeout:
+                    #A timeout means there really is nothing left
+                    #so the response is complete
+                        #Just need to 'normalise' the responses
+                        #in case there's more than one in there
+                        if responses != '':
+                            responses = '[' + responses.replace('}\n{',
+                                        '},{').replace('}{',
+                                        '},{').replace('}[',
+                                        '},[').replace(']{',
+                                        '],{').replace('][',
+                                        '],[') + ']'
+                            self.emit("xbmc_received", responses)
+                    except socket.error:
+                        self.state['connected'] = False
+                        self.emit('xbmc_disconnected')
+
+                except Exception as ex:
+                    print 'Reveiver error: ', ex
 
