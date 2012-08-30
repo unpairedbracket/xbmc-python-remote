@@ -22,7 +22,9 @@ JSON-RPC API but it should actually work for any JSON-RPC.
 from json import JSONEncoder
 
 class JsonBuilder(object):
+
     '''Smartly builds json requests'''
+
     def __init__(self, namespace=None):
         #If name specified, use namespace.method
         try:
@@ -40,6 +42,9 @@ class JsonBuilder(object):
         '''
         method_name = ''.join([self.namespace, attr])
         return self.make_method(method_name)
+
+    def __call__(self, method_name, **kwargs):
+        self.__getattr__(method_name)(**kwargs)
 
     def make_method(self, method_name):
         ''''Creates a method to build JSON requests for method names'''

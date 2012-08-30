@@ -14,10 +14,25 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 ### END LICENSE
 
+'''
+Provides JSON strings ready to be sent to XBMC Eden. JsonBuilder is used to
+generate the strings, and convenience methods are available to build requests
+needed by Xbmcremote.
+'''
+
 from JsonBuilder import JsonBuilder
 
-class ProperJson(object):
+class JsonRpc(object):
 
+    '''
+    API implementation and convenience methods for XBMC Eden
+
+    Eden has a far better and more complete API than Dharma, and one that
+    actually works. All of the actions I need are actually implemented, so all
+    of the convenience methods work
+    '''
+
+    # API Namespaces
     Application = JsonBuilder('Application')
     AudioLibrary = JsonBuilder('AudioLibrary')
     Files = JsonBuilder('Files')
@@ -28,170 +43,87 @@ class ProperJson(object):
     System = JsonBuilder('System')
     VideoLibrary = JsonBuilder('VideoLibrary')
     XBMC = JsonBuilder('XBMC')
-
+    # Special custom Namespace
     Custom = JsonBuilder()
 
-JsonRpc = ProperJson()
+    def start(self):
+        '''Start playing the music playlist'''
+        return self.Player.Open(item={'playlistid': 0})
 
-#Control
-#TODO These should be functions
-XBMC_GET_PLAYERS = JsonRpc.Playlist.GetPlayers()
-XBMC_START = JsonRpc.Player.Open(item={'playlistid': 0})
-XBMC_STOP = JsonRpc.Player.Stop(playerid=0)
-XBMC_PLAY = JsonRpc.Player.PlayPause(playerid=0)
-XBMC_NEXT = JsonRpc.Player.GoNext(playerid=0)
-XBMC_PREV = JsonRpc.Player.GoPrevious(playerid=0)
-XBMC_STATE = JsonRpc.Player.GetProperties(
-        playerid=0,
-        properties=['speed', 'partymode', 'shuffled', 'repeat', 'playlistid'],
-        identifier='state')
+    def stop(self):
+        '''Stop the music player'''
+        return self.Player.Stop(playerid=0)
 
-#Library Requests
-def GetArtists():
-    return JsonRpc.AudioLibrary.GetArtists(identifier='artist_list')
+    def play(self):
+        '''Play or pause the music player'''
+        return self.Player.PlayPause(playerid=0)
 
-def GetAlbums(artistid=-1):
-    params = {}
-    if artistid != -1:
-        params['artistid'] = artistid
-    return JsonRpc.AudioLibrary.GetAlbums(identifier='album_list', **params)
+    def next(self):
+        '''Skip to the next item of the music playlist'''
+        return self.Player.GoNext(playerid=0)
 
-def GetSongs(artistid=-1, albumid=-1):
-    params = {}
-    if artistid != -1:
-        params['artistid'] = artistid
-    if albumid != -1 :
-        params['albumid'] = albumid
-    return JsonRpc.AudioLibrary.GetSongs(identifier='song_list', **params)
+    def prev(self):
+        '''Skip to the previous item of the music playlist'''
+        return self.Player.GoPrevious(playerid=0)
 
-def GetPlayers():
-    return JsonRpc.Player.GetPlayers
+    def state(self):
+        '''Find out the state of the music player'''
+        properties = ['speed', 'partymode', 'shuffled', 'repeat', 'playlistid']
+        return self.Player.GetProperties(playerid=0, properties=properties,
+                                         identifier='state')
 
-def insert_song(songid, position=0):
-    return JsonRpc.Playlist.Insert(playlistid=0, position=position, 
-                                     item={'songid': songid})
+    def get_artists(self):
+        '''Request the list of artists'''
+        return self.AudioLibrary.GetArtists(identifier='artist_list')
 
-def insert_and_play(songid, position=0):
-    insert =  JsonRpc.Playlist.Insert(playlistid=0, position=position, 
-                                     item={'songid': songid})
-    play = JsonRpc.Player.GoTo(playerid=0, position=position)
-    return ''.join(['[', insert, ',', play, ']'])
+    def get_albums(self, artistid=-1):
+        '''Request the list of artists'''
+        params = {}
+        if artistid != -1:
+            params['artistid'] = artistid
+        return self.AudioLibrary.GetAlbums(identifier='album_list', **params)
 
-def queue_song(songid):
-    return JsonRpc.Playlist.Add(playlistid=0, item={'songid': songid})
+    def get_songs(self, artistid=-1, albumid=-1):
+        '''Request the list of songs'''
+        params = {}
+        if artistid != -1:
+            params['artistid'] = artistid
+        if albumid != -1 :
+            params['albumid'] = albumid
+        return self.AudioLibrary.GetSongs(identifier='song_list', **params)
 
-def GetPosition(identifier):
-    return JsonRpc.Player.GetProperties(playerid=0, properties=['position'],
-                                        identifier=identifier)
+    def get_players(self):
+        '''Request the active players'''
+        return self.Player.GetActivePlayers()
 
-def GetNowPlaying(playerid=0):
-    return JsonRpc.Player.GetItem(
-        playerid=playerid, properties=['title','artist','album'],
-        identifier='now_playing'
-    )
+    def insert_song(self, songid, position=0):
+        '''Insert songid into the music playlist at position'''
+        return self.Playlist.Insert(playlistid=0, position=position, 
+                                        item={'songid': songid})
 
-def custom_method(method_name, params, identifier):
-    """creates JSON strings for custom methods"""
-    return JsonRpc.Custom.__getattr__(method_name)(identifier=identifier,
-                                                   **params)
+    def insert_and_play(self, songid, position=0):
+        '''Insert songid into the music playlist at position and play it'''
+        insert =  self.insert_song(songid=songid, position=position)
+        play = self.Player.GoTo(playerid=0, position=position)
+        return ''.join(['[', insert, ',', play, ']'])
 
-''' Here are all the JSON methods there are
-Application.GetProperties
-Application.Quit
-Application.SetMute
-Application.SetVolume
+    def queue_song(self, songid):
+        '''Add songid to the end of the music playlist'''
+        return self.Playlist.Add(playlistid=0, item={'songid': songid})
 
-AudioLibrary.Clean
-AudioLibrary.Export
-AudioLibrary.GetAlbumDetails
-AudioLibrary.GetAlbums
-AudioLibrary.GetArtistDetails
-AudioLibrary.GetArtists
-AudioLibrary.GetGenres
-AudioLibrary.GetRecentlyAddedAlbums
-AudioLibrary.GetRecentlyAddedSongs
-AudioLibrary.GetSongDetails
-AudioLibrary.GetSongs
-AudioLibrary.Scan
+    def get_position(self, identifier):
+        '''Get the position of the currently playing item'''
+        return self.Player.GetProperties(playerid=0, properties=['position'],
+                                            identifier=identifier)
 
-Files.Download
-Files.GetDirectory
-Files.GetSources
+    def get_now_playing(self, playerid=0):
+        '''Get the details of the currently playing item'''
+        return self.Player.GetItem(
+            playerid=playerid, properties=['title','artist','album'],
+            identifier='now_playing'
+        )
 
-Input.Back
-Input.Down
-Input.Home
-Input.Left
-Input.Right
-Input.Select
-Input.Up
-
-JSONRPC.Introspect
-JSONRPC.NotifyAll
-JSONRPC.Permission
-JSONRPC.Ping
-JSONRPC.Version
-
-Player.GetActivePlayers
-Player.GetItem
-Player.GetProperties
-Player.GoNext
-Player.GoPrevious
-Player.GoTo
-Player.MoveDown
-Player.MoveLeft
-Player.MoveRight
-Player.MoveUp
-Player.Open
-Player.PlayPause
-Player.Repeat
-Player.Rotate
-Player.Seek
-Player.SetAudioStream
-Player.SetSpeed
-Player.SetSubtitle
-Player.Shuffle
-Player.Stop
-Player.UnShuffle
-Player.Zoom
-Player.ZoomIn
-Player.ZoomOut
-Playlist.Add
-Playlist.Clear
-Playlist.GetItems
-Playlist.GetPlaylists
-Playlist.GetProperties
-Playlist.Insert
-Playlist.Remove
-Playlist.Swap
-
-System.GetProperties
-System.Hibernate
-System.Reboot
-System.Shutdown
-System.Suspend
-
-VideoLibrary.Clean
-VideoLibrary.Export
-VideoLibrary.GetEpisodeDetails
-VideoLibrary.GetEpisodes
-VideoLibrary.GetGenres
-VideoLibrary.GetMovieDetails
-VideoLibrary.GetMovieSetDetails
-VideoLibrary.GetMovieSets
-VideoLibrary.GetMovies
-VideoLibrary.GetMusicVideoDetails
-VideoLibrary.GetMusicVideos
-VideoLibrary.GetRecentlyAddedEpisodes
-VideoLibrary.GetRecentlyAddedMovies
-VideoLibrary.GetRecentlyAddedMusicVideos
-VideoLibrary.GetSeasons
-VideoLibrary.GetTVShowDetails
-VideoLibrary.GetTVShows
-VideoLibrary.Scan
-
-XBMC.GetInfoBooleans
-XBMC.GetInfoLabels
-
-Look in XBMC's JSON-RPC APIv4 Documentation for details'''
+    def custom_method(self, method_name, params, identifier):
+        '''Create JSON strings for custom methods'''
+        return self.Custom(method_name, identifier=identifier, **params)
 

@@ -145,23 +145,23 @@ class Controller(XbmcRemoteObject):
 
     def play_pause(self):
         '''Send the play/pause signal'''
-        action = self.xbmc_json.XBMC_PLAY
+        action = self.xbmc_json.play()
         print action
         self._json_send(action)
 
     def play_next(self):
         '''Send the play next signal'''
-        action = self.xbmc_json.XBMC_NEXT
+        action = self.xbmc_json.next()
         self._json_send(action)
 
     def play_previous(self):
         '''Send the play previous signal'''
-        action = self.xbmc_json.XBMC_PREV
+        action = self.xbmc_json.prev()
         self._json_send(action)
 
     def start_playing(self, songid=None):
         '''Send the start playing signal'''
-        action = self.xbmc_json.XBMC_START
+        action = self.xbmc_json.start()
         if songid is not None:
             queue = self.xbmc_json.queue_song(songid)
             action = ''.join(['[', queue, ',', action, ']'])
@@ -169,37 +169,37 @@ class Controller(XbmcRemoteObject):
 
     def stop_playing(self):
         '''Send the stop playing signal'''
-        action = self.xbmc_json.XBMC_STOP
+        action = self.xbmc_json.stop()
         self._json_send(action)
 
     def check_state(self):
         '''Send the check state signal'''
-        action = self.xbmc_json.XBMC_STATE
+        action = self.xbmc_json.state()
         self._json_send(action)
 
     def get_artists(self):
         '''Send a request for the list of artists'''
-        action = self.xbmc_json.GetArtists()
+        action = self.xbmc_json.get_artists()
         self._json_send(action, timeout=0.5)
 
     def get_albums(self, artistid=-1):
         '''Send a request for the list of albums'''
-        action = self.xbmc_json.GetAlbums(artistid)
+        action = self.xbmc_json.get_albums(artistid)
         self._json_send(action, timeout=0.5)
 
     def get_songs(self, artistid=-1, albumid=-1):
         '''Send a request for the list of songs'''
-        action = self.xbmc_json.GetSongs(artistid, albumid)
+        action = self.xbmc_json.get_songs(artistid, albumid)
         self._json_send(action, timeout=0.5)
 
     def get_now_playing(self):
         '''Send a request for the currently playing item'''
-        action = self.xbmc_json.GetNowPlaying(self.state['player'])
+        action = self.xbmc_json.get_now_playing(self.state['player'])
         self._json_send(action)
 
     def get_position(self, identifier='current_position'):
         '''Find out where we are in the playlist'''
-        action = self.xbmc_json.GetPosition(identifier)
+        action = self.xbmc_json.get_position(identifier)
         self._json_send(action)
 
     def play_song_now(self, songid):
