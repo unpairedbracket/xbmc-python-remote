@@ -24,8 +24,8 @@ from gi.repository import Gio
 settings = Gio.Settings("net.launchpad.xbmcremote")
 
 if settings.get_int('version') == 0:
-    from DharmaJsonObjects import JsonRpc
-elif settings.get_int('version') == 1:
     from EdenJsonObjects import JsonRpc
+elif settings.get_int('version') == 1:
+    from FrodoJsonObjects import JsonRpc
 
 xbmc_json = JsonRpc()
