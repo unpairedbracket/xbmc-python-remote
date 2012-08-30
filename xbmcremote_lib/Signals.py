@@ -14,9 +14,20 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 ### END LICENSE
 
+'''
+Contains Signals, a GObject that contains all of Xbmcremote's GSignals
+'''
+
 from gi.repository import GObject
 
-class Signals(GObject.GObject):
+class Signals(GObject.GObject): # pylint: disable=W0232,R0903
+
+    '''
+    Signals contains all of the signals used in the program. It is 
+    instantiated once as a singleton and its connect and emit methods are used
+    by XbmcRemoteObject subclasses to pass information around the program.
+    '''
+
     __gsignals__ = {
             "xbmc_init": (GObject.SIGNAL_RUN_FIRST, None, ()),
             "xbmc_frontend_init": (GObject.SIGNAL_RUN_FIRST, None, ()),
