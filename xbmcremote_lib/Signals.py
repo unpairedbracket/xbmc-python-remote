@@ -69,6 +69,9 @@ class Signals(GObject.GObject): # pylint: disable=W0232,R0903
     def do_xbmc_received(self, *data):
         print "Signal: received", data
 
+    def do_xbmc_decoded(self, *data):
+        print "Signal: decoded", data
+
     def do_xbmc_response(self, *data):
         print "Signal: response", data
 
