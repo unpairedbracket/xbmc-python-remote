@@ -95,7 +95,6 @@ class XbmcremoteWindow(Window):
 
     def on_playback_play_clicked(self, widget, data=None):
         '''Signal handler for the play button'''
-        print self.frontend.state
         if self.frontend.state['playing']:
             self.frontend.emit("xbmc_control", "play", None)
         else:

@@ -90,7 +90,7 @@ class Controller(XbmcRemoteObject):
                 kind = message['kind']
                 data = message['data']
                 identifier = message['id']
-                print message
+                #print message
                 if data == 'OK':
                     #This tells us exactly nothing
                     pass
@@ -127,8 +127,11 @@ class Controller(XbmcRemoteObject):
             self.state['player'] = data['player']['playerid']
             self.set_speed(data['player']['speed'])
             self.state['playing'] = True
+        elif identifier == 'System.OnQuit':
+            self.emit('xbmc_disconnected')
+            self.state['connected'] == False
         else:
-            print data
+            print "Unknown notification: ", data, identifier
 
     def set_speed(self, speed):
         '''Set the state when the server informs us of the speed'''
