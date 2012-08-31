@@ -89,9 +89,6 @@ class XbmcremoteWindow(Window):
         '''Send the appropriate signals when a new song is selected'''
         if data != []:
             self.info['songid'] = data[0]['songid']
-            if self.info['songid'] != -1:
-                params = {'songid': self.info['songid']}
-                self.frontend.emit('xbmc_control', 'play_now', params)
 
     def on_playback_play_clicked(self, widget, data=None):
         '''Signal handler for the play button'''
@@ -111,6 +108,21 @@ class XbmcremoteWindow(Window):
     def on_refresh_clicked(self, widget, data=None):
         '''Signal handler for the refresh button'''
         self.frontend.emit('xbmc_reconnect')
+
+    def on_play_now_clicked(self, widget, data=None):
+        if self.info['songid'] != -1:
+            params = {'songid': self.info['songid']}
+            self.frontend.emit('xbmc_control', 'play_now', params)
+
+    def on_play_next_activate(self, widget, data=None):
+        if self.info['songid'] != -1:
+            params = {'songid': self.info['songid']}
+            self.frontend.emit('xbmc_control', 'play_next', params)
+
+    def on_play_last_activate(self, widget, data=None):
+        if self.info['songid'] != -1:
+            params = {'songid': self.info['songid']}
+            self.frontend.emit('xbmc_control', 'play_last', params)
 
     def on_xbmcremote_window_destroy(self, widget, data=None):
         '''Signal handler for destruction of the window'''
