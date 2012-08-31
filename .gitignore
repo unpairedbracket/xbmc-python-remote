@@ -43,3 +43,8 @@ local.properties
 .bzr/
 debian/
 po/
+tags
+.ropeproject
+
+pkg/
+*.tar.xz

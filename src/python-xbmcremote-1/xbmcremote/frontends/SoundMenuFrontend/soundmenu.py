@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 ### BEGIN LICENSE
 # Copyright (C) 2011 Rick Spencer <rick.spencer@canonical.com>
@@ -33,7 +34,7 @@ Type=Application
 MimeType=application/x-ogg;application/ogg;audio/x-vorbis+ogg;audio/x-scpls;audio/x-mp3;audio/x-mpeg;audio/mpeg;audio/x-mpegurl;audio/x-flac;
 
 In order for the sound menu to run, a dbus loop must be running before
-the player is created and before the Gtk. mainloop is run. you can add
+the player is created and before the gtk. mainloop is run. you can add
 DBusGMainLoop(set_as_default=True) to your application's __main__ function.
 
 The Ubuntu Sound Menu integrates with applications via the MPRIS2 dbus api,
@@ -92,7 +93,7 @@ _sound_menu_play
 _sound_menu_pause
 
 """
-
+# pylint: disable-all
 import dbus
 import dbus.service
 
@@ -119,7 +120,7 @@ class SoundMenuControls(dbus.service.Object):
         bus_str = """org.mpris.MediaPlayer2.%s""" % desktop_name
         bus_name = dbus.service.BusName(bus_str, bus=dbus.SessionBus())
         dbus.service.Object.__init__(self, bus_name, "/org/mpris/MediaPlayer2")
-        self.__playback_status = "Stopped"    
+        self.__playback_status = "Stopped"
 
         self.song_changed()
 
@@ -129,21 +130,21 @@ class SoundMenuControls(dbus.service.Object):
         This method is not typically overriden. It should be called
         by implementations of this class when the player has changed
         songs.
-            
+
         named arguments:
             artists - a list of strings representing the artists"
             album - a string for the name of the album
             title - a string for the title of the song
 
         """
-        
+
         if artists is None:
             artists = ["Artist Unknown"]
         if album is None:
             album = "Album Uknown"
         if title is None:
             title = "Title Uknown"
-   
+
         self.__meta_data = dbus.Dictionary({"xesam:album":album,
                             "xesam:title":title,
                             "xesam:artist":artists,
@@ -331,12 +332,6 @@ class SoundMenuControls(dbus.service.Object):
             self._sound_menu_pause()
             self.signal_paused()
 
-    def send_signal(self, paused):
-        if paused:
-            self.signal_paused()
-        else:
-            self.signal_playing()
-
     def signal_playing(self):
         """signal_playing - Tell the Sound Menu that the player has
         started playing. Implementations many need to call this function in order
@@ -365,12 +360,12 @@ class SoundMenuControls(dbus.service.Object):
         d = dbus.Dictionary({"PlaybackStatus":self.__playback_status},
                                     "sv",variant_level=1)
         self.PropertiesChanged("org.mpris.MediaPlayer2.Player",d,[])
-            
+
 
     def _sound_menu_is_playing(self):
-        """_sound_menu_is_playing         
+        """_sound_menu_is_playing
 
-        Check if the the player is playing,.        
+        Check if the the player is playing,.
         Implementations should overrirde this function 
         so that the Sound Menu can check whether to display
         Play or Pause functionality.
@@ -393,7 +388,7 @@ class SoundMenuControls(dbus.service.Object):
 
         Reponds to the Sound Menu when the user has click the 
         Pause button.
-        
+
         Implementations should overrirde this function 
         to pause playback when called.
 
@@ -414,7 +409,7 @@ class SoundMenuControls(dbus.service.Object):
 
         Reponds to the Sound Menu when the user has click the 
         Play button.
-        
+
         Implementations should overrirde this function 
         to play playback when called.
 

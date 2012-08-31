@@ -1,6 +1,7 @@
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 ### BEGIN LICENSE
-# Copyright (C) 2011 Ben Spiers # This program is free software: you can redistribute it and/or modify it 
+# Copyright (C) 2011 Ben Spiers 
+# This program is free software: you can redistribute it and/or modify it 
 # under the terms of the GNU General Public License version 3, as published 
 # by the Free Software Foundation.
 # 
@@ -28,7 +29,7 @@ class PreferencesDialog(Gtk.Dialog):
     def __new__(cls):
         """Special static method that's automatically called by Python when 
         constructing a new instance of this class.
-        
+
         Returns a fully instantiated PreferencesDialog object.
         """
         builder = get_builder('PreferencesXbmcremoteDialog')
@@ -43,7 +44,7 @@ class PreferencesDialog(Gtk.Dialog):
         and creating a PreferencesDialog object with it in order to
         finish initializing the start of the new PerferencesXbmcremoteDialog
         instance.
-        
+
         Put your initialization code in here and leave __init__ undefined.
         """
 

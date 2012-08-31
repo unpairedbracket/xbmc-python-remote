@@ -1,6 +1,7 @@
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 ### BEGIN LICENSE
-# Copyright (C) 2011 Ben Spiers # This program is free software: you can redistribute it and/or modify it 
+# Copyright (C) 2011 Ben Spiers 
+# This program is free software: you can redistribute it and/or modify it 
 # under the terms of the GNU General Public License version 3, as published 
 # by the Free Software Foundation.
 # 
@@ -171,8 +172,9 @@ class UiFactory():
         # into pythonic ones
         cannot_message = '''cannot bind ui.%s, name already exists
         consider using a pythonic name instead of design name "%s"'''
-        consider_message = '''consider using a pythonic name instead of design name "%s"'''
-        
+        consider_message = '''consider using a pythonic name instead of 
+                              design name "%s"'''
+
         for (widget_name, widget) in widget_dict.items():
             pyname = make_pyname(widget_name)
             if pyname != widget_name:

@@ -2,7 +2,7 @@
   <!-- interface-requires gtk+ 3.0 -->
   <!-- interface-requires about_xbmcremote_dialog 1.0 -->
   <object class="AboutXbmcremoteDialog" id="about_xbmcremote_dialog">
-    <property name="version">12.04.5</property><property name="website">https://launchpad.net/xbmcremote</property><property name="can_focus">False</property>
+    <property name="version">12.08</property><property name="website">https://launchpad.net/xbmcremote</property><property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="icon">../media/xbmcremote.svg</property>
     <property name="type_hint">normal</property>

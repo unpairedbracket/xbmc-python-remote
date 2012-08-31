@@ -1,6 +1,7 @@
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 ### BEGIN LICENSE
-# Copyright (C) 2011 Ben Spiers # This program is free software: you can redistribute it and/or modify it 
+# Copyright (C) 2011 Ben Spiers 
+# This program is free software: you can redistribute it and/or modify it 
 # under the terms of the GNU General Public License version 3, as published 
 # by the Free Software Foundation.
 # 
@@ -33,11 +34,11 @@ class Window(Gtk.Window):
     #
     # For this reason, it's recommended you leave __init__ empty and put
     # your initialization code in finish_initializing
-    
+
     def __new__(cls):
         """Special static method that's automatically called by Python when 
         constructing a new instance of this class.
-        
+
         Returns a fully instantiated BaseXbmcremoteWindow object.
         """
         builder = get_builder('XbmcremoteWindow')
@@ -64,8 +65,10 @@ class Window(Gtk.Window):
         self.settings.connect('changed', self.on_preferences_changed)
 
         # Optional Launchpad integration
-        # This shouldn't crash if not found as it is simply used for bug reporting.
-        # See https://wiki.ubuntu.com/UbuntuDevelopment/Internationalisation/Coding
+        # This shouldn't crash if not found 
+        # as it is simply used for bug reporting.
+        # See 
+        # https://wiki.ubuntu.com/UbuntuDevelopment/Internationalisation/Coding
         # for more information about Launchpad integration.
         try:
             from gi.repository import LaunchpadIntegration
@@ -81,7 +84,8 @@ class Window(Gtk.Window):
         #  https://wiki.ubuntu.com/DesktopExperienceTeam/ApplicationIndicators
         try:
             from xbmcremote import indicator
-            # self is passed so methods of this class can be called from indicator.py
+            # self is passed so methods of this class can be called 
+            # from indicator.py
             # Comment this next line out to disable appindicator
             self.indicator = indicator.new_application_indicator(self)
         except ImportError:
@@ -111,7 +115,8 @@ class Window(Gtk.Window):
         elif self.PreferencesDialog is not None:
             logger.debug('create new preferences_dialog')
             self.preferences_dialog = self.PreferencesDialog() # pylint: disable=E1102
-            self.preferences_dialog.connect('destroy', self.on_preferences_dialog_destroyed)
+            self.preferences_dialog.connect(
+                    'destroy', self.on_preferences_dialog_destroyed)
             self.preferences_dialog.show()
         # destroy command moved into dialog to allow for a help button
 
@@ -125,11 +130,12 @@ class Window(Gtk.Window):
         Gtk.main_quit()
 
     def on_preferences_changed(self, settings, key, data=None):
-        logger.debug('preference changed: %s = %s' % (key, str(settings.get_value(key))))
+        logger.debug('preference changed: %s = %s' % (
+            key, str(settings.get_value(key))))
 
     def on_preferences_dialog_destroyed(self, widget, data=None):
         '''only affects gui
-        
+
         logically there is no difference between the user closing,
         minimising or ignoring the preferences dialog'''
         logger.debug('on_preferences_dialog_destroyed')

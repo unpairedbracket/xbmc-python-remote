@@ -1,6 +1,7 @@
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 ### BEGIN LICENSE
-# Copyright (C) 2011 Ben Spiers # This program is free software: you can redistribute it and/or modify it 
+# Copyright (C) 2011 Ben Spiers 
+# This program is free software: you can redistribute it and/or modify it 
 # under the terms of the GNU General Public License version 3, as published 
 # by the Free Software Foundation.
 # 
@@ -13,222 +14,238 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 ### END LICENSE
 
+'''Module contains Controller class'''
 
-from xbmcremote_lib.Sender import Sender
-from xbmcremote_lib.Decoder import Decoder
-from xbmcremote_lib.sound_menu import SoundMenuControls
-from xbmcremote_lib.JsonObjects import XJ 
-from gi.repository import Gio
+from xbmcremote_lib.JsonObjects import xbmc_json
+from xbmcremote_lib.XbmcRemoteObject import XbmcRemoteObject
 from Queue import Queue
 from threading import Thread
-from socket import error as SocketError
+from ast import literal_eval
 
-class Controller(object):
-    
-    def __init__(self, gui):
 
-        self.gui = gui
-        if self.gui:
-            from interfaces.GtkInterface import GtkInterface as Interface
-        else:
-            from interfaces.TextInterface import TextInterface as Interface
+class Controller(XbmcRemoteObject):
 
-        self.settings = Gio.Settings("net.launchpad.xbmcremote")
-        
-        self.XJ = XJ
-        self.ui = Interface(self)
+    '''
+    Controller -- Class in charge of sending json strings to the network 
+    thread to be sent and dealing with responses to them
+    '''
 
-        self.sound_menu_integration = self.settings['mpris2']
-        self.connected = False
-        self.queue = Queue()
-        
-        #Initialise parts
-        self.send = Sender(self)
-        self.decoder = Decoder(self)
-        
-        #Start program running with responder thread
-        self.start_running()
-        
-        self.playing = self.paused = False
-
-        #Server settings
-        self.ip = self.settings.get_string('ip-address')
-        self.port = int(self.settings.get_string('port'))
-        
-        if self.sound_menu_integration:
-            self.integrate_sound_menu()
-        
-        self.ui.show()
-        self.ui.refresh()
-        self.ui.start_loop()
-        
-    def start_running(self):
+    def __init__(self, application):
+        XbmcRemoteObject.__init__(self, application)
+        self.xbmc_json = xbmc_json
         self.responder = Thread(target=self.worker, name='Response thread')
         self.responder.daemon = True
-        self.responder.start()
-        
-    def integrate_sound_menu(self):
-        #sound menu integration
-        self.sound_menu = SoundMenuControls('xbmcremote')
-        self.sound_menu._sound_menu_next = self.PlayNext
-        self.sound_menu._sound_menu_previous = self.PlayPrevious
-        self.sound_menu._sound_menu_pause = self.sound_menu._sound_menu_play = self.PlayPause
-        self.sound_menu._sound_menu_is_playing = self.is_playing   
-        self.sound_menu._sound_menu_raise = self.ui.show
-        
-    def connect_to_xbmc(self, from_refresh=False):
-        try:
-            self.send.getSocket(self.ip, self.port)
-        except SocketError:
-            self.connected = False
-        else:
-            self.connected = True
-        finally:
-            if not from_refresh:
-                self.ui.refresh(False)
-            
-    def is_playing(self):
-        return not self.paused
+        self.songid = -1
+        self.control_methods = {
+            'play': self.play_pause,
+            'next': self.play_next,
+            'prev': self.play_previous,
+            'start': self.start_playing,
+            'pause': self.play_pause,
+            'stop': self.stop_playing,
+            'artists': self.get_artists,
+            'albums': self.get_albums,
+            'songs': self.get_songs,
+            'state': self.check_state,
+            'now_playing': self.get_now_playing,
+            'current_position': self.get_position,
+            'play_now': self.play_song_now,
+            'play_next': self.play_song_next,
+            'play_last': self.play_song_last,
+            'custom': self.send_custom_request
+        }
 
-    def add(self, data):
-        self.queue.put(data)
-           
-    def sendCallback(self, jsonlist, callback):
-        json = '[' + jsonlist.replace('}\n{', '},{').replace('}{','},{') + ']'
-        self.decoder.decode(json, callback)
-        
+        self.queue = Queue()
+
+        self.signal_connect('xbmc_control', self._send_control)
+        self.signal_connect('xbmc_init', self._start_running)
+        self.signal_connect('xbmc_decoded', self._add)
+
+    def _start_running(self, signaller, data=None):
+        '''Start the response thread running on xbmc_init signal'''
+        if not self.responder.is_alive():
+            self.responder.start()
+
+    def _send_control(self, signaller, request, params, data=None):
+        '''Call the appropriate method for a control signal'''
+        try:
+            paramdict = literal_eval(params)
+        except ValueError:
+            paramdict = {}
+        try:
+            self.control_methods[request](**paramdict)
+        except KeyError:
+            print 'No control method found for ', request
+
+    def _add(self, signaller, message_string, data=None):
+        '''Put a response into the queue for response thread to deal with'''
+        message = literal_eval(message_string)
+        self.queue.put(message)
+
     def worker(self):
+        '''Process messages from xbmc and call the relevant handler method'''
         while True:
             try:
-                item = self.queue.get()
-                kind = item['kind']
-                data = item['data']
-                identifier = item['id']
-                callback = item['callback']
-                #Show a nice error dialog or raise an exception
-                if kind == 'error':
-                    self.handle_error(data)
-                #Use callbacks if the data is for something unconventional
-                elif callback is not None:
-                    callback(data)
-                #Otherwise this will work out what to do with it
-                elif data == 'OK':
-                    print data
+                message = self.queue.get()
+                kind = message['kind']
+                data = message['data']
+                identifier = message['id']
+                #print message
+                if data == 'OK':
+                    #This tells us exactly nothing
+                    pass
+                elif kind == 'error':
+                    self.handle_error(message)
                 elif kind == 'response':
-                    if identifier == 'state' or identifier == 'control':
-                        if data.has_key('playing'):
-                            if data['paused']:
-                                self.set_speed(0)
-                            else:
-                                self.set_speed(1)
-                            self.paused = data['paused']
-                            self.ui.paused(self.paused)
-                            if self.sound_menu_integration:
-                                if data['paused']:
-                                    self.sound_menu.signal_paused()
-                                else:
-                                    self.sound_menu.signal_playing()
-                        if data.has_key('speed'):
-                            self.set_speed(data['speed'])
-                    elif data.has_key('speed'):
-                            self.set_speed(data['speed'])
-                    elif self.ui.methods.has_key(identifier):
-                        self.ui.methods[identifier](data)
-                    else:
-                        print data
+                    self._handle_response(data, identifier)
                 elif kind == 'notification':
-                    if data.has_key('player'):
-                        self.set_speed(data['player']['speed'])
-                    else:
-                        print data
-                elif kind == 'announcement':
-                    if data == 'PlaybackStarted':
-                        self.playing = True
-                    elif data == 'PlaybackStopped':
-                        self.playing = False
-                    elif data == 'PlaybackPaused':
-                        self.paused = True
-                    elif data == 'PlaybackResumed':
-                        self.paused = False
-                    else:
-                        print data
+                    self._handle_notification(data, identifier)
                 else:
                     print 'Weirdly,', data
             except Exception as ex:
-                #TODO Do something
-                print 'Error:', ex
-                
-    def set_speed(self, speed):
-        if speed == 0:
-            self.paused = True
-        elif speed == 1:
-            self.paused = False
-        self.playing = True
-        self.ui.paused(self.paused)
-        if self.sound_menu_integration:
-            self.sound_menu.send_signal(self.paused)
-    
-    def handle_error(self, error):
-        self.ui.handle_error(error)
-        
-    def kill(self):
-        self.send.closeSocket()
-        self.killed = True
+                print 'Processing error:', ex
 
-    def PlayPause(self):
-        action = self.XJ.XBMC_PLAY
-        self.send.add(action)
-                
-    def PlayNext(self):
-        
-        action = self.XJ.XBMC_NEXT
-        self.send.add(action)
-                
-    def PlayPrevious(self):
-        
-        action = self.XJ.XBMC_PREV
-        self.send.add(action)
-                
-    def StartPlaying(self):
-        
-        action = self.XJ.XBMC_START
-        self.send.add(action)
-                
-    def StopPlaying(self):
-        
-        action = self.XJ.XBMC_STOP
-        self.send.add(action)
-    
-    def CheckState(self):
-        
-        action = self.XJ.XBMC_STATE
-        self.send.add(action)
-                  
-    def GetArtists(self):
-        
-        action = self.XJ.GetArtists()
-        self.send.add(action, timeout=0.5)
-            
-    def GetAlbums(self, artistid=-1):
-        
-        action = self.XJ.GetAlbums(artistid)
-        self.send.add(action, timeout=0.5)
-    
-    def GetSongs(self, artistid=-1, albumid=-1):
-        
-        action = self.XJ.GetSongs(artistid, albumid)
-        self.send.add(action, timeout=0.5)
-        
-    def GetNowPlaying(self):
-        action = self.XJ.GetNowPlaying(0)
-        self.send.add(action)
-    
-    def GetPlayers(self):
-        action = self.XJ.GetPlayers()
-        self.send.add(action)
-        
-    def SendCustomRequest(self, method, params={}, callback=None, timeout=0.1):
-        
-        action = self.XJ.XbmcJson.Custom.__getattr__(method)(params, identifier='custom')
-        self.send.add(action, callback, timeout)
-        
+    def _handle_response(self, data, identifier):
+        '''Handle a response from xbmc'''
+        if identifier == 'get_position_for_play_now':
+            next_position = data['position'] +1
+            self.insert_and_play(self.songid, next_position)
+        if identifier == 'get_position_for_play_next':
+            next_position = data['position'] + 1
+            self.insert_song(self.songid, next_position)
+        if 'speed' in data:
+            self.set_speed(data['speed'])
+        self.emit('xbmc_response', identifier, data)
+
+    def _handle_notification(self, data, identifier):
+        '''Handle a notification from xbmc'''
+        if identifier == 'Player.OnPlay' and not self.state['paused']:
+            self.get_now_playing()
+        elif identifier == 'Player.OnStop':
+            self.state['playing'] = False
+        if identifier in ['Player.OnPlay', 'Player.OnPause']:
+            self.state['player'] = data['player']['playerid']
+            self.set_speed(data['player']['speed'])
+            self.state['playing'] = True
+        elif identifier == 'System.OnQuit':
+            self.emit('xbmc_disconnected')
+            self.state['connected'] == False
+        else:
+            print "Unknown notification: ", data, identifier
+
+    def set_speed(self, speed):
+        '''Set the state when the server informs us of the speed'''
+        if speed == 0:
+            self.state['paused'] = True
+        elif speed == 1:
+            self.state['paused'] = False
+        self.state['playing'] = True
+        self.emit('xbmc_paused', self.state['paused'])
+
+    def handle_error(self, error):
+        '''Handle any error messages the server sends back'''
+        self.emit("xbmc_error", error)
+
+    def play_pause(self):
+        '''Send the play/pause signal'''
+        action = self.xbmc_json.play()
+        print action
+        self._json_send(action)
+
+    def play_next(self):
+        '''Send the play next signal'''
+        action = self.xbmc_json.next()
+        self._json_send(action)
+
+    def play_previous(self):
+        '''Send the play previous signal'''
+        action = self.xbmc_json.prev()
+        self._json_send(action)
+
+    def start_playing(self, songid=None):
+        '''Send the start playing signal'''
+        action = self.xbmc_json.start()
+        if songid is not None:
+            queue = self.xbmc_json.queue_song(songid)
+            action = ''.join(['[', queue, ',', action, ']'])
+        self._json_send(action)
+
+    def stop_playing(self):
+        '''Send the stop playing signal'''
+        action = self.xbmc_json.stop()
+        self._json_send(action)
+
+    def check_state(self):
+        '''Send the check state signal'''
+        action = self.xbmc_json.state()
+        self._json_send(action)
+
+    def get_artists(self):
+        '''Send a request for the list of artists'''
+        action = self.xbmc_json.get_artists()
+        self._json_send(action, timeout=0.5)
+
+    def get_albums(self, artistid=-1):
+        '''Send a request for the list of albums'''
+        action = self.xbmc_json.get_albums(artistid)
+        self._json_send(action, timeout=0.5)
+
+    def get_songs(self, artistid=-1, albumid=-1):
+        '''Send a request for the list of songs'''
+        action = self.xbmc_json.get_songs(artistid, albumid)
+        self._json_send(action, timeout=0.5)
+
+    def get_now_playing(self):
+        '''Send a request for the currently playing item'''
+        action = self.xbmc_json.get_now_playing(self.state['player'])
+        self._json_send(action)
+
+    def get_position(self, identifier='current_position'):
+        '''Find out where we are in the playlist'''
+        action = self.xbmc_json.get_position(identifier)
+        self._json_send(action)
+
+    def play_song_now(self, songid):
+        '''Start the process of playing a song from the library immediately'''
+        self.songid = songid
+        if self.state['playing']:
+            self.get_position('get_position_for_play_now')
+        else:
+            self.start_playing(songid=songid)
+
+    def play_song_next(self, songid):
+        '''Start the process of playing a song from the library next'''
+        self.songid = songid
+        if self.state['playing']:
+            self.get_position('get_position_for_play_next')
+        else:
+            self.start_playing(songid)
+
+    def play_song_last(self, songid):
+        '''Start the process of playing a song from the library next'''
+        self.songid = songid
+        if self.state['playing']:
+            action = self.xbmc_json.queue_song(songid)
+            self._json_send(action)
+        else:
+            self.start_playing(songid)
+
+    def insert_song(self, songid, position):
+        '''Insert the song'''
+        action = self.xbmc_json.insert_song(songid, position)
+        self._json_send(action)
+
+    def insert_and_play(self, songid, position):
+        '''Insert and play the song'''
+        action = self.xbmc_json.insert_and_play(songid, position)
+        self._json_send(action)
+
+    def send_custom_request(self, method, params,
+                            identifier='custom', timeout=0.5):
+        '''Send a custom method and parameters'''
+        action = self.xbmc_json.custom_method(method, params, identifier)
+        self._json_send(action, timeout)
+
+    def _json_send(self, json, timeout=0.1):
+        '''General method for emitting the xbmc_send signal'''
+        self.emit("xbmc_send", json, timeout)

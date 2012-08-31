@@ -1,6 +1,7 @@
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 ### BEGIN LICENSE
-# Copyright (C) 2011 Ben Spiers # This program is free software: you can redistribute it and/or modify it 
+# Copyright (C) 2011 Ben Spiers 
+# This program is free software: you can redistribute it and/or modify it 
 # under the terms of the GNU General Public License version 3, as published 
 # by the Free Software Foundation.
 # 
@@ -18,12 +19,14 @@ from gi.repository import Gtk
 from . helpers import get_builder
 
 class AboutDialog(Gtk.AboutDialog):
+    '''Special base class only to be used as a parent.'''
+
     __gtype_name__ = "AboutDialog"
 
     def __new__(cls):
         """Special static method that's automatically called by Python when 
         constructing a new instance of this class.
-        
+
         Returns a fully instantiated AboutDialog object.
         """
         builder = get_builder('AboutXbmcremoteDialog')
@@ -38,7 +41,7 @@ class AboutDialog(Gtk.AboutDialog):
         and creating a AboutDialog object with it in order
         to finish initializing the start of the new AboutXbmcremoteDialog
         instance.
-        
+
         Put your initialization code in here and leave __init__ undefined.
         """
         # Get a reference to the builder and set up the signals.

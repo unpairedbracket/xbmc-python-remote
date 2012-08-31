@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 ### BEGIN LICENSE
-# Copyright (C) 2011 Ben Spiers # This program is free software: you can redistribute it and/or modify it 
-# under the terms of the GNU General Public License version 3, as published 
+# Copyright (C) 2011 Ben Spiers
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 3, as published
 # by the Free Software Foundation.
 # 
-# This program is distributed in the hope that it will be useful, but 
-# WITHOUT ANY WARRANTY; without even the implied warranties of 
-# MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranties of
+# MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
 # PURPOSE.  See the GNU General Public License for more details.
 # 
-# You should have received a copy of the GNU General Public License along 
+# You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 ### END LICENSE
 
@@ -56,7 +57,7 @@ def update_desktop_file(datadir):
         fin = file('xbmcremote.desktop.in', 'r')
         fout = file(fin.name + '.new', 'w')
 
-        for line in fin:            
+        for line in fin:
             if 'Icon=' in line:
                 line = "Icon=%s\n" % (datadir + 'media/xbmcremote.svg')
             fout.write(line)
@@ -79,14 +80,14 @@ class InstallAndUpdateDataDirectory(DistUtilsExtra.auto.install_auto):
         update_config(previous_values)
 
 
-        
+
 ##################################################################################
 ###################### YOU SHOULD MODIFY ONLY WHAT IS BELOW ######################
 ##################################################################################
 
 DistUtilsExtra.auto.setup(
     name='xbmcremote',
-    version='12.04.5',
+    version='12.08',
     license='GPL-3',
     author='Ben Spiers',
     author_email='ben.spiers22@gmail.com' ,

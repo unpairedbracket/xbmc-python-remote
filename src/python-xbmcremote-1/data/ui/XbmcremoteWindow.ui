@@ -310,6 +310,56 @@
                     <property name="homogeneous">True</property>
                   </packing>
                 </child>
+                <child>
+                  <object class="GtkSeparatorToolItem" id="separator2">
+                    <property name="use_action_appearance">False</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="use_action_appearance">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">True</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkMenuToolButton" id="play_now">
+                    <property name="use_action_appearance">False</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="is_important">True</property>
+                    <property name="label" translatable="yes">Play Now</property>
+                    <property name="use_underline">True</property>
+                    <child type="menu">
+                      <object class="GtkMenu" id="play_menu">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <object class="GtkMenuItem" id="play_next">
+                            <property name="use_action_appearance">False</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Play Next</property>
+                            <property name="use_underline">True</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkMenuItem" id="play_last">
+                            <property name="use_action_appearance">False</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Play Last</property>
+                            <property name="use_underline">True</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -323,6 +373,7 @@
                 <property name="can_focus">False</property>
                 <property name="xpad">5</property>
                 <property name="label" translatable="yes">Now Playing</property>
+                <property name="max_width_chars">50</property>
               </object>
               <packing>
                 <property name="expand">False</property>

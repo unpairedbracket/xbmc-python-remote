@@ -1,6 +1,7 @@
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 ### BEGIN LICENSE
-# Copyright (C) 2011 Ben Spiers # This program is free software: you can redistribute it and/or modify it 
+# Copyright (C) 2011 Ben Spiers 
+# This program is free software: you can redistribute it and/or modify it 
 # under the terms of the GNU General Public License version 3, as published 
 # by the Free Software Foundation.
 # 
@@ -13,21 +14,33 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 ### END LICENSE
 
+'''
+Dialog that displays errors.
+'''
+
 from gi.repository import Gtk
 
 from xbmcremote_lib.helpers import get_builder
 
 import gettext
-from gettext import gettext as _
+_ = gettext.gettext
 gettext.textdomain('xbmcremote')
 
-class ErrorDialog(Gtk.Dialog):
+
+class ErrorDialog(Gtk.Dialog): # pylint: disable=W0232
+
+    '''
+    ErrorDialog is created by XbmcremoteWindow's handle_error method to
+    display an error from the server
+    '''
+
     __gtype_name__ = "ErrorDialog"
 
     def __new__(cls):
-        """Special static method that's automatically called by Python when 
+        """
+        Special static method that's automatically called by Python when
         constructing a new instance of this class.
-        
+
         Returns a fully instantiated ErrorDialog object.
         """
         builder = get_builder('ErrorDialog')
@@ -36,7 +49,8 @@ class ErrorDialog(Gtk.Dialog):
         return new_object
 
     def finish_initializing(self, builder):
-        """Called when we're finished initializing.
+        """
+        Called when we're finished initializing.
 
         finish_initalizing should be called after parsing the ui definition
         and creating a ErrorDialog object with it in order to
@@ -44,12 +58,19 @@ class ErrorDialog(Gtk.Dialog):
         instance.
         """
         # Get a reference to the builder and set up the signals.
-        self.builder = builder
-        self.ui = builder.get_ui(self)
-        
-    def set_error(self, error):
-        self.error = error
-        self.ui.method_failed_label.set_label('Server-side error ' + str(self.error['code']) + ': ' + self.error['message'])
+        self.builder = builder # pylint: disable=W0201
+        self.ui = builder.get_ui(self) # pylint: disable=W0201
+
+    def set_error(self, message, code, identifier=None):
+        '''
+        Set the error message and identifier if given
+        '''
+        if identifier is None:
+            label = ''.join(['Server-side error ', str(code), ': ', message])
+        else:
+            label = ''.join(['Server-side error ', str(code), ': ',
+                            message, ' (', identifier, ')'])
+        self.ui.method_failed_label.set_label(label)
 
     def on_btn_ok_clicked(self, widget, data=None):
         """The user has elected to save the changes.
@@ -58,8 +79,11 @@ class ErrorDialog(Gtk.Dialog):
         """
         self.destroy()
 
-
-if __name__ == "__main__":
+def main():
+    '''Run the dialog in isolation for testing'''
     dialog = ErrorDialog()
     dialog.show()
     Gtk.main()
+
+if __name__ == "__main__":
+    main()

@@ -1,6 +1,7 @@
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 ### BEGIN LICENSE
-# Copyright (C) 2011 Ben Spiers # This program is free software: you can redistribute it and/or modify it 
+# Copyright (C) 2011 Ben Spiers 
+# This program is free software: you can redistribute it and/or modify it 
 # under the terms of the GNU General Public License version 3, as published 
 # by the Free Software Foundation.
 # 
@@ -27,7 +28,7 @@ gettext.textdomain('xbmcremote')
 def get_builder(builder_file_name):
     """Return a fully-instantiated Gtk.Builder instance from specified ui 
     file
-    
+
     :param builder_file_name: The name of the builder file, without extension.
         Assumed to be in the 'ui' directory under the data path.
     """
@@ -60,7 +61,8 @@ def set_up_logging(opts):
     null_handler = NullHandler()
     root.addHandler(null_handler)
 
-    formatter = logging.Formatter("%(levelname)s:%(name)s: %(funcName)s() '%(message)s'")
+    formatter = logging.Formatter(
+            "%(levelname)s:%(name)s: %(funcName)s() '%(message)s'")
 
     logger = logging.getLogger('xbmcremote')
     logger_sh = logging.StreamHandler()

@@ -15,7 +15,7 @@
 ### END LICENSE
 
 '''
-Provides JSON strings ready to be sent to XBMC Eden. JsonBuilder is used to
+Provides JSON strings ready to be sent to XBMC Frodo. JsonBuilder is used to
 generate the strings, and convenience methods are available to build requests
 needed by Xbmcremote.
 '''
@@ -25,11 +25,9 @@ from JsonBuilder import JsonBuilder
 class JsonRpc(object):
 
     '''
-    API implementation and convenience methods for XBMC Eden
+    API implementation and convenience methods for XBMC Frodo
 
-    Eden has a far better and more complete API than Dharma, and one that
-    actually works. All of the actions I need are actually implemented, so all
-    of the convenience methods work
+    (Pre-)Frodo has some API differences that break compatibility with Eden.
     '''
 
     # API Namespaces
@@ -78,10 +76,12 @@ class JsonRpc(object):
 
     def get_albums(self, artistid=-1):
         '''Request the list of artists'''
-        params = {}
         if artistid != -1:
-            params['artistid'] = artistid
-        return self.AudioLibrary.GetAlbums(identifier='album_list', **params)
+            params = {'artistid': artistid}
+            return self.AudioLibrary.GetAlbums(identifier='album_list', filter=params)
+        else:
+            return self.AudioLibrary.GetAlbums(identifier='album_list')
+        
 
     def get_songs(self, artistid=-1, albumid=-1):
         '''Request the list of songs'''
@@ -90,7 +90,10 @@ class JsonRpc(object):
             params['artistid'] = artistid
         if albumid != -1 :
             params['albumid'] = albumid
-        return self.AudioLibrary.GetSongs(identifier='song_list', **params)
+        if params != {}:
+            return self.AudioLibrary.GetSongs(identifier='song_list', filter=params)
+        else:
+            return self.AudioLibrary.GetSongs(identifier='song_list')
 
     def get_players(self):
         '''Request the active players'''

@@ -1,6 +1,7 @@
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 ### BEGIN LICENSE
-# Copyright (C) 2011 Ben Spiers # This program is free software: you can redistribute it and/or modify it 
+# Copyright (C) 2011 Ben Spiers 
+# This program is free software: you can redistribute it and/or modify it 
 # under the terms of the GNU General Public License version 3, as published 
 # by the Free Software Foundation.
 # 
@@ -14,34 +15,44 @@
 ### END LICENSE
 
 from json import JSONDecoder
+from xbmcremote_lib.XbmcRemoteObject import XbmcRemoteObject
 
-class Decoder(object):
-    
-    def __init__(self, controller):
+class Decoder(XbmcRemoteObject):
+
+    def __init__(self, application):
+        XbmcRemoteObject.__init__(self, application)
         self.decoder = JSONDecoder()
-        self.controller = controller
-    
-    def decode(self, Json, callback=None):
-        js = self.decoder.decode(Json)
-        for i in js:
-            #check for a valid response
-            if i.has_key('error'):
-                kind = 'error'
-                identifier = i['id']
-                result = i['error']
-            elif i.has_key('result'):
-                kind = 'response'
-                identifier = i['id']
-                result = i['result']
-            elif (i.has_key('method')):
-                if i['method'] == 'Announcement':
-                    kind = 'announcement'
-                    identifier = None
-                    result = i['params']['message']
+        self.signal_connect("xbmc_received", self.add)
+
+    def add(self, signaller, json, data=None):
+        js = self.decoder.decode(json)
+        self.decode(js)
+
+    def decode(self, obj):
+        for i in obj:
+            if isinstance(i, list):
+                self.decode(i)
+            else:
+                #check for a valid response
+                if 'error' in i:
+                    kind = 'error'
+                    identifier = i['id']
+                    result = i['error']
+                elif 'result' in i:
+                    kind = 'response'
+                    identifier = i['id']
+                    result = i['result']
+                elif 'method' in i:
+                    if i['method'] == 'Announcement':
+                        kind = 'announcement'
+                        identifier = None
+                        result = i['params']['message']
+                    else:
+                        kind = 'notification'
+                        identifier = i['method']
+                        result = i['params']['data']
                 else:
-                    kind = 'notification'
-                    identifier = None
-                    result = i['params']['data']
-                
-            data = {'kind': kind, 'data': result, 'callback': callback, 'id': identifier}
-            self.controller.add(data)
+                    break
+
+                data = {'kind': kind, 'data': result, 'id': identifier}
+                self.emit('xbmc_decoded', data)
