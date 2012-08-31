@@ -44,7 +44,7 @@ class JsonBuilder(object):
         return self.make_method(method_name)
 
     def __call__(self, method_name, **kwargs):
-        self.__getattr__(method_name)(**kwargs)
+        return self.__getattr__(method_name)(**kwargs)
 
     def make_method(self, method_name):
         ''''Creates a method to build JSON requests for method names'''
