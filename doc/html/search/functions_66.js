@@ -1,0 +1,4 @@
+var searchData=
+[
+  ['finish_5finitializing',['finish_initializing',['../classxbmcremote_1_1frontends_1_1_gtk_frontend_1_1_xbmcremote_window_1_1_xbmcremote_window.html#a20856e22f4b6b10efca773b135b8478d',1,'xbmcremote.frontends.GtkFrontend.XbmcremoteWindow.XbmcremoteWindow.finish_initializing()'],['../classxbmcremote__lib_1_1_about_dialog_1_1_about_dialog.html#adb41d0bb43347ea75b4943a191ccdcf7',1,'xbmcremote_lib.AboutDialog.AboutDialog.finish_initializing()'],['../classxbmcremote__lib_1_1_preferences_dialog_1_1_preferences_dialog.html#a27c2762fad741f42a80e739deb1b8a72',1,'xbmcremote_lib.PreferencesDialog.PreferencesDialog.finish_initializing()'],['../classxbmcremote__lib_1_1_window_1_1_window.html#aa49103155069190c4e8c07f2c61813fc',1,'xbmcremote_lib.Window.Window.finish_initializing()']]]
+];

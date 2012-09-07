@@ -1,0 +1,6 @@
+var searchData=
+[
+  ['insert_5fand_5fplay',['insert_and_play',['../classxbmcremote_1_1_controller_1_1_controller.html#afffd0403d340ce51c4acf52ad13e6068',1,'xbmcremote.Controller.Controller.insert_and_play()'],['../classxbmcremote__lib_1_1_json_objects_1_1_eden_json_objects_1_1_json_rpc.html#aaf54fad68df8f796d5f35dbfb8439c19',1,'xbmcremote_lib.JsonObjects.EdenJsonObjects.JsonRpc.insert_and_play()'],['../classxbmcremote__lib_1_1_json_objects_1_1_frodo_json_objects_1_1_json_rpc.html#a16eacab8434478d35aeb82367fa7416b',1,'xbmcremote_lib.JsonObjects.FrodoJsonObjects.JsonRpc.insert_and_play()']]],
+  ['insert_5fsong',['insert_song',['../classxbmcremote_1_1_controller_1_1_controller.html#ada9e454318a7d2bc0e636532fa539e11',1,'xbmcremote.Controller.Controller.insert_song()'],['../classxbmcremote__lib_1_1_json_objects_1_1_eden_json_objects_1_1_json_rpc.html#aa47c154ea598aa0c55190027843e0cfc',1,'xbmcremote_lib.JsonObjects.EdenJsonObjects.JsonRpc.insert_song()'],['../classxbmcremote__lib_1_1_json_objects_1_1_frodo_json_objects_1_1_json_rpc.html#afc01d855340a7df3cbbd2b5a1263ceab',1,'xbmcremote_lib.JsonObjects.FrodoJsonObjects.JsonRpc.insert_song()']]],
+  ['instantiate_5ffrontends',['instantiate_frontends',['../classxbmcremote_1_1_application_1_1_application.html#a270d6d36fb48bb1fa020c5574b5e68bf',1,'xbmcremote::Application::Application']]]
+];
