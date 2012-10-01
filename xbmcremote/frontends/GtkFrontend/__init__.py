@@ -55,6 +55,7 @@ class GtkFrontend(BaseFrontend):
     def disconnected(self, signaller, data=None):
         '''Update the window to show that a connection has failed'''
         GObject.idle_add(self.set_connection_label, 'Connection Failed')
+        self.clear_lists()
 
     def start_loop(self):
         '''Connect signals, show the window and start the mainloop'''
@@ -120,6 +121,18 @@ class GtkFrontend(BaseFrontend):
             view.remove(child)
 
         view.add(grid)
+
+    def clear_lists(self):
+        artist_view = self.window.ui.artist_list
+        album_view = self.window.ui.album_list
+        song_view = self.window.ui.song_list
+        empty_artist_viewport = self.window.ui.empty_artist_viewport
+        empty_album_viewport = self.window.ui.empty_album_viewport
+        empty_song_viewport = self.window.ui.empty_song_viewport
+        GObject.idle_add(self.__prepare_view, artist_view, empty_artist_viewport)
+        GObject.idle_add(self.__prepare_view, album_view, empty_album_viewport)
+        GObject.idle_add(self.__prepare_view, song_view, empty_song_viewport)
+
 
     def update_now_playing(self, song_info):
         '''Change the now playing label to keep it up to date.'''

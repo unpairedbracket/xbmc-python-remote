@@ -3,6 +3,27 @@
   <!-- interface-requires gtk+ 3.0 -->
   <!-- interface-requires xbmcremote_window 1.0 -->
   <!-- interface-local-resource-path ../media -->
+  <object class="GtkViewport" id="empty_album_viewport">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <child>
+      <placeholder/>
+    </child>
+  </object>
+  <object class="GtkViewport" id="empty_artist_viewport">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <child>
+      <placeholder/>
+    </child>
+  </object>
+  <object class="GtkViewport" id="empty_song_viewport">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <child>
+      <placeholder/>
+    </child>
+  </object>
   <object class="GtkImage" id="image2">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
