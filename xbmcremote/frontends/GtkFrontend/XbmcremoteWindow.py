@@ -127,6 +127,10 @@ class XbmcremoteWindow(Window):
             params = {'songid': self.info['songid']}
             self.frontend.emit('xbmc_control', 'play_last', params)
 
+    def on_preferences_dialog_destroyed(self, widget, data=None):
+        Window.on_preferences_dialog_destroyed(self, widget, data)
+        self.on_refresh_clicked(widget, data)
+
     def on_xbmcremote_window_destroy(self, widget, data=None):
         '''Signal handler for destruction of the window'''
         self.frontend.emit('xbmc_kill')
