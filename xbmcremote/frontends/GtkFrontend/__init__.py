@@ -136,9 +136,9 @@ class GtkFrontend(BaseFrontend):
 
     def update_now_playing(self, song_info):
         '''Change the now playing label to keep it up to date.'''
-        now_playing = ' '.join([song_info['item']['title'], 'by',
-                                song_info['item']['artist'], 'from',
-                                song_info['item']['album']])
+        now_playing = ''.join([song_info['item']['title'], ' (',
+                                song_info['item']['artist'], ' - ',
+                                song_info['item']['album'], ')'])
         GObject.idle_add(self.set_playing_label, now_playing)
 
     def handle_error(self, signaller, error, data=None):
