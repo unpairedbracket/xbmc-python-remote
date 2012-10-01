@@ -97,11 +97,11 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="XBMC IP Address">
+              <object class="GtkLabel" id="XBMC Host">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">XBMC IP Address</property>
+                <property name="label" translatable="yes">XBMC Host</property>
                 <property name="use_underline">True</property>
                 <property name="mnemonic_widget">ip_entry</property>
               </object>
