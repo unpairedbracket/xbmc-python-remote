@@ -387,7 +387,7 @@
                 <property name="can_focus">False</property>
                 <property name="xpad">5</property>
                 <property name="ypad">5</property>
-                <property name="label" translatable="yes">Connected to: 127.0.0.1</property>
+                <property name="label" translatable="yes">Not Connected</property>
               </object>
               <packing>
                 <property name="expand">False</property>
