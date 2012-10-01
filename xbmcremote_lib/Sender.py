@@ -45,10 +45,10 @@ class Sender(async_chat, XbmcRemoteObject):
         port = self.state['port'] = int(self.settings.get_string('port'))
         address = (ip, port)
         connected = self.state['connected']
-        self.logger.debug('Currently connected to '+str(self.addr)+', going to connect to '+str(address))
-        self.logger.debug(self.state['connected'])
         if ((address != self.addr) or (not connected)):
             self.create_and_connect(address)
+        else:
+            self.emit('xbmc_connected')
 
     def first_connect(self, signaller, data=None):
         ip = self.state['ip'] = self.settings.get_string('ip-address')
@@ -57,11 +57,9 @@ class Sender(async_chat, XbmcRemoteObject):
         self.create_and_connect(address)
 
     def create_and_connect(self, address):
-        print 'creating socket'
         self._map.clear()
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(1)
-        print sock
         try:
             sock.connect(address)
         except socket.error:
@@ -69,11 +67,11 @@ class Sender(async_chat, XbmcRemoteObject):
             self.state['connected'] = False
         else:
             self.addr = address
-            self.emit('xbmc_connected')
-            self.state['connected'] = True
             sock.setblocking(0)
             self.set_socket(sock)
             self.start(None)
+            self.state['connected'] = True
+            self.emit('xbmc_connected')
 
     def loop(self):
         self.running = True
