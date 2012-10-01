@@ -129,7 +129,7 @@ class Controller(XbmcRemoteObject):
             self.state['playing'] = True
         elif identifier == 'System.OnQuit':
             self.emit('xbmc_disconnected')
-            self.state['connected'] == False
+            self.state['connected'] = False
         else:
             print "Unknown notification: ", data, identifier
 
@@ -149,7 +149,6 @@ class Controller(XbmcRemoteObject):
     def play_pause(self):
         '''Send the play/pause signal'''
         action = self.xbmc_json.play()
-        print action
         self._json_send(action)
 
     def play_next(self):

@@ -1,6 +1,6 @@
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 ### BEGIN LICENSE
-# Copyright (C) 2011 Ben Spiers 
+# Copyright (C) 2012 Ben Spiers 
 # This program is free software: you can redistribute it and/or modify it 
 # under the terms of the GNU General Public License version 3, as published 
 # by the Free Software Foundation.
@@ -61,17 +61,19 @@ class Application(object):
 
     def instantiate_frontends(self, gui):
         '''Take care of the messy interface business'''
-        frontends = []
+        classes = []
+        instances = []
         if gui:
             from frontends.GtkFrontend import GtkFrontend
-            frontends.append(GtkFrontend)
+            classes.append(GtkFrontend)
             if self.settings.get_boolean('mpris2'):
                 from frontends.SoundMenuFrontend import SoundMenuFrontend
-                frontends.append(SoundMenuFrontend)
+                classes.append(SoundMenuFrontend)
         else:
             from frontends.TextFrontend import TextFrontend
-            frontends.append(TextFrontend)
+            classes.append(TextFrontend)
 
-        instances = []
-        for frontend in frontends:
+        for frontend in classes:
             instances.append(frontend(self))
+
+        return instances

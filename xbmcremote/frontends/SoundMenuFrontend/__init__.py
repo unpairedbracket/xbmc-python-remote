@@ -33,8 +33,8 @@ class SoundMenuFrontend(BaseFrontend, SoundMenuControls):
 
     def __init__(self, application):
         BaseFrontend.__init__(self, application)
-        self.methods = {'now_playing': self.update_now_playing} 
         SoundMenuControls.__init__(self, 'xbmcremote')
+        self.methods = {'now_playing': self.update_now_playing} 
 
     def _sound_menu_play(self):
         self.emit("xbmc_control", "play", None)
