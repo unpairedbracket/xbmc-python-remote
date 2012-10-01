@@ -110,16 +110,19 @@ class XbmcremoteWindow(Window):
         self.frontend.emit('xbmc_reconnect')
 
     def on_play_now_clicked(self, widget, data=None):
+        '''Signal handler for the Play Now button'''
         if self.info['songid'] != -1:
             params = {'songid': self.info['songid']}
             self.frontend.emit('xbmc_control', 'play_now', params)
 
     def on_play_next_activate(self, widget, data=None):
+        '''Signal handler for the Play Next menu item'''
         if self.info['songid'] != -1:
             params = {'songid': self.info['songid']}
             self.frontend.emit('xbmc_control', 'play_next', params)
 
     def on_play_last_activate(self, widget, data=None):
+        '''Signal handler for the Play Last menu item'''
         if self.info['songid'] != -1:
             params = {'songid': self.info['songid']}
             self.frontend.emit('xbmc_control', 'play_last', params)

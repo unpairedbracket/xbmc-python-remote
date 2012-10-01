@@ -22,7 +22,7 @@ from . xbmcremoteconfig import get_data_file
 from . Builder import Builder
 
 import gettext
-from gettext import gettext as _
+_ = gettext.gettext
 gettext.textdomain('xbmcremote')
 
 def get_builder(builder_file_name):
@@ -43,8 +43,8 @@ def get_builder(builder_file_name):
     return builder
 
 
-# Owais Lone : To get quick access to icons and stuff.
 def get_media_file(media_file_name):
+    '''Owais Lone : To get quick access to icons and stuff.'''
     media_filename = get_data_file('media', '%s' % (media_file_name,))
     if not os.path.exists(media_filename):
         media_filename = None
@@ -52,11 +52,12 @@ def get_media_file(media_file_name):
     return "file:///"+media_filename
 
 class NullHandler(logging.Handler):
+    '''A logging handler that does nothing'''
     def emit(self, record):
         pass
 
 def set_up_logging(opts):
-    # add a handler to prevent basicConfig
+    '''Add a handler to prevent basicConfig'''
     root = logging.getLogger()
     null_handler = NullHandler()
     root.addHandler(null_handler)
@@ -82,7 +83,7 @@ def set_up_logging(opts):
         lib_logger.setLevel(logging.DEBUG)
 
 def get_help_uri(page=None):
-    # help_uri from source tree - default language
+    '''help_uri from source tree - default language'''
     here = os.path.dirname(__file__)
     help_uri = os.path.abspath(os.path.join(here, '..', 'help', 'C'))
 
@@ -97,6 +98,7 @@ def get_help_uri(page=None):
     return help_uri
 
 def show_uri(parent, link):
+    '''show a URI'''
     from gi.repository import Gtk # pylint: disable=E0611
     screen = parent.get_screen()
     Gtk.show_uri(screen, link, Gtk.get_current_event_time())

@@ -190,7 +190,7 @@ class UiFactory():
         setattr(self, '__iter__', iterator)
 
     def __getitem__(self, name):
-        'access as dictionary where name might be non-pythonic'
+        '''access as dictionary where name might be non-pythonic'''
         return self._widget_dict[name]
 # pylint: enable=R0903
 
@@ -207,15 +207,15 @@ def make_pyname(name):
     return pyname
 
 
-# Until bug https://bugzilla.gnome.org/show_bug.cgi?id=652127 is fixed, we 
-# need to reimplement inspect.getmembers.  GObject introspection doesn't
-# play nice with it.
 def getmembers(obj, check):
+    '''Until bug https://bugzilla.gnome.org/show_bug.cgi?id=652127 is fixed, we
+    need to reimplement inspect.getmembers.  GObject introspection doesn't
+    play nice with it.'''
     members = []
     for k in dir(obj):
         try:
             attr = getattr(obj, k)
-        except:
+        except Exception:
             continue
         if check(attr):
             members.append((k, attr))

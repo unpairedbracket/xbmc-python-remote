@@ -14,11 +14,15 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 ### END LICENSE
 
+'''AboutDialog is used as a parent class for AboutXbmcremoteDialog'''
+
+# pylint: disable=W0201
+
 from gi.repository import Gtk
 
 from . helpers import get_builder
 
-class AboutDialog(Gtk.AboutDialog):
+class AboutDialog(Gtk.AboutDialog): # pylint: disable=W0232
     '''Special base class only to be used as a parent.'''
 
     __gtype_name__ = "AboutDialog"

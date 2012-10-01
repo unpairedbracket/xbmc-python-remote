@@ -78,10 +78,10 @@ class JsonRpc(object):
         '''Request the list of artists'''
         if artistid != -1:
             params = {'artistid': artistid}
-            return self.AudioLibrary.GetAlbums(identifier='album_list', filter=params)
+            return self.AudioLibrary.GetAlbums(identifier='album_list',
+                                               filter=params)
         else:
             return self.AudioLibrary.GetAlbums(identifier='album_list')
-        
 
     def get_songs(self, artistid=-1, albumid=-1):
         '''Request the list of songs'''
@@ -91,7 +91,8 @@ class JsonRpc(object):
         if albumid != -1 :
             params['albumid'] = albumid
         if params != {}:
-            return self.AudioLibrary.GetSongs(identifier='song_list', filter=params)
+            return self.AudioLibrary.GetSongs(identifier='song_list',
+                                              filter=params)
         else:
             return self.AudioLibrary.GetSongs(identifier='song_list')
 

@@ -14,7 +14,19 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 ### END LICENSE
 
-class XbmcRemoteObject(object):
+'''
+Parent class for most of the program's objects. Provides GObject signal
+connection and emission methods and access to the server player state and
+program settings.
+'''
+
+import logging
+
+class XbmcRemoteObject(object): # pylint: disable=R0903
+    '''
+    Subclass this for objects that need access to the server state, 
+    application settings, and signal emission and reception.
+    '''
 
     def __init__(self, application):
         self.application = application
@@ -23,3 +35,4 @@ class XbmcRemoteObject(object):
         self.signals = self.application.signals
         self.signal_connect = self.signals.connect
         self.emit = self.signals.emit
+        self.logger = logging.getLogger('xbmcremote')

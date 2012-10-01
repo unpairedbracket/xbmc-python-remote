@@ -19,8 +19,9 @@ Contains Signals, a GObject that contains all of Xbmcremote's GSignals
 '''
 
 from gi.repository import GObject
+import logging
 
-class Signals(GObject.GObject): # pylint: disable=W0232,R0903
+class Signals(GObject.GObject): # pylint: disable=W0232
 
     '''
     Signals contains all of the signals used in the program. It is 
@@ -44,43 +45,56 @@ class Signals(GObject.GObject): # pylint: disable=W0232,R0903
             "xbmc_kill": (GObject.SIGNAL_RUN_FIRST, None, ()),
         }
 
-'''
+    logger = logging.getLogger('xbmcremote_lib')
+
     def do_xbmc_init(self, *data):
-        print "Signal: init", data
+        '''debug logging for xbmc_init signal'''
+        self.logger.debug("Signal: init "+str(data))
 
     def do_xbmc_frontend_init(self, *data):
-        print "Signal: frontend_init", data
+        '''debug logging for xbmc_frontend_init signal'''
+        self.logger.debug("Signal: frontend_init "+str(data))
 
     def do_xbmc_reconnect(self, *data):
-        print "Signal: reconnect", data
+        '''debug logging for xbmc_reconnect signal'''
+        self.logger.debug("Signal: reconnect "+str(data))
 
     def do_xbmc_connected(self, *data):
-        print "Signal: connected", data
+        '''debug logging for xbmc_connected signal'''
+        self.logger.debug("Signal: connected "+str(data))
 
     def do_xbmc_disconnected(self, *data):
-        print "Signal: disconnected", data
+        '''debug logging for xbmc_disconnected signal'''
+        self.logger.debug("Signal: disconnected "+str(data))
 
     def do_xbmc_control(self, *data):
-        print "Signal: control", data
+        '''debug logging for xbmc_control signal'''
+        self.logger.debug("Signal: control "+str(data))
 
     def do_xbmc_send(self, *data):
-        print "Signal: send", data
+        '''debug logging for xbmc_send signal'''
+        self.logger.debug("Signal: send "+str(data))
 
     def do_xbmc_received(self, *data):
-        print "Signal: received", data
+        '''debug logging for xbmc_received signal'''
+        self.logger.debug("Signal: received "+str(data))
 
     def do_xbmc_decoded(self, *data):
-        print "Signal: decoded", data
+        '''debug logging for xbmc_decoded signal'''
+        self.logger.debug("Signal: decoded "+str(data))
 
     def do_xbmc_response(self, *data):
-        print "Signal: response", data
+        '''debug logging for xbmc_response signal'''
+        self.logger.debug("Signal: response "+str(data))
 
     def do_xbmc_paused(self, *data):
-        print "Signal: paused", data
+        '''debug logging for xbmc_paused signal'''
+        self.logger.debug("Signal: paused "+str(data))
 
     def do_xbmc_error(self, *data):
-        print "Signal: error", data
+        '''debug logging for xbmc_error signal'''
+        self.logger.debug("Signal: error "+str(data))
 
     def do_xbmc_kill(self, *data):
-        print "Signal: kill", data
-'''
+        '''debug logging for xbmc_kill signal'''
+        self.logger.debug("Signal: kill "+str(data))

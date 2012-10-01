@@ -14,10 +14,18 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 ### END LICENSE
 
+'''
+Decodes the messages sent by XBMC and extracts the useful information from them
+'''
+
 from json import JSONDecoder
 from xbmcremote_lib.XbmcRemoteObject import XbmcRemoteObject
 
 class Decoder(XbmcRemoteObject):
+    '''
+    Class that picks up messages received by Sender and decodes them, then
+    passes them on to Controller
+    '''
 
     def __init__(self, application):
         XbmcRemoteObject.__init__(self, application)
@@ -27,30 +35,38 @@ class Decoder(XbmcRemoteObject):
     def add(self, signaller, json, data=None):
         js = self.decoder.decode(json)
         self.decode(js)
+    def decode(self, json_object):
+        '''
+        Extract the important information from a list of dictionaries or lists
+        '''
 
-    def decode(self, obj):
-        for i in obj:
-            if isinstance(i, list):
-                self.decode(i)
+        for response in json_object:
+            if isinstance(response, list):
+                # The response could actually be a list of responses
+                print 'recursing'
+                self.decode(response)
             else:
-                #check for a valid response
-                if 'error' in i:
+                # Otherwises the response will be a dictionary.
+                if 'error' in response:
+                    print 'decoded error'
                     kind = 'error'
-                    identifier = i['id']
-                    result = i['error']
-                elif 'result' in i:
+                    identifier = response['id']
+                    result = response['error']
+                elif 'result' in response:
+                    print 'decoded result'
                     kind = 'response'
-                    identifier = i['id']
-                    result = i['result']
-                elif 'method' in i:
-                    if i['method'] == 'Announcement':
+                    identifier = response['id']
+                    result = response['result']
+                elif 'method' in response:
+                    print 'decoded notification'
+                    if response['method'] == 'Announcement':
                         kind = 'announcement'
                         identifier = None
-                        result = i['params']['message']
+                        result = response['params']['message']
                     else:
                         kind = 'notification'
-                        identifier = i['method']
-                        result = i['params']['data']
+                        identifier = response['method']
+                        result = response['params']['data']
                 else:
                     break
 
