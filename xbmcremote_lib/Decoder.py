@@ -33,8 +33,10 @@ class Decoder(XbmcRemoteObject):
         self.signal_connect("xbmc_received", self.add)
 
     def add(self, signaller, json, data=None):
-        js = self.decoder.decode(json)
-        self.decode(js)
+        '''Generate a python object from the json string'''
+        json_object = self.decoder.decode(json)
+        self.decode(json_object)
+
     def decode(self, json_object):
         '''
         Extract the important information from a list of dictionaries or lists
