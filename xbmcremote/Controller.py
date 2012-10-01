@@ -95,7 +95,7 @@ class Controller(XbmcRemoteObject):
                     #This tells us exactly nothing
                     pass
                 elif kind == 'error':
-                    self.handle_error(message)
+                    self._handle_error(message)
                 elif kind == 'response':
                     self._handle_response(data, identifier)
                 elif kind == 'notification':
@@ -142,7 +142,7 @@ class Controller(XbmcRemoteObject):
         self.state['playing'] = True
         self.emit('xbmc_paused', self.state['paused'])
 
-    def handle_error(self, error):
+    def _handle_error(self, error):
         '''Handle any error messages the server sends back'''
         self.emit("xbmc_error", error)
 
