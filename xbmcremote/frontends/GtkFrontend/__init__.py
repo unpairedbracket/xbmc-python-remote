@@ -147,7 +147,7 @@ class GtkFrontend(BaseFrontend):
         message = error['data']['message']
         code = error['data']['code']
         identifier = error['id']
-        if identifier == 'now_playing' and code == -32100:
+        if identifier in ['now_playing','state'] and code == -32100:
             GObject.idle_add(self.window.ui.now_playing_label.set_label,
                              'Not Playing')
         elif self.window.ErrorDialog is not None:
