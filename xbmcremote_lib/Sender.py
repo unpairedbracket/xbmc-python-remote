@@ -1,126 +1,104 @@
-# -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
-### BEGIN LICENSE
-# Copyright (C) 2011 Ben Spiers 
-# This program is free software: you can redistribute it and/or modify it 
-# under the terms of the GNU General Public License version 3, as published 
-# by the Free Software Foundation.
-# 
-# This program is distributed in the hope that it will be useful, but 
-# WITHOUT ANY WARRANTY; without even the implied warranties of 
-# MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR 
-# PURPOSE.  See the GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License along 
-# with this program.  If not, see <http://www.gnu.org/licenses/>.
-### END LICENSE
-
 import socket
-import select
-from Queue import Queue, Empty
-from threading import Thread
+import threading
+import asyncore
+from asynchat import async_chat
+
 from xbmcremote_lib.XbmcRemoteObject import XbmcRemoteObject
 
-class Sender(XbmcRemoteObject):
+class Sender(async_chat, XbmcRemoteObject):
 
     def __init__(self, controller):
         XbmcRemoteObject.__init__(self, controller)
-        self.signal_connect("xbmc_init", self.socket_connect)
-        self.signal_connect("xbmc_reconnect", self.socket_connect)
-        self.signal_connect("xbmc_connected", self.start)
-        self.signal_connect("xbmc_send", self.add)
-        self.signal_connect("xbmc_kill", self.close_socket)
-        self.work = Thread(target=self.worker, name='Network sender thread')
-        self.work.daemon = True
-        self.queue = Queue()
-        self.recv = Thread(target=self.recver, name='Network receiver thread')
-        self.recv.daemon = True
-        self.recv_queue = Queue()
+        async_chat.__init__(self)
+        self.running = False
+        self.set_terminator(None)
+        self.inbuffer = ''
+        self.signal_connect('xbmc_init', self.first_connect)
+        self.signal_connect('xbmc_reconnect', self.reconnect)
+        self.signal_connect('xbmc_connected', self.start)
+        self.signal_connect('xbmc_send', self.add)
+        self.signal_connect('xbmc_kill', self.kill)
+        self.set_up_thread()
 
-    def socket_connect(self, signaller, data=None):
+    def set_up_thread(self):
+        self.thread = threading.Thread(target=self.loop, name='Sender Thread')
+        self.thread.daemon = True
+
+    def collect_incoming_data(self, data):
+        self.logger.debug('collected data')
+        self.inbuffer = self.inbuffer + data
+        if self.inbuffer.count('{') == self.inbuffer.count('}'):
+            self.response =  '[' + self.inbuffer.replace('}\n{',
+                            '},{').replace('}{',
+                            '},{').replace('}[',
+                            '},[').replace(']{',
+                            '],{').replace('][',
+                            '],[') + ']'
+            self.emit('xbmc_received', self.response)
+            self.inbuffer = ''
+
+    def found_terminator(self):
+        pass
+
+    def reconnect(self, signaller, data=None):
         ip = self.state['ip'] = self.settings.get_string('ip-address')
         port = self.state['port'] = int(self.settings.get_string('port'))
+        address = (ip, port)
         connected = self.state['connected']
-        if (not connected) or ((ip, port) != self.__socket.getpeername()):
-        # Either the address has changed or we aren't connected
-            try:
-                # Create a new socket and connect
-                self.__socket = socket.socket(socket.AF_INET,
-                                              socket.SOCK_STREAM)
-                self.__socket.settimeout(1)
-                self.__socket.connect((ip, port))
-            except socket.error:
-                self.state['connected'] = False
-                self.emit('xbmc_disconnected')
-            else:
-                self.state['connected'] = True
-                self.emit('xbmc_connected')
+        self.logger.debug('Currently connected to '+str(self.addr)+', going to connect to '+str(address))
+        self.logger.debug(self.state['connected'])
+        if ((address != self.addr) or (not connected)):
+            self.create_and_connect(address)
+
+    def first_connect(self, signaller, data=None):
+        ip = self.state['ip'] = self.settings.get_string('ip-address')
+        port = self.state['port'] = int(self.settings.get_string('port'))
+        address = (ip, port)
+        self.create_and_connect(address)
+
+    def create_and_connect(self, address):
+        print 'creating socket'
+        self._map.clear()
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(1)
+        print sock
+        try:
+            sock.connect(address)
+        except socket.error:
+            self.emit('xbmc_disconnected')
+            self.state['connected'] = False
         else:
+            self.addr = address
             self.emit('xbmc_connected')
+            self.state['connected'] = True
+            sock.setblocking(0)
+            self.set_socket(sock)
+            self.start(None)
 
-    def close_socket(self, signaller, data=None):
-        self.state['connected'] = False
-        self.emit('xbmc_disconnected')
-        self.__socket.shutdown(socket.SHUT_RDWR)
-        self.__socket.close()
+    def loop(self):
+        self.running = True
+        print 'starting looping'
+        asyncore.loop(5)
+        print 'finished looping'
+        self.running = False
+        self.set_up_thread()            
 
-    def add(self, signaller, json, timeout, data=None):
-        data = {'json': json, 'timeout': timeout}
-        self.queue.put(data)
+    def add(self, signaller, request, data=None):
+        self.logger.debug('pushing'+request)
+        self.push(request)
 
     def start(self, signaller, data=None):
-        if not self.work.is_alive():
-            self.work.start()
-        if not self.recv.is_alive():
-            self.recv.start()
+        if not self.running:
+            self.logger.debug('starting')
+            self.thread.start()
 
-    def worker(self):
-        """sends messages to xbmc"""
-        while True:
-            try:
-                item = self.queue.get()
-                json = item['json']
-                timeout = item['timeout']
-                self.__socket.send(json)
-                self.recv_queue.put(timeout)
-            except Exception as ex:
-                #TODO Do something
-                print 'Sender error: ', ex
+    def handle_connect(self):
+        self.emit('xbmc_connected')
+        self.state['connected'] = True
 
-    def recver(self):
-        """receives messages from xbmc"""
-        while True:
-            if self.state['connected']:
-                try:
-                    try:
-                        timeout = self.recv_queue.get(False)
-                    except Empty:
-                        timeout = 0.1
-                    try:
-                        responses = ''
-                        response = ''
-                        self.__socket.settimeout(timeout)
-                        while True:
-                            response += (self.__socket.recv(0x4000))
-                            if len(select.select([self.__socket], [], [], 0)[0]) == 0:
-                                responses += response
-                                response = ''
-                    except socket.timeout:
-                    #A timeout means there really is nothing left
-                    #so the response is complete
-                        #Just need to 'normalise' the responses
-                        #in case there's more than one in there
-                        if responses != '':
-                            responses = '[' + responses.replace('}\n{',
-                                        '},{').replace('}{',
-                                        '},{').replace('}[',
-                                        '},[').replace(']{',
-                                        '],{').replace('][',
-                                        '],[') + ']'
-                            self.emit("xbmc_received", responses)
-                    except socket.error:
-                        self.state['connected'] = False
-                        self.emit('xbmc_disconnected')
+    def handle_close(self):
+        self.emit('xbmc_disconnected')
+        self.state['connected'] = False
 
-                except Exception as ex:
-                    print 'Reveiver error: ', ex
-
+    def kill(self, signaller, data=None):
+        pass
