@@ -2,20 +2,6 @@
 <interface>
   <!-- interface-requires gtk+ 3.0 -->
   <!-- interface-requires preferences_xbmcremote_dialog 1.0 -->
-  <object class="GtkListStore" id="version_list">
-    <columns>
-      <!-- column-name Name -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0">Eden</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Frodo</col>
-      </row>
-    </data>
-  </object>
   <object class="PreferencesXbmcremoteDialog" id="preferences_xbmcremote_dialog">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -78,7 +64,7 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="n_rows">4</property>
-            <property name="n_columns">2</property>
+            <property name="n_columns">4</property>
             <property name="column_spacing">6</property>
             <property name="row_spacing">6</property>
             <child>
@@ -94,6 +80,7 @@
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
+                <property name="x_options">GTK_FILL</property>
               </packing>
             </child>
             <child>
@@ -105,6 +92,9 @@
                 <property name="use_underline">True</property>
                 <property name="mnemonic_widget">ip_entry</property>
               </object>
+              <packing>
+                <property name="x_options">GTK_FILL</property>
+              </packing>
             </child>
             <child>
               <object class="GtkLabel" id="port">
@@ -118,6 +108,7 @@
               <packing>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
+                <property name="x_options">GTK_FILL</property>
               </packing>
             </child>
             <child>
@@ -136,6 +127,7 @@
                 <property name="right_attach">2</property>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
+                <property name="x_options">GTK_FILL</property>
               </packing>
             </child>
             <child>
@@ -148,6 +140,7 @@
               <packing>
                 <property name="top_attach">2</property>
                 <property name="bottom_attach">3</property>
+                <property name="x_options">GTK_FILL</property>
               </packing>
             </child>
             <child>
@@ -170,6 +163,7 @@
                 <property name="right_attach">2</property>
                 <property name="top_attach">2</property>
                 <property name="bottom_attach">3</property>
+                <property name="x_options">GTK_FILL</property>
               </packing>
             </child>
             <child>
@@ -182,6 +176,7 @@
               <packing>
                 <property name="top_attach">3</property>
                 <property name="bottom_attach">4</property>
+                <property name="x_options">GTK_FILL</property>
               </packing>
             </child>
             <child>
@@ -200,7 +195,70 @@
                 <property name="right_attach">2</property>
                 <property name="top_attach">3</property>
                 <property name="bottom_attach">4</property>
+                <property name="x_options">GTK_FILL</property>
               </packing>
+            </child>
+            <child>
+              <object class="GtkImage" id="host_icon">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="stock">gtk-yes</property>
+              </object>
+              <packing>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
+                <property name="x_options">GTK_FILL</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkImage" id="port_icon">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="stock">gtk-yes</property>
+              </object>
+              <packing>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+                <property name="x_options">GTK_FILL</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkLabel" id="invalid_host_label">
+                <property name="can_focus">False</property>
+                <property name="xalign">0</property>
+                <property name="label" translatable="yes">Invalid host</property>
+              </object>
+              <packing>
+                <property name="left_attach">3</property>
+                <property name="right_attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="invalid_port_label">
+                <property name="can_focus">False</property>
+                <property name="xalign">0</property>
+                <property name="label" translatable="yes">Port must be an integer</property>
+              </object>
+              <packing>
+                <property name="left_attach">3</property>
+                <property name="right_attach">4</property>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
             </child>
           </object>
           <packing>
@@ -215,5 +273,19 @@
       <action-widget response="-11">btn_help</action-widget>
       <action-widget response="-7">btn_close</action-widget>
     </action-widgets>
+  </object>
+  <object class="GtkListStore" id="version_list">
+    <columns>
+      <!-- column-name Name -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0">Eden</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Frodo</col>
+      </row>
+    </data>
   </object>
 </interface>
