@@ -20,40 +20,48 @@ class Sender(async_chat, XbmcRemoteObject):
         self.signal_connect('xbmc_kill', self.kill)
         self.set_up_thread()
 
+    @property
+    def connected(self):
+        return self.state['connected']
+
+    @connected.setter
+    def connected(self, data):
+        self.state['connected'] = data
+
     def set_up_thread(self):
         self.thread = threading.Thread(target=self.loop, name='Sender Thread')
         self.thread.daemon = True
+
+    @staticmethod
+    def tuple_replace(string, old_tuple, new_tuple):
+        for old, new in zip(old_tuple, new_tuple):
+            string = string.replace(old, new)
+        return string
 
     def collect_incoming_data(self, data):
         self.logger.debug('collected data')
         self.inbuffer = self.inbuffer + data
         if self.inbuffer.count('{') == self.inbuffer.count('}'):
-            self.response =  '[' + self.inbuffer.replace('}\n{',
-                            '},{').replace('}{',
-                            '},{').replace('}[',
-                            '},[').replace(']{',
-                            '],{').replace('][',
-                            '],[') + ']'
+            old = ('}\n{', '}{', '][', ']{', '}[')
+            new = ('},{', '},{', '],[', '],{', '},[')
+            self.response = '['+self.tuple_replace(self.inbuffer, old, new)+']'
             self.emit('xbmc_received', self.response)
             self.inbuffer = ''
 
-    def found_terminator(self):
-        pass
+    def get_address(self):
+        self.state['ip'] = self.settings.get_string('ip-address')
+        self.state['port'] = int(self.settings.get_string('port'))
+        return (self.state['ip'], self.state['port'])
 
     def reconnect(self, signaller, data=None):
-        ip = self.state['ip'] = self.settings.get_string('ip-address')
-        port = self.state['port'] = int(self.settings.get_string('port'))
-        address = (ip, port)
-        connected = self.state['connected']
-        if ((address != self.addr) or (not connected)):
+        address = self.get_address()
+        if ((address != self.addr) or (not self.connected)):
             self.create_and_connect(address)
         else:
             self.emit('xbmc_connected')
 
     def first_connect(self, signaller, data=None):
-        ip = self.state['ip'] = self.settings.get_string('ip-address')
-        port = self.state['port'] = int(self.settings.get_string('port'))
-        address = (ip, port)
+        address = self.get_address()
         self.create_and_connect(address)
 
     def create_and_connect(self, address):
@@ -63,26 +71,25 @@ class Sender(async_chat, XbmcRemoteObject):
         try:
             sock.connect(address)
         except socket.error:
+            self.connected = False
             self.emit('xbmc_disconnected')
-            self.state['connected'] = False
         else:
             self.addr = address
             sock.setblocking(0)
             self.set_socket(sock)
             self.start(None)
-            self.state['connected'] = True
+            self.connected = True
             self.emit('xbmc_connected')
 
     def loop(self):
         self.running = True
-        print 'starting looping'
+        self.logger.debug('starting looping')
         asyncore.loop(5)
-        print 'finished looping'
+        self.logger.debug('finished looping')
         self.running = False
         self.set_up_thread()            
 
     def add(self, signaller, request, data=None):
-        self.logger.debug('pushing'+request)
         self.push(request)
 
     def start(self, signaller, data=None):
@@ -92,11 +99,11 @@ class Sender(async_chat, XbmcRemoteObject):
 
     def handle_connect(self):
         self.emit('xbmc_connected')
-        self.state['connected'] = True
+        self.connected = True
 
     def handle_close(self):
         self.emit('xbmc_disconnected')
-        self.state['connected'] = False
+        self.connected = False
 
     def kill(self, signaller, data=None):
         pass
