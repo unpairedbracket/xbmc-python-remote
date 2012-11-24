@@ -39,6 +39,7 @@ class TextFrontend(BaseFrontend):
         self.controls = ['next', 'prev', 'play', 'pause', 'start', 'stop',
                          'artists', 'albums', 'songs', 'state', 'players',
                          'now_playing', 'current_position']
+        self.methods = {'custom': self.echo}
 
     def start_loop(self):
         while True:
@@ -87,7 +88,7 @@ class TextFrontend(BaseFrontend):
         print 'Server error ' + str(code) + ': ' + message
 
     @staticmethod
-    def echo(signaller, message, data=None):
+    def echo(message):
         """Signal handler function wrapper for print statement"""
         print message
 
