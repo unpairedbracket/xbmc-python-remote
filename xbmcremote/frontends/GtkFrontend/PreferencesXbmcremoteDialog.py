@@ -1,6 +1,7 @@
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 ### BEGIN LICENSE
-# Copyright (C) 2011 Ben Spiers 
+# Copyright (C) 2012 Ben Spiers 
+# 
 # This program is free software: you can redistribute it and/or modify it 
 # under the terms of the GNU General Public License version 3, as published 
 # by the Free Software Foundation.
@@ -23,9 +24,11 @@ See http://developer.gnome.org/gio/stable/GSettings.html for more info.
 '''
 
 import logging
-from socket import gethostbyaddr, herror, gaierror
+from socket import gethostbyaddr, herror, gaierror, error
+from multiprocessing import Process, Queue
+from threading import Thread
 
-from gi.repository import Gio, Gtk  # pylint: disable=E0611
+from gi.repository import GObject, Gio, Gtk  # pylint: disable=E0611
 
 from xbmcremote_lib.PreferencesDialog import PreferencesDialog
 
@@ -43,6 +46,13 @@ class PreferencesXbmcremoteDialog(PreferencesDialog): # pylint: disable=W0232
         super(PreferencesXbmcremoteDialog, self).finish_initializing(builder)
 
         # Bind each preference widget to gsettings
+        self.n = 0
+        self.ip_process = None
+        self.destroyed = False
+        self.queue = Queue()
+        self.ip_thread = Thread(target=self.show_valid_ip)
+        self.ip_thread.start()
+        print self.is_active()
         settings = Gio.Settings('net.launchpad.xbmcremote')
         ip_widget = self.builder.get_object('ip_entry')
         port_widget = self.builder.get_object('port_entry')
@@ -57,29 +67,58 @@ class PreferencesXbmcremoteDialog(PreferencesDialog): # pylint: disable=W0232
                       'active', Gio.SettingsBindFlags.DEFAULT)
         settings.bind('mpris2', mpris_widget,
                       'active', Gio.SettingsBindFlags.DEFAULT)
-
         # Code for other initialization actions should be added here.
+
+    def check_ip_address(self, ip):
+            icon = self.ui.host_icon
+            label = self.ui.invalid_host_label
+            try:
+                gethostbyaddr(ip)
+            except (gaierror, herror, error):
+                logger.debug("Can't resolve host")
+                self.queue.put(False)
+            else:
+                logger.debug('Valid host')
+                self.queue.put(True) 
+    
+    def show_valid_ip(self):
+        icon = self.ui.host_icon
+        label = self.ui.invalid_host_label
+        print 'thread start'
+        while not self.destroyed:
+            try:
+                valid = self.queue.get(True, 1)
+            except:
+                print "destroyed", self.destroyed
+                print 'nothing in queue'
+            else:
+                print valid
+                if valid:
+                    GObject.idle_add(label.hide)
+                    GObject.idle_add(icon.set_from_stock, Gtk.STOCK_YES, 4)
+                else:
+                    label.set_text("Can't resolve host")
+                    label.show()
+                    icon.set_from_stock(Gtk.STOCK_NO, 4)
+        print 'thread finished'
+
+    def on_destroy(self, signaller, data=None):
+        self.destroyed = True
+        print 'destroyed'
 
     def on_preferences_changed(self, settings, key, data=None):
         '''Validate a change in preferences'''
         if key == 'ip-address':
-            # Validate IP address
-            try:
-                gethostbyaddr(settings.get_string('ip-address'))
-            except gaierror:
-                logger.debug("Can't resolve host")
-                self.ui.invalid_host_label.set_text("Can't resolve host")
-                self.ui.invalid_host_label.show()
-                self.ui.host_icon.set_from_stock(Gtk.STOCK_NO, 4)
-            except herror:
-                logger.debug('Invalid host')
-                self.ui.invalid_host_label.set_text("Invalid host")
-                self.ui.invalid_host_label.show()
-                self.ui.host_icon.set_from_stock(Gtk.STOCK_NO, 4)
-            else:
-                logger.debug('Valid host')
-                self.ui.invalid_host_label.hide()
-                self.ui.host_icon.set_from_stock(Gtk.STOCK_YES, 4)
+            self.ui.invalid_host_label.show()
+            self.ui.invalid_host_label.set_text('checking process')
+            # Validate IP address. This is long so start another process
+            if self.ip_process is not None and self.ip_process.is_alive():
+                self.ip_process.terminate()
+            self.ip_process = Process(target=self.check_ip_address, args=(settings.get_string('ip-address'),))
+            self.ui.invalid_host_label.set_text('starting process'+str(self.n))
+            self.ip_process.start()
+            self.n += 1
+            self.ui.invalid_host_label.set_text('process started'+str(self.n))
         elif key == 'port':
             # Validate port number
             try:
