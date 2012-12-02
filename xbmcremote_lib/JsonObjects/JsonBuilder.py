@@ -51,7 +51,8 @@ class JsonBuilder(object):
         def method(identifier = 'xbmcremote', **params):
             '''
             This method will act as a replacement for any undefined
-            identifierthat is called
+            identifier that is called. It dynamically creates the method
+            according to the name given.
             '''
             json = self.build_json(method_name, params, identifier)
             return json
