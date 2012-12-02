@@ -13,12 +13,12 @@ class Sender(async_chat, XbmcRemoteObject):
         self.running = False
         self.set_terminator(None)
         self.inbuffer = ''
+        self.set_up_thread()
         self.signal_connect('xbmc_init', self.first_connect)
         self.signal_connect('xbmc_reconnect', self.reconnect)
         self.signal_connect('xbmc_connected', self.start)
         self.signal_connect('xbmc_send', self.add)
         self.signal_connect('xbmc_kill', self.kill)
-        self.set_up_thread()
 
     @property
     def connected(self):
@@ -102,8 +102,9 @@ class Sender(async_chat, XbmcRemoteObject):
         self.connected = True
 
     def handle_close(self):
-        self.emit('xbmc_disconnected')
-        self.connected = False
+        if self.connected:
+            self.emit('xbmc_disconnected')
+            self.close()
 
     def kill(self, signaller, data=None):
         pass

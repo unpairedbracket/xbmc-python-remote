@@ -58,11 +58,11 @@ class JsonRpc(object):
 
     def next(self):
         '''Skip to the next item of the music playlist'''
-        return self.Player.GoNext(playerid=0)
+        return self.Player.GoTo(playerid=0, to='next')
 
     def prev(self):
         '''Skip to the previous item of the music playlist'''
-        return self.Player.GoPrevious(playerid=0)
+        return self.Player.GoTo(playerid=0, to='previous')
 
     def state(self):
         '''Find out the state of the music player'''
@@ -108,7 +108,7 @@ class JsonRpc(object):
     def insert_and_play(self, songid, position=0):
         '''Insert songid into the music playlist at position and play it'''
         insert =  self.insert_song(songid=songid, position=position)
-        play = self.Player.GoTo(playerid=0, position=position)
+        play = self.Player.GoTo(playerid=0, to=position)
         return ''.join(['[', insert, ',', play, ']'])
 
     def queue_song(self, songid):
