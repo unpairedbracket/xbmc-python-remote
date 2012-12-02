@@ -86,21 +86,14 @@ class PreferencesXbmcremoteDialog(PreferencesDialog): # pylint: disable=W0232
         label = self.ui.invalid_host_label
         print 'thread start'
         while not self.destroyed:
-            try:
-                valid = self.queue.get(True, 1)
-            except:
-                print "destroyed", self.destroyed
-                print 'nothing in queue'
+            valid = self.queue.get()
+            if valid:
+                GObject.idle_add(label.hide)
+                GObject.idle_add(icon.set_from_stock, Gtk.STOCK_YES, 4) 
             else:
-                print valid
-                if valid:
-                    GObject.idle_add(label.hide)
-                    GObject.idle_add(icon.set_from_stock, Gtk.STOCK_YES, 4)
-                else:
-                    label.set_text("Can't resolve host")
-                    label.show()
-                    icon.set_from_stock(Gtk.STOCK_NO, 4)
-        print 'thread finished'
+                label.set_text("Can't resolve host")
+                label.show()
+                icon.set_from_stock(Gtk.STOCK_NO, 4)
 
     def on_destroy(self, signaller, data=None):
         self.destroyed = True
@@ -109,16 +102,11 @@ class PreferencesXbmcremoteDialog(PreferencesDialog): # pylint: disable=W0232
     def on_preferences_changed(self, settings, key, data=None):
         '''Validate a change in preferences'''
         if key == 'ip-address':
-            self.ui.invalid_host_label.show()
-            self.ui.invalid_host_label.set_text('checking process')
             # Validate IP address. This is long so start another process
             if self.ip_process is not None and self.ip_process.is_alive():
                 self.ip_process.terminate()
             self.ip_process = Process(target=self.check_ip_address, args=(settings.get_string('ip-address'),))
-            self.ui.invalid_host_label.set_text('starting process'+str(self.n))
             self.ip_process.start()
-            self.n += 1
-            self.ui.invalid_host_label.set_text('process started'+str(self.n))
         elif key == 'port':
             # Validate port number
             try:
