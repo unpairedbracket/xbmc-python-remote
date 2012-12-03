@@ -1,6 +1,7 @@
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 ### BEGIN LICENSE
-# Copyright (C) 2011 Ben Spiers 
+# Copyright (C) 2012 Ben Spiers 
+# 
 # This program is free software: you can redistribute it and/or modify it 
 # under the terms of the GNU General Public License version 3, as published 
 # by the Free Software Foundation.
@@ -19,13 +20,12 @@ See xbmcremote_lib.AboutDialog.py for more details about how this class works.
 '''
 
 import logging
-import gettext
-_ = gettext.gettext
+import locale
 
 from xbmcremote_lib.AboutDialog import AboutDialog
 
 logger = logging.getLogger('xbmcremote')
-gettext.textdomain('xbmcremote')
+locale.textdomain('xbmcremote')
 
 
 class AboutXbmcremoteDialog(AboutDialog): # pylint: disable=R0903,W0232

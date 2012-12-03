@@ -29,7 +29,7 @@
     <property name="can_focus">False</property>
     <property name="stock">gtk-help</property>
   </object>
-  <object class="XbmcremoteWindow" id="remote_window">
+  <object class="XbmcremoteWindow" id="xbmcremote_window">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Remote</property>
     <property name="window_position">center</property>

@@ -1,6 +1,7 @@
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 ### BEGIN LICENSE
-# Copyright (C) 2011 Ben Spiers 
+# Copyright (C) 2012 Ben Spiers 
+# 
 # This program is free software: you can redistribute it and/or modify it 
 # under the terms of the GNU General Public License version 3, as published 
 # by the Free Software Foundation.
@@ -21,9 +22,8 @@ See also: xbmcremote_lib
 
 import optparse
 
-import gettext
-_ = gettext.gettext
-gettext.textdomain('xbmcremote')
+import locale
+locale.textdomain('xbmcremote')
 
 from Application import Application
 from xbmcremote_lib import set_up_logging, get_version
@@ -34,13 +34,13 @@ def parse_options():
     parser = optparse.OptionParser(version='%%prog %s' % get_version())
     parser.add_option(
         '-v', '--verbose', action='count', dest='verbose',
-        help=_('Show debug messages (-vv debugs xbmcremote_lib also)'))
+        help=('Show debug messages (-vv debugs xbmcremote_lib also)'))
     parser.add_option(
         '-t', '--no_gui', action='store_false', dest='gui',
-        help=_('Run in terminal.'))
+        help=('Run in terminal.'))
     parser.add_option(
         '-g', '--gui', action='store_true', dest='gui',
-        help=_('Run with gui. This is the default option'))
+        help=('Run with gui. This is the default option'))
     parser.set_defaults(gui=True)
     options = parser.parse_args()
 
